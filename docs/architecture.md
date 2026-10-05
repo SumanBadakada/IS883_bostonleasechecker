@@ -22,7 +22,7 @@ flowchart TD
 
     SIM --> B
     subgraph LLM1 [Capabilities 1 + 4: leasecheck/analyzer.py + prompts.py + schemas.py]
-      B[Batch of 6 clauses + their passages<br/>versioned prompt v1 / v2] --> G[Gemini, JSON mode<br/>BatchFindings schema]
+      B[Batch of up to 15 clauses + their passages<br/>versioned prompt v1 / v2] --> G[Gemini, JSON mode<br/>BatchFindings schema]
       G --> J{Parses?}
       J -- no --> RETRY[Retry once] --> J2{Parses?}
       J2 -- no --> NC[Clauses marked 'could not be checked']

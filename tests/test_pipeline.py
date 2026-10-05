@@ -134,9 +134,9 @@ def test_analyze_end_to_end():
 
 
 def test_unparseable_output_takes_failure_path():
-    llm = FakeLLM(json_responses=["oops", "still not json", "oops", "nope"])
+    llm = FakeLLM(json_responses=["oops", "still not json"])
     result = analyze(LEASE.encode(), "lease.txt", llm, None)
-    assert result.parse_failures == 2  # 7 clauses = 2 batches, each failed twice
+    assert result.parse_failures == 1  # 7 clauses = 1 batch, which failed, was retried, and failed again
     assert all(r.label == "not_checked" for r in result.clauses)
 
 

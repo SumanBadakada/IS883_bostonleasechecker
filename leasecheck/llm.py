@@ -8,6 +8,7 @@ and (3) tests can swap in a fake with the same four methods.
 """
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -19,6 +20,21 @@ from . import config
 
 class LLMError(Exception):
     """An API failure after retries. The message is safe to show to the user."""
+
+
+REQUEST_TIMEOUT_MS = 90_000  # without a timeout a stuck request leaves the app waiting forever
+MAX_WAIT_SECONDS = 60
+
+
+def retry_delay_seconds(exc: Exception) -> float | None:
+    """The wait Google asks for in a 429 response (RetryInfo retryDelay, e.g. "37s"), if any."""
+    match = re.search(r"retryDelay['\"]?\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)s", str(getattr(exc, "details", "")))
+    return float(match.group(1)) if match else None
+
+
+def is_daily_quota(exc: Exception) -> bool:
+    """A per-day quota will not reset in a minute, so retrying is pointless."""
+    return "PerDay" in str(getattr(exc, "details", ""))
 
 
 @dataclass
@@ -63,11 +79,14 @@ class ToolRunResult:
 class GeminiLLM:
     def __init__(self, api_key: str, model: str = config.MODEL, embed_model: str = config.EMBED_MODEL):
         from google import genai
+        from google.genai import types
 
-        self.client = genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
         self.model = model
         self.embed_model = embed_model
         self.usage = Usage()
+        # Called with a message whenever we pause before a retry, so the UI can say why it is waiting.
+        self.on_wait: Callable[[str], None] = lambda message: None
 
     # ---------- shared plumbing ----------
 
@@ -84,29 +103,38 @@ class GeminiLLM:
         )
 
     def _with_retries(self, fn: Callable[[], Any]) -> Any:
-        """Retry rate limits and server errors with backoff; turn anything else into LLMError."""
+        """Retry rate limits, server errors and timeouts; turn anything else into LLMError."""
+        import httpx
         from google.genai import errors
 
-        delay = 4.0
+        delay = 5.0
         for attempt in range(4):
+            last = attempt == 3
             try:
                 return fn()
             except errors.ClientError as exc:
-                if getattr(exc, "code", None) == 429 and attempt < 3:
-                    time.sleep(delay)
-                    delay *= 2
-                    continue
-                if getattr(exc, "code", None) == 429:
+                if exc.code != 429:
+                    raise LLMError(f"The model request was rejected ({exc.code} {exc.status}).") from exc
+                if is_daily_quota(exc):
+                    raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
+                if last:
                     raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again.") from exc
-                raise LLMError(f"The model request was rejected ({getattr(exc, 'code', 'error')}).") from exc
+                wait = min(retry_delay_seconds(exc) or delay, MAX_WAIT_SECONDS)
+                self.on_wait(f"Free-tier rate limit reached, waiting {wait:.0f} seconds before continuing...")
             except errors.ServerError as exc:
-                if attempt < 3:
-                    time.sleep(delay)
-                    delay *= 2
-                    continue
-                raise LLMError("The model service is having problems right now. Please try again shortly.") from exc
+                if last:
+                    raise LLMError("The model service is having problems right now. Please try again shortly.") from exc
+                wait = delay
+                self.on_wait(f"The model service is busy, retrying in {wait:.0f} seconds...")
+            except httpx.TimeoutException as exc:
+                if attempt >= 1:
+                    raise LLMError("The model took too long to respond. Please try again.") from exc
+                wait = 1.0
+                self.on_wait("The model is slow to respond, retrying...")
             except Exception as exc:  # network failures and the like
                 raise LLMError("Could not reach the model service. Please try again.") from exc
+            time.sleep(wait)
+            delay *= 2
 
     # ---------- the four operations the app uses ----------
 
