@@ -9,15 +9,15 @@ EMBED_MODEL = "gemini-embedding-001"
 # every time; a fixed seed makes eval runs repeatable.
 TEMPERATURE = 0.1
 SEED = 883
-MAX_OUTPUT_TOKENS = 4096
+MAX_OUTPUT_TOKENS = 8192
 
 # How many clauses go into one classification request. Bigger batches use fewer free-tier
-# requests; smaller batches give the model less to keep track of.
-CLAUSES_PER_BATCH = 6
+# requests (a typical lease is then one request); smaller batches give the model less to keep track of.
+CLAUSES_PER_BATCH = 15
 
 # Retrieval: how many source chunks to fetch per clause, and the cap per batch prompt.
 TOP_K_PER_CLAUSE = 3
-MAX_CHUNKS_PER_BATCH = 10
+MAX_CHUNKS_PER_BATCH = 16
 
 # Input limits (public app, free tier).
 MAX_FILE_MB = 5

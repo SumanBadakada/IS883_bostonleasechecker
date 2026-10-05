@@ -92,12 +92,18 @@ if run and uploaded is not None:
         st.error("You have used all the lease checks for this session. Please come back later.")
     else:
         st.session_state.analyses_used += 1  # count attempts, so retries cannot bypass the cap
+        bar = st.progress(0.0, text="Reading your lease")
+        notice = st.empty()  # shows why we are waiting when the free tier asks us to slow down
+        llm.on_wait = lambda message: notice.info(message)
+
+        def show_progress(message: str, fraction: float) -> None:
+            notice.empty()
+            bar.progress(min(fraction, 1.0), text=message)
+
         try:
             index = get_index(api_key) if use_retrieval else None
-            bar = st.progress(0.0, text="Reading your lease")
             result = analyze(uploaded.getvalue(), uploaded.name, llm, index, prompt_version=version,
-                             progress=lambda msg, frac: bar.progress(min(frac, 1.0), text=msg))
-            bar.empty()
+                             progress=show_progress)
             st.session_state.result = result
             st.session_state.filename = uploaded.name
             st.session_state.chat = []
@@ -108,6 +114,10 @@ if run and uploaded is not None:
             st.error(f"Sorry, the check could not finish. {exc}")
         except FileNotFoundError:
             st.error("The app's legal sources are missing. Please tell the team.")
+        finally:
+            bar.empty()
+            notice.empty()
+            llm.on_wait = lambda message: None
 
 
 # ---------- results ----------
