@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Boston Lease Checker: consented real leases never go in the repo (proposal §3)
+eval/test_set/private/
