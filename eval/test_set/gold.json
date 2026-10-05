@@ -1,0 +1,2091 @@
+{
+  "created": "2026-10-05",
+  "note": "Expected results written before any run. Do not edit after running the app on these files.",
+  "inputs": [
+    {
+      "file": "lease_01.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 12 Commonwealth Ave, Apt 3, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $3,400 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_ok",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $3,400, last month's rent of $3,400, and a security deposit of $3,400.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "smoking",
+          "text": "SMOKING. Smoking of any substance is not permitted anywhere in the apartment or the building.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "repairs_ok",
+          "text": "LANDLORD'S REPAIRS. Landlord shall keep the building and the apartment's heating, plumbing and electrical systems in good repair as required by the State Sanitary Code.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "noise",
+          "text": "NOISE. Tenant shall not make or allow noise that disturbs other residents, especially between 10 p.m. and 7 a.m.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 3400,
+        "security_deposit": 3400,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_02.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Fenway Residential LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 45 Gardner St, Unit 2, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,000 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_deposit_high",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,000 and a security deposit of $3,000.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "electric",
+          "text": "UTILITIES. Tenant shall pay for electricity, which is separately metered for the apartment and billed in Tenant's name. Landlord shall provide heat and hot water.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "pests",
+          "text": "PEST CONTROL. Tenant shall pay for all extermination and pest control, whatever the cause of the infestation.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2000,
+        "security_deposit": 3000,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_03.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 200 Bay State Rd, Apt 5B, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,800 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_pet_fee",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,800, a security deposit of $2,800, and a non-refundable pet fee of $300.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "pets_consent",
+          "text": "PETS. No pets are allowed in the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "repairs_ok",
+          "text": "LANDLORD'S REPAIRS. Landlord shall keep the building and the apartment's heating, plumbing and electrical systems in good repair as required by the State Sanitary Code.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "no_report",
+          "text": "COMPLAINTS. Tenant agrees not to report conditions in the apartment to the Boston Inspectional Services Department or any other agency.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "cmr-3.17-5",
+            "ag-retaliation",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "no_interest",
+          "text": "INTEREST. Tenant agrees that no interest will be paid on the security deposit or on last month's rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-3b",
+            "c186-15B-2a",
+            "c186-15B-8"
+          ]
+        },
+        {
+          "key": "noise",
+          "text": "NOISE. Tenant shall not make or allow noise that disturbs other residents, especially between 10 p.m. and 7 a.m.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "carpet",
+          "text": "CARPETS. Tenant shall have all carpets professionally cleaned at the end of the tenancy and give Landlord the receipt.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "water",
+          "text": "WATER. Tenant shall pay a flat water and sewer charge of $60 per month in addition to rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities"
+          ]
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2800,
+        "security_deposit": 2800,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_04.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Fenway Residential LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 8 Linden St, Apt 1, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,700 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_app_fee",
+          "text": "PAYMENTS AT SIGNING. Tenant shall pay an application fee of $50 and a move-in fee of $250, together with first month's rent of $2,700 and last month's rent of $2,700.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "all_repairs",
+          "text": "CONDITION AND REPAIRS. Tenant accepts the apartment as is and shall be responsible for all repairs, including the heating, plumbing and electrical systems.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "cleaning_keep",
+          "text": "CLEANING. $300 of the security deposit is a non-refundable cleaning fee that Landlord will keep at the end of the tenancy regardless of the apartment's condition.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-4",
+            "c186-15B-8",
+            "c186-15B-1b"
+          ]
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "guests",
+          "text": "GUESTS. Tenant may not have overnight guests for more than three nights in any month without Landlord's written permission.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "moveout_notice",
+          "text": "NOTICE OF MOVE-OUT. Tenant must give Landlord 60 days' written notice before moving out at the end of the lease term.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "trash",
+          "text": "CLEANLINESS. Tenant shall keep the apartment clean and sanitary and shall put all trash and recycling in the containers provided.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lock_out",
+          "text": "NON-PAYMENT. If Tenant fails to pay rent, Landlord may change the locks and remove Tenant's belongings without going to court.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-eviction",
+            "cmr-3.17-5"
+          ]
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2700,
+        "security_deposit": 0,
+        "problems_found": 2
+      }
+    },
+    {
+      "file": "lease_05.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 77 Brighton Ave, Unit 4, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $3,150 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_pet_deposit",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $3,150, a security deposit of $3,150, and a refundable pet deposit of $500.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "cleaning_keep",
+          "text": "CLEANING. $300 of the security deposit is a non-refundable cleaning fee that Landlord will keep at the end of the tenancy regardless of the apartment's condition.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-4",
+            "c186-15B-8",
+            "c186-15B-1b"
+          ]
+        },
+        {
+          "key": "electric",
+          "text": "UTILITIES. Tenant shall pay for electricity, which is separately metered for the apartment and billed in Tenant's name. Landlord shall provide heat and hot water.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "nails",
+          "text": "WALLS. Tenant shall not hang pictures or use nails, screws or adhesive hooks on any wall.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "returned_check",
+          "text": "RETURNED PAYMENTS. A rent check returned unpaid by the bank will incur a $40 returned-check fee.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "return_ok",
+          "text": "RETURN OF DEPOSIT. Landlord shall return the security deposit, with interest, within thirty days after the tenancy ends, less only the deductions allowed by law, itemized as the law requires.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 3150,
+        "security_deposit": 3150,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_06.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 31 Park Dr, Apt 12, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $1,900 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_lock",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $1,900, last month's rent of $1,900, a security deposit of $1,900, and $85 for the purchase and installation of a new lock and key.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "noise",
+          "text": "NOISE. Tenant shall not make or allow noise that disturbs other residents, especially between 10 p.m. and 7 a.m.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "water",
+          "text": "WATER. Tenant shall pay a flat water and sewer charge of $60 per month in addition to rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities"
+          ]
+        },
+        {
+          "key": "pets_consent",
+          "text": "PETS. No pets are allowed in the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "nails",
+          "text": "WALLS. Tenant shall not hang pictures or use nails, screws or adhesive hooks on any wall.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_any",
+          "text": "ACCESS. Landlord and Landlord's agents may enter the apartment at any time, with or without notice, for any purpose.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1a"
+          ]
+        }
+      ],
+      "charges": {
+        "monthly_rent": 1900,
+        "security_deposit": 1900,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_07.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 150 Harvard Ave, Unit 6, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $3,100 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_broker",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $3,100, a security deposit of $3,100, and a broker fee of $3,100 to Back Bay Realty, the leasing agent Landlord hired to list the apartment.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-broker-fees"
+          ]
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "liability",
+          "text": "LIABILITY. Landlord shall not be liable for any injury to Tenant or damage to Tenant's property, even if caused by Landlord's negligence.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-liability",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "electric",
+          "text": "UTILITIES. Tenant shall pay for electricity, which is separately metered for the apartment and billed in Tenant's name. Landlord shall provide heat and hot water.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "all_repairs",
+          "text": "CONDITION AND REPAIRS. Tenant accepts the apartment as is and shall be responsible for all repairs, including the heating, plumbing and electrical systems.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 3100,
+        "security_deposit": 3100,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_08.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 9 Egmont St, Apt 2R, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $1,850 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_last_high",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $1,850 and last month's rent of $2,050, because rent may rise next year.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "water",
+          "text": "WATER. Tenant shall pay a flat water and sewer charge of $60 per month in addition to rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities"
+          ]
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 1850,
+        "security_deposit": 0,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_09.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Charles River Holdings LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 64 Strathmore Rd, Unit 3, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,950 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_ok",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,950, last month's rent of $2,950, and a security deposit of $2,950.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "guests",
+          "text": "GUESTS. Tenant may not have overnight guests for more than three nights in any month without Landlord's written permission.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "moveout_notice",
+          "text": "NOTICE OF MOVE-OUT. Tenant must give Landlord 60 days' written notice before moving out at the end of the lease term.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "pests",
+          "text": "PEST CONTROL. Tenant shall pay for all extermination and pest control, whatever the cause of the infestation.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "occupancy",
+          "text": "OCCUPANCY. No more than two persons shall live in the apartment.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2950,
+        "security_deposit": 2950,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_10.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 18 Mission Hill Ave, Apt 1, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,600 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_deposit_high",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,600 and a security deposit of $3,900.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "moveout_notice",
+          "text": "NOTICE OF MOVE-OUT. Tenant must give Landlord 60 days' written notice before moving out at the end of the lease term.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "water",
+          "text": "WATER. Tenant shall pay a flat water and sewer charge of $60 per month in addition to rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities"
+          ]
+        },
+        {
+          "key": "repairs_ok",
+          "text": "LANDLORD'S REPAIRS. Landlord shall keep the building and the apartment's heating, plumbing and electrical systems in good repair as required by the State Sanitary Code.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "children",
+          "text": "CHILDREN. Tenant certifies that no child under six will live in the apartment, and agrees that this lease ends if one does.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-lead",
+            "ag-discrimination"
+          ]
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "return_ok",
+          "text": "RETURN OF DEPOSIT. Landlord shall return the security deposit, with interest, within thirty days after the tenancy ends, less only the deductions allowed by law, itemized as the law requires.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2600,
+        "security_deposit": 3900,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_11.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Charles River Holdings LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 12 Commonwealth Ave, Apt 3, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $3,200 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_pet_fee",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $3,200, a security deposit of $3,200, and a non-refundable pet fee of $300.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lockout_fee",
+          "text": "LOCKOUTS. Tenant shall pay $75 each time Landlord or its agent is called to let Tenant into the apartment after business hours.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "heat",
+          "text": "HEATING SEASON. Landlord is not required to provide heat before November 1 or after April 1.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities",
+            "ag-repairs",
+            "cmr-3.17-1"
+          ]
+        },
+        {
+          "key": "noise",
+          "text": "NOISE. Tenant shall not make or allow noise that disturbs other residents, especially between 10 p.m. and 7 a.m.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "children",
+          "text": "CHILDREN. Tenant certifies that no child under six will live in the apartment, and agrees that this lease ends if one does.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-lead",
+            "ag-discrimination"
+          ]
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "no_report",
+          "text": "COMPLAINTS. Tenant agrees not to report conditions in the apartment to the Boston Inspectional Services Department or any other agency.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "cmr-3.17-5",
+            "ag-retaliation",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "occupancy",
+          "text": "OCCUPANCY. No more than two persons shall live in the apartment.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 3200,
+        "security_deposit": 3200,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_12.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Charles River Holdings LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 45 Gardner St, Unit 2, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,150 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_app_fee",
+          "text": "PAYMENTS AT SIGNING. Tenant shall pay an application fee of $50 and a move-in fee of $250, together with first month's rent of $2,150 and last month's rent of $2,150.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "smoking",
+          "text": "SMOKING. Smoking of any substance is not permitted anywhere in the apartment or the building.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "trash",
+          "text": "CLEANLINESS. Tenant shall keep the apartment clean and sanitary and shall put all trash and recycling in the containers provided.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "ac",
+          "text": "AIR CONDITIONING. Tenant shall not install a window air-conditioning unit.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "all_repairs",
+          "text": "CONDITION AND REPAIRS. Tenant accepts the apartment as is and shall be responsible for all repairs, including the heating, plumbing and electrical systems.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2150,
+        "security_deposit": 0,
+        "problems_found": 2
+      }
+    },
+    {
+      "file": "lease_13.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Allston Realty Trust (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 200 Bay State Rd, Apt 5B, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,600 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_pet_deposit",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,600, a security deposit of $2,600, and a refundable pet deposit of $500.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "account_ok",
+          "text": "DEPOSIT ACCOUNT. The security deposit will be held in a separate interest-bearing account at a Massachusetts bank, and Tenant will receive a receipt naming the bank, its address and the account number within thirty days.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "ac",
+          "text": "AIR CONDITIONING. Tenant shall not install a window air-conditioning unit.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "use",
+          "text": "USE OF PREMISES. The premises shall be used only as a private residence for the persons named in this lease.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_any",
+          "text": "ACCESS. Landlord and Landlord's agents may enter the apartment at any time, with or without notice, for any purpose.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1a"
+          ]
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "occupancy",
+          "text": "OCCUPANCY. No more than two persons shall live in the apartment.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "smoking",
+          "text": "SMOKING. Smoking of any substance is not permitted anywhere in the apartment or the building.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "children",
+          "text": "CHILDREN. Tenant certifies that no child under six will live in the apartment, and agrees that this lease ends if one does.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-lead",
+            "ag-discrimination"
+          ]
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2600,
+        "security_deposit": 2600,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_14.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 8 Linden St, Apt 1, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,300 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_lock",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,300, last month's rent of $2,300, a security deposit of $2,300, and $85 for the purchase and installation of a new lock and key.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "return_ok",
+          "text": "RETURN OF DEPOSIT. Landlord shall return the security deposit, with interest, within thirty days after the tenancy ends, less only the deductions allowed by law, itemized as the law requires.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "trash",
+          "text": "CLEANLINESS. Tenant shall keep the apartment clean and sanitary and shall put all trash and recycling in the containers provided.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "pests",
+          "text": "PEST CONTROL. Tenant shall pay for all extermination and pest control, whatever the cause of the infestation.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2300,
+        "security_deposit": 2300,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_15.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Charles River Holdings LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 77 Brighton Ave, Unit 4, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $3,300 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_broker",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $3,300, a security deposit of $3,300, and a broker fee of $3,300 to Back Bay Realty, the leasing agent Landlord hired to list the apartment.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-broker-fees"
+          ]
+        },
+        {
+          "key": "occupancy",
+          "text": "OCCUPANCY. No more than two persons shall live in the apartment.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "returned_check",
+          "text": "RETURNED PAYMENTS. A rent check returned unpaid by the bank will incur a $40 returned-check fee.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "cleaning_keep",
+          "text": "CLEANING. $300 of the security deposit is a non-refundable cleaning fee that Landlord will keep at the end of the tenancy regardless of the apartment's condition.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-4",
+            "c186-15B-8",
+            "c186-15B-1b"
+          ]
+        },
+        {
+          "key": "pets_consent",
+          "text": "PETS. No pets are allowed in the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lockout_fee",
+          "text": "LOCKOUTS. Tenant shall pay $75 each time Landlord or its agent is called to let Tenant into the apartment after business hours.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 3300,
+        "security_deposit": 3300,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_16.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Fenway Residential LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 31 Park Dr, Apt 12, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $1,650 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_last_high",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $1,650 and last month's rent of $1,850, because rent may rise next year.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "nails",
+          "text": "WALLS. Tenant shall not hang pictures or use nails, screws or adhesive hooks on any wall.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "lockout_fee",
+          "text": "LOCKOUTS. Tenant shall pay $75 each time Landlord or its agent is called to let Tenant into the apartment after business hours.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "no_interest",
+          "text": "INTEREST. Tenant agrees that no interest will be paid on the security deposit or on last month's rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-3b",
+            "c186-15B-2a",
+            "c186-15B-8"
+          ]
+        },
+        {
+          "key": "noise",
+          "text": "NOISE. Tenant shall not make or allow noise that disturbs other residents, especially between 10 p.m. and 7 a.m.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "smoking",
+          "text": "SMOKING. Smoking of any substance is not permitted anywhere in the apartment or the building.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "contact",
+          "text": "NOTICES. Repair requests and notices to Landlord shall be sent to Beacon Property Management, 100 Main Street, Boston, MA 02108, telephone (617) 555-0100, which manages the building for the owner.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "keys",
+          "text": "KEYS. At the end of the tenancy Tenant shall return all keys to Landlord.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 1650,
+        "security_deposit": 0,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_17.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Allston Realty Trust (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 150 Harvard Ave, Unit 6, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $1,850 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_ok",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $1,850, last month's rent of $1,850, and a security deposit of $1,850.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "laundry",
+          "text": "LAUNDRY. Coin-operated washers and dryers are available in the basement for the use of all tenants.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "return_ok",
+          "text": "RETURN OF DEPOSIT. Landlord shall return the security deposit, with interest, within thirty days after the tenancy ends, less only the deductions allowed by law, itemized as the law requires.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "returned_check",
+          "text": "RETURNED PAYMENTS. A rent check returned unpaid by the bank will incur a $40 returned-check fee.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "pests",
+          "text": "PEST CONTROL. Tenant shall pay for all extermination and pest control, whatever the cause of the infestation.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "trash",
+          "text": "CLEANLINESS. Tenant shall keep the apartment clean and sanitary and shall put all trash and recycling in the containers provided.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "auto_renew",
+          "text": "RENEWAL. This lease renews automatically for another twelve months unless Tenant gives written notice at least 90 days before it ends.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "insurance",
+          "text": "RENTER'S INSURANCE. Tenant shall maintain renter's insurance covering Tenant's personal property throughout the tenancy.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 1850,
+        "security_deposit": 1850,
+        "problems_found": 0
+      }
+    },
+    {
+      "file": "lease_18.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Charles River Holdings LLC (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 9 Egmont St, Apt 2R, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,850 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_deposit_high",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $2,850 and a security deposit of $4,275.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "repairs_ok",
+          "text": "LANDLORD'S REPAIRS. Landlord shall keep the building and the apartment's heating, plumbing and electrical systems in good repair as required by the State Sanitary Code.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "pets_consent",
+          "text": "PETS. No pets are allowed in the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "no_report",
+          "text": "COMPLAINTS. Tenant agrees not to report conditions in the apartment to the Boston Inspectional Services Department or any other agency.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "cmr-3.17-5",
+            "ag-retaliation",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "use",
+          "text": "USE OF PREMISES. The premises shall be used only as a private residence for the persons named in this lease.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "no_interest",
+          "text": "INTEREST. Tenant agrees that no interest will be paid on the security deposit or on last month's rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-3b",
+            "c186-15B-2a",
+            "c186-15B-8"
+          ]
+        },
+        {
+          "key": "late_fee",
+          "text": "LATE PAYMENT. If rent is not received by the 5th day of the month, Tenant shall pay a late charge of $50, plus $10 for each additional day.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1c"
+          ]
+        },
+        {
+          "key": "ac",
+          "text": "AIR CONDITIONING. Tenant shall not install a window air-conditioning unit.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "returned_check",
+          "text": "RETURNED PAYMENTS. A rent check returned unpaid by the bank will incur a $40 returned-check fee.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2850,
+        "security_deposit": 4275,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_19.docx",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 64 Strathmore Rd, Unit 3, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $1,650 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_pet_fee",
+          "text": "PAYMENTS AT SIGNING. At signing Tenant shall pay first month's rent of $1,650, a security deposit of $1,650, and a non-refundable pet fee of $300.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "parking",
+          "text": "PARKING. One parking space is included with the apartment. Tenant shall not park in spaces assigned to other units.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "pets_consent",
+          "text": "PETS. No pets are allowed in the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "alter",
+          "text": "ALTERATIONS. Tenant shall not paint, install fixtures or make alterations to the apartment without Landlord's written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "entry_ok",
+          "text": "ACCESS. Landlord may enter the apartment at reasonable times, with 24 hours' notice except in an emergency, to inspect it, make repairs, or show it to prospective tenants or buyers.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "electric",
+          "text": "UTILITIES. Tenant shall pay for electricity, which is separately metered for the apartment and billed in Tenant's name. Landlord shall provide heat and hot water.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "lockout_fee",
+          "text": "LOCKOUTS. Tenant shall pay $75 each time Landlord or its agent is called to let Tenant into the apartment after business hours.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "lock_out",
+          "text": "NON-PAYMENT. If Tenant fails to pay rent, Landlord may change the locks and remove Tenant's belongings without going to court.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-eviction",
+            "cmr-3.17-5"
+          ]
+        },
+        {
+          "key": "ac",
+          "text": "AIR CONDITIONING. Tenant shall not install a window air-conditioning unit.",
+          "label": "unusual",
+          "cite": []
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "repairs_ok",
+          "text": "LANDLORD'S REPAIRS. Landlord shall keep the building and the apartment's heating, plumbing and electrical systems in good repair as required by the State Sanitary Code.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 1650,
+        "security_deposit": 1650,
+        "problems_found": 1
+      }
+    },
+    {
+      "file": "lease_20.pdf",
+      "kind": "lease",
+      "expect": "analyzed",
+      "clauses": [
+        {
+          "text": "RESIDENTIAL LEASE AGREEMENT\nThis Residential Lease is made between Kenmore Properties Inc. (\"Landlord\") and the student named below (\"Tenant\") for the apartment at 18 Mission Hill Ave, Apt 1, Boston, Massachusetts (the \"premises\").",
+          "label": "lawful",
+          "cite": [],
+          "key": "preamble"
+        },
+        {
+          "key": "term",
+          "text": "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "rent",
+          "text": "RENT. Tenant shall pay rent of $2,250 per month, due on the first day of each month.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "m_app_fee",
+          "text": "PAYMENTS AT SIGNING. Tenant shall pay an application fee of $50 and a move-in fee of $250, together with first month's rent of $2,250 and last month's rent of $2,250.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-1b",
+            "ag-move-in-costs"
+          ]
+        },
+        {
+          "key": "pests",
+          "text": "PEST CONTROL. Tenant shall pay for all extermination and pest control, whatever the cause of the infestation.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-repairs",
+            "cmr-3.17-1",
+            "cmr-3.17-3a"
+          ]
+        },
+        {
+          "key": "forfeit",
+          "text": "EARLY TERMINATION. If Tenant moves out before the end of the term for any reason, the entire security deposit is forfeited as liquidated damages.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "c186-15B-4",
+            "c186-15B-8"
+          ]
+        },
+        {
+          "key": "return_ok",
+          "text": "RETURN OF DEPOSIT. Landlord shall return the security deposit, with interest, within thirty days after the tenancy ends, less only the deductions allowed by law, itemized as the law requires.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "use",
+          "text": "USE OF PREMISES. The premises shall be used only as a private residence for the persons named in this lease.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "sublet",
+          "text": "ASSIGNMENT AND SUBLETTING. Tenant shall not assign this lease or sublet the apartment without Landlord's prior written consent.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "water",
+          "text": "WATER. Tenant shall pay a flat water and sewer charge of $60 per month in addition to rent.",
+          "label": "possibly_unlawful",
+          "cite": [
+            "ag-heat-utilities"
+          ]
+        },
+        {
+          "key": "lead_ok",
+          "text": "LEAD PAINT. The building was built before 1978. Before signing, Landlord gave Tenant the Tenant Lead Law Notification and the Tenant Certification form.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "smoking",
+          "text": "SMOKING. Smoking of any substance is not permitted anywhere in the apartment or the building.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "damage",
+          "text": "DAMAGE. Tenant shall pay the reasonable cost of repairing damage caused by Tenant or Tenant's guests, other than normal wear and tear.",
+          "label": "lawful",
+          "cite": []
+        },
+        {
+          "key": "condition_ok",
+          "text": "STATEMENT OF CONDITION. Landlord will give Tenant a written statement of the apartment's condition within ten days after the tenancy begins.",
+          "label": "lawful",
+          "cite": []
+        }
+      ],
+      "charges": {
+        "monthly_rent": 2250,
+        "security_deposit": 0,
+        "problems_found": 2
+      }
+    },
+    {
+      "file": "awkward_scanned.pdf",
+      "kind": "awkward",
+      "expect": "rejected:scanned"
+    },
+    {
+      "file": "awkward_not_a_lease.docx",
+      "kind": "awkward",
+      "expect": "rejected:not_a_lease"
+    },
+    {
+      "file": "awkward_empty.docx",
+      "kind": "awkward",
+      "expect": "rejected:empty"
+    }
+  ]
+}
