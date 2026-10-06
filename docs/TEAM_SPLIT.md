@@ -10,7 +10,7 @@ This is a starting suggestion; agree on it as a team and mirror it on the projec
 
 | Area | Files | Capability | Suggested owner | Work still to do |
 | --- | --- | --- | --- | --- |
-| App, deployment, usage cap, secrets | `app.py`, `.streamlit/`, `requirements.txt` | baseline | Suman | Deploy to Streamlit Cloud with the key in Secrets; cold-start test in a private window; UI polish |
+| App, deployment, usage cap, secrets, UI | `app.py`, `.streamlit/`, `requirements.txt`, `leasecheck/report.py`, `samples/` | baseline | Suman | Deploy to Streamlit Cloud with the key in Secrets; cold-start test in a private window; UI polish |
 | Upload and clause splitting | `leasecheck/parsing.py` | (code, not LLM) | Suman | Test on real lease formats (landlord templates, Greater Boston REALTORS form); tune the splitter |
 | Legal sources and retrieval | `sources/`, `leasecheck/retrieval.py`, `scripts/fetch_sources.py` | 3 | Erdan | **Replace the paraphrased notes with verified official text**; test chunk sizes; commit `sources/index.npz` |
 | Prompts and structured output | `leasecheck/prompts.py`, `leasecheck/schemas.py`, `leasecheck/analyzer.py` | 1, 4 | Janice | Iterate prompt versions against the eval; batch size; label calibration |

@@ -25,8 +25,16 @@ class InputRejected(Exception):
 
 @dataclass
 class Clause:
-    clause_id: int
+    clause_id: int  # our own position counter, used to match the model's answers to clauses
     text: str
+
+    @property
+    def display_name(self) -> str:
+        """What the tenant sees: the lease's own number ("Clause 3") when it has one."""
+        match = re.match(r"\s*(?:section|article|clause|§)?\s*(\d{1,2}(?:\.\d{1,2})*)\s*[.):\-]\s", self.text, re.IGNORECASE)
+        if match:
+            return f"Clause {match.group(1)}"
+        return "Opening section" if self.clause_id == 1 else f"Part {self.clause_id}"
 
 
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
