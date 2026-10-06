@@ -12,6 +12,7 @@ from leasecheck.llm import GeminiLLM, LLMError
 from leasecheck.parsing import InputRejected
 from leasecheck.report import (DISCLAIMER, HELP_RESOURCES, LABEL_NAMES, SEVERITY, html_report, next_steps,
                                overall_verdict)
+from leasecheck.art import ART_CSS, compact_skyline_svg, hero_skyline_svg, scanning_house_html
 from leasecheck.retrieval import SourceIndex, format_passages
 
 st.set_page_config(page_title="Boston Lease Checker", page_icon="🏠", layout="wide",
@@ -107,6 +108,7 @@ footer { visibility: hidden; }
 .stTabs [data-baseweb="tab"] { font-weight: 600; }
 </style>
 """, unsafe_allow_html=True)
+st.markdown(f"<style>{ART_CSS}</style>", unsafe_allow_html=True)
 
 
 def html(markup: str) -> None:
@@ -190,22 +192,18 @@ with st.sidebar:
 # ---------- header ----------
 
 if st.session_state.result is None:
-    html("""
-<div class="blc-hero">
-  <h1>Boston Lease Checker</h1>
-  <p>Signing your first Greater Boston lease? Upload it and see which clauses may break Massachusetts tenant law,
-     with the law they may break, before you sign.</p>
-  <div class="blc-badges">
-    <span class="blc-badge">⚖️ Massachusetts tenant law</span>
-    <span class="blc-badge">📑 Clause-by-clause review</span>
-    <span class="blc-badge">💵 Move-in charge check</span>
-    <span class="blc-badge">🔗 Every flag cites its source</span>
-  </div>
-</div>
-""")
+    html('<div class="blc-hero"><div class="blc-hero-text"><h1>Boston Lease Checker</h1>'
+         '<p>Signing your first Greater Boston lease? Upload it and see which clauses may break Massachusetts '
+         'tenant law, with the law they may break, before you sign.</p><div class="blc-badges">'
+         '<span class="blc-badge">⚖️ Massachusetts tenant law</span>'
+         '<span class="blc-badge">📑 Clause-by-clause review</span>'
+         '<span class="blc-badge">💵 Move-in charge check</span>'
+         '<span class="blc-badge">🔗 Every flag cites its source</span></div></div>'
+         f'<div class="blc-hero-art">{hero_skyline_svg()}</div></div>')
 else:
-    html('<div class="blc-hero compact"><h1>Boston Lease Checker</h1>'
-         '<p>Your lease review. Not legal advice.</p></div>')
+    html('<div class="blc-hero compact"><div class="blc-hero-text"><h1>Boston Lease Checker</h1>'
+         '<p>Your lease review. Not legal advice.</p></div>'
+         f'<div class="blc-hero-art">{compact_skyline_svg()}</div></div>')
 
 if not api_key:
     st.error("The app is not configured: GEMINI_API_KEY is missing from Streamlit secrets.")
@@ -219,6 +217,8 @@ def run_check(data: bytes, filename: str) -> None:
         st.error("You have used all the lease checks for this session. Please come back later.")
         return
     st.session_state.analyses_used += 1  # count attempts, so retries cannot bypass the cap
+    loader = st.empty()
+    loader.markdown(scanning_house_html("Reviewing your lease"), unsafe_allow_html=True)
     bar = st.progress(0.0, text="Reading your lease")
     notice = st.empty()  # explains any wait the free tier forces on us
     llm.on_wait = lambda message: notice.info(message, icon="⏳")
@@ -239,6 +239,7 @@ def run_check(data: bytes, filename: str) -> None:
     except FileNotFoundError:
         st.error("The app's legal sources are missing. Please tell the team.")
     finally:
+        loader.empty()
         bar.empty()
         notice.empty()
         llm.on_wait = lambda message: None
