@@ -13,7 +13,7 @@ MAX_OUTPUT_TOKENS = 8192
 
 # How many clauses go into one classification request. Bigger batches use fewer free-tier
 # requests (a typical lease is then one request); smaller batches give the model less to keep track of.
-CLAUSES_PER_BATCH = 15
+CLAUSES_PER_BATCH = 20
 
 # Retrieval: how many source chunks to fetch per clause, and the cap per batch prompt.
 TOP_K_PER_CLAUSE = 3

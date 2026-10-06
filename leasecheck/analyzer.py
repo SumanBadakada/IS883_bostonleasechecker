@@ -28,6 +28,7 @@ class ClauseResult:
     clause: Clause
     finding: Optional[ClauseFinding]  # None = the model's output for this clause could not be used
     retrieved_ids: list[str] = field(default_factory=list)
+    cited: list[Chunk] = field(default_factory=list)  # the source passages the finding cites, shown to the user
 
     @property
     def label(self) -> str:
@@ -102,13 +103,15 @@ def analyze(
         if parsed is None:
             parse_failures += 1
         by_id = {f.clause_id: f for f in parsed.findings} if parsed else {}
-        allowed_ids = {p.chunk_id for p in passages}
+        allowed = {p.chunk_id: p for p in passages}
         for clause in batch:
             finding = by_id.get(clause.clause_id)
+            cited: list[Chunk] = []
             if finding is not None:
                 # Drop any source id the model invented; the citation must point at a passage we gave it.
-                finding.source_ids = [s for s in finding.source_ids if s in allowed_ids]
-            results.append(ClauseResult(clause, finding, [c.chunk_id for c in retrieved[clause.clause_id - 1]]))
+                finding.source_ids = [s for s in finding.source_ids if s in allowed]
+                cited = [allowed[s] for s in finding.source_ids]
+            results.append(ClauseResult(clause, finding, [c.chunk_id for c in retrieved[clause.clause_id - 1]], cited))
 
     progress("Checking move-in charges", 0.9)
     charges = check_charges(llm, clauses)
