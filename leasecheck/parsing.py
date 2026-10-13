@@ -23,6 +23,15 @@ class InputRejected(Exception):
         self.message = message
 
 
+# The lease's own clause number at the start of a clause: "3. Rent", "3) Rent", "Section 3 - Rent",
+# and also "3.Rent" with no space (common in PDFs), but only when a capital letter follows, so that
+# "2-bedroom" or "2.5 months" is not read as a clause number.
+_LEADING_NUMBER = re.compile(
+    r"\s*(?:section|article|clause|§)?\s*(\d{1,2}(?:\.\d{1,2})*)\s*(?:[.):\-]\s|[.)](?=[\"“(]?[A-Z]))",
+    re.IGNORECASE,
+)
+
+
 @dataclass
 class Clause:
     clause_id: int  # our own position counter, used to match the model's answers to clauses
@@ -31,7 +40,7 @@ class Clause:
     @property
     def display_name(self) -> str:
         """What the tenant sees: the lease's own number ("Clause 3") when it has one."""
-        match = re.match(r"\s*(?:section|article|clause|§)?\s*(\d{1,2}(?:\.\d{1,2})*)\s*[.):\-]\s", self.text, re.IGNORECASE)
+        match = _LEADING_NUMBER.match(self.text)
         if match:
             return f"Clause {match.group(1)}"
         return "Opening section" if self.clause_id == 1 else f"Part {self.clause_id}"
@@ -39,6 +48,10 @@ class Clause:
 
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
 MIN_CHARS_PER_PAGE = 80
+
+# Normal English averages about 5 letters per word. Far above that means the extractor lost the spaces
+# ("Nopetsofanykindareallowed..."), and the model would be checking garbled text.
+MAX_AVG_WORD_LEN = 10
 
 # Words that almost every residential lease uses. A document needs several of them to count as a lease.
 LEASE_TERMS = (
@@ -72,14 +85,13 @@ def extract_text(data: bytes, filename: str) -> str:
 
 
 def _pdf_text(data: bytes) -> str:
-    from pypdf import PdfReader
-    from pypdf.errors import PdfReadError
-
+    """PyMuPDF rebuilds word spacing from glyph positions far better than pypdf, so we prefer it.
+    pypdf stays as a fallback in case PyMuPDF is not installed."""
     try:
-        reader = PdfReader(io.BytesIO(data))
-        pages = [page.extract_text() or "" for page in reader.pages]
-    except (PdfReadError, ValueError, KeyError) as exc:
-        raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
+        pages = _pdf_pages_pymupdf(data)
+    except ImportError:
+        pages = _pdf_pages_pypdf(data)
+
     if not pages:
         raise InputRejected("empty", "This PDF has no pages.")
     chars = sum(len(p.strip()) for p in pages)
@@ -89,7 +101,43 @@ def _pdf_text(data: bytes) -> str:
             "This looks like a scanned PDF (an image of the pages), so there is no text for us to check. "
             "Please upload the lease as a text-based PDF or a Word file.",
         )
-    return "\n".join(pages)
+    text = "\n".join(pages)
+    _check_spacing(text)
+    return text
+
+
+def _pdf_pages_pymupdf(data: bytes) -> list[str]:
+    import fitz  # PyMuPDF
+
+    try:
+        with fitz.open(stream=data, filetype="pdf") as doc:
+            if doc.needs_pass:
+                raise InputRejected("unreadable", "This PDF is password-protected. Please upload an unlocked copy.")
+            return [page.get_text("text") or "" for page in doc]
+    except (RuntimeError, ValueError) as exc:  # fitz raises FileDataError (a RuntimeError) for damaged files
+        raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
+
+
+def _pdf_pages_pypdf(data: bytes) -> list[str]:
+    from pypdf import PdfReader
+    from pypdf.errors import PdfReadError
+
+    try:
+        reader = PdfReader(io.BytesIO(data))
+        return [page.extract_text() or "" for page in reader.pages]
+    except (PdfReadError, ValueError, KeyError) as exc:
+        raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
+
+
+def _check_spacing(text: str) -> None:
+    """Refuse text whose spaces were lost in extraction, before spending model calls on it."""
+    words = re.findall(r"[A-Za-z]+", text)
+    if len(words) >= 50 and sum(map(len, words)) / len(words) > MAX_AVG_WORD_LEN:
+        raise InputRejected(
+            "no_spaces",
+            "We could not read the spacing between words in this PDF, so the check would not be reliable. "
+            "Please upload the Word (.docx) version of the lease, or export the PDF again from Word or Google Docs.",
+        )
 
 
 def _docx_text(data: bytes) -> str:
@@ -108,7 +156,7 @@ def _docx_text(data: bytes) -> str:
 
 
 def _normalise(text: str) -> str:
-    text = text.replace("\r\n", "\n").replace("\r", "\n").replace(" ", " ")
+    text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\u00a0", " ")
     text = re.sub(r"[ \t]+", " ", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
@@ -125,14 +173,52 @@ def check_is_lease(text: str) -> None:
         )
 
 
-# A line that starts a new clause: "1.", "12)", "3.1", "(a)" is NOT a new clause (sub-item),
+# A line that starts a new clause: "1.", "12)", "3.1", "4.No pets" (no space, capital next),
 # "Section 4", "ARTICLE V", or a short ALL-CAPS heading such as "SECURITY DEPOSIT".
-_NUMBERED = re.compile(r"^\s*(?:section|article|clause|§)?\s*(\d{1,2}|[IVXL]{1,6})(?:\.\d{1,2})*\s*[.):\-]\s+\S", re.IGNORECASE)
+# "(a)" is NOT a new clause (sub-item). Roman numerals still need a space, so "i.e." is not a clause.
+_NUMBERED = re.compile(
+    r"^\s*(?:section|article|clause|§)?\s*"
+    r"(?:\d{1,2}(?:\.\d{1,2})*\s*(?:[.):\-]\s+\S|[.)](?=[\"“(]?[A-Z]))"
+    r"|[IVXL]{1,6}\s*[.):\-]\s+\S)",
+    re.IGNORECASE,
+)
 _HEADING = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/\-]{3,60}:?\s*$")
+
+# A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
+# The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
+_INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,2})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
+_REFERENCE_WORDS = ("section", "article", "clause", "paragraph", "§")
+
+
+def _break_inline_numbers(text: str) -> str:
+    """Put each mid-line clause number on its own line, so the line-based splitter can see it.
+
+    Only numbers that continue the sequence (1, 2, 3, ...) count, which filters out page numbers,
+    amounts and stray "5." matches. A return to 1 after a few clauses is allowed, since an addendum
+    often restarts its numbering."""
+    cuts, expected = [], 1
+    for m in _INLINE_NUMBER.finditer(text):
+        before = text[max(0, m.start() - 12):m.start()].lower().rstrip()
+        if before.endswith(_REFERENCE_WORDS):  # "Section 4." is handled by _NUMBERED, and "see paragraph 4." is a cross-reference
+            continue
+        n = int(m.group(1))
+        if n == expected or (n == 1 and expected > 3):
+            cuts.append(m.start())
+            expected = n + 1
+    if len(cuts) < 3:  # too few to trust; leave the text alone
+        return text
+
+    pieces, prev = [], 0
+    for cut in cuts:
+        pieces.append(text[prev:cut].rstrip(" "))
+        prev = cut
+    pieces.append(text[prev:])
+    return "\n".join(pieces)
 
 
 def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
+    text = _break_inline_numbers(text)
     lines = [line.rstrip() for line in text.split("\n")]
     starts = [i for i, line in enumerate(lines) if _NUMBERED.match(line) or _HEADING.match(line)]
 
