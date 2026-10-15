@@ -10,8 +10,9 @@ from leasecheck import config, prompts
 from leasecheck.analyzer import AnalysisResult, analyze, findings_digest
 from leasecheck.llm import GeminiLLM, LLMError
 from leasecheck.parsing import InputRejected
-from leasecheck.report import (DISCLAIMER, HELP_RESOURCES, LABEL_NAMES, SEVERITY, html_report, next_steps,
-                               overall_verdict)
+from leasecheck.report import (DISCLAIMER, HELP_RESOURCES, LABEL_NAMES, SEVERITY,
+                               html_report, next_steps, overall_verdict,
+                               per_charge_limit_note)
 from leasecheck.art import ART_CSS, compact_skyline_svg, hero_skyline_svg, scanning_house_html
 from leasecheck.retrieval import SourceIndex, format_passages
 
@@ -332,10 +333,12 @@ with tab_overview:
             problems, review = check["problems_found"], check["needs_checking"]
             badges = (pill("danger", f"{problems} not allowed") if problems else pill("success", "Within the limits")) \
                 + (pill("warning", f"{review} to check") if review else "")
+            # AI-assisted (Claude, Oct 15 2026): explain the per-charge limits instead of one "legal maximum"
+            # for the total, which looked fine even when a single charge (e.g. the deposit) was over its cap.
             html(f'<div class="blc-card"><div class="blc-muted">Total requested before move-in</div>'
                  f'<div style="font-size:1.8rem;font-weight:700">&#36;{check["total_requested"]:,.2f}</div>'
-                 f'<div class="blc-muted" style="margin-bottom:10px">Legal maximum (excluding a lock): '
-                 f'&#36;{check["maximum_allowed_excluding_lock"]:,.2f}</div>{badges}</div>')
+                 f'<div class="blc-muted" style="margin-bottom:10px">'
+                 f'{esc(per_charge_limit_note(check["monthly_rent"]))}</div>{badges}</div>')
         else:
             html(f'<div class="blc-card"><div class="blc-muted">{esc(result.charges.summary)}</div></div>')
         st.markdown("#### Need help?")

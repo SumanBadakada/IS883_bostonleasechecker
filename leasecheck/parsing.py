@@ -148,11 +148,77 @@ def _docx_text(data: bytes) -> str:
         document = docx.Document(io.BytesIO(data))
     except (PackageNotFoundError, KeyError, ValueError) as exc:
         raise InputRejected("unreadable", "This Word file could not be read.") from exc
-    lines = [p.text for p in document.paragraphs]
+    numbering = _WordNumbering()
+    lines = [numbering.prefix(p) + p.text for p in document.paragraphs]
     for table in document.tables:
         for row in table.rows:
             lines.append(" | ".join(cell.text for cell in row.cells))
     return "\n".join(lines)
+
+
+# AI-assisted (Claude, Oct 15 2026): rebuilds Word list numbers so auto-numbered leases split correctly.
+_W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+
+def _list_info(paragraph) -> tuple[str, int, bool] | None:
+    """(list id, level, is_bullet) for a paragraph in a Word list, or None if it is not in a list."""
+    p_pr = paragraph._p.pPr
+    num_pr = p_pr.numPr if p_pr is not None else None
+    style_pr = paragraph.style.element.pPr if paragraph.style is not None else None
+    if num_pr is None and style_pr is not None:
+        num_pr = style_pr.numPr  # numbering can come from the paragraph style ("List Number")
+    if num_pr is None or num_pr.numId is None or str(num_pr.numId.val) == "0":
+        return None
+    num_id = str(num_pr.numId.val)
+    level = int(num_pr.ilvl.val) if num_pr.ilvl is not None else 0
+    try:
+        numbering = paragraph.part.numbering_part.element
+    except (AttributeError, KeyError, NotImplementedError):
+        return num_id, level, False
+    abstract_id = None
+    for num in numbering.iterchildren(_W + "num"):
+        if num.get(_W + "numId") == num_id:
+            ref = num.find(_W + "abstractNumId")
+            abstract_id = ref.get(_W + "val") if ref is not None else None
+    is_bullet = False
+    for absnum in numbering.iterchildren(_W + "abstractNum"):
+        if absnum.get(_W + "abstractNumId") != abstract_id:
+            continue
+        for lvl in absnum.iterchildren(_W + "lvl"):
+            if int(lvl.get(_W + "ilvl", "0")) == level:
+                fmt = lvl.find(_W + "numFmt")
+                is_bullet = fmt is not None and fmt.get(_W + "val") == "bullet"
+    return num_id, level, is_bullet
+
+
+class _WordNumbering:
+    """Rebuilds the numbers Word shows on screen, which are not part of paragraph.text.
+
+    Most lease templates number clauses with Word's numbering feature, so without this the splitter
+    sees no "1.", "2.", ... and treats the whole lease as one clause. The first numbered list in the
+    document is taken to be the clause list ("1. ", "2. ", ...). Deeper levels and other numbered lists
+    become "(a) ", "(b) " so they stay inside their parent clause. Bullets get no prefix."""
+
+    def __init__(self) -> None:
+        self.main_list: str | None = None
+        self.clause_number = 0
+        self.sub_counters: dict[tuple[str, int], int] = {}
+
+    def prefix(self, paragraph) -> str:
+        info = _list_info(paragraph)
+        if info is None:
+            return ""
+        num_id, level, is_bullet = info
+        if is_bullet:
+            return ""
+        if self.main_list is None and level == 0:
+            self.main_list = num_id
+        if num_id == self.main_list and level == 0:
+            self.clause_number += 1
+            self.sub_counters.clear()  # a new clause restarts its sub-items
+            return f"{self.clause_number}. "
+        n = self.sub_counters[(num_id, level)] = self.sub_counters.get((num_id, level), 0) + 1
+        return f"({chr(ord('a') + (n - 1) % 26)}) "
 
 
 def _normalise(text: str) -> str:
@@ -183,6 +249,9 @@ _NUMBERED = re.compile(
     re.IGNORECASE,
 )
 _HEADING = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/\-]{3,60}:?\s*$")
+# AI-assisted (Claude, Oct 15 2026): a clause that opens with an ALL-CAPS lead-in ending in a period,
+# e.g. "LATE FEE. If Rent is not paid...", as in common Massachusetts lease templates.
+_LEAD_IN = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/()\-]{2,60}\.\s+\S")
 
 # A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
 # The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
@@ -220,7 +289,8 @@ def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
     text = _break_inline_numbers(text)
     lines = [line.rstrip() for line in text.split("\n")]
-    starts = [i for i, line in enumerate(lines) if _NUMBERED.match(line) or _HEADING.match(line)]
+    starts = [i for i, line in enumerate(lines)
+              if _NUMBERED.match(line) or _HEADING.match(line) or _LEAD_IN.match(line)]
 
     blocks: list[str] = []
     if len(starts) >= 3:

@@ -34,6 +34,14 @@ HELP_RESOURCES = [
 ]
 
 
+# AI-assisted (Claude, Oct 15 2026): shown next to the move-in total. A single "legal maximum" for the total
+# was misleading, because each charge has its own cap: a $3,000 deposit on $2,000 rent breaks the law even
+# though the total is below three months' rent.
+def per_charge_limit_note(monthly_rent: float) -> str:
+    return (f"Limit per charge: ${monthly_rent:,.2f} (one month's rent) for first month, last month and the "
+            "deposit. No other fees except a new lock.")
+
+
 @dataclass
 class NextStep:
     severity: str  # "high" | "medium"
@@ -81,8 +89,19 @@ def overall_verdict(result: AnalysisResult) -> tuple[str, str, str]:
     odd = counts.get("unusual", 0)
     total = len(result.clauses)
     if bad or charge_problems:
-        n = bad + charge_problems
-        return ("danger", f"{n} item{'s' if n != 1 else ''} may break Massachusetts tenant law",
+        # AI-assisted (Claude, Oct 15 2026): name clauses and move-in charges separately. They come from two
+        # different checks (the clause review and the charge tool), and one problem such as an oversized
+        # deposit is often caught by both, so adding them into a single "items" number double-counted it.
+        parts = []
+        if bad:
+            parts.append(f"{bad} clause{'s' if bad != 1 else ''} may break Massachusetts tenant law")
+        if charge_problems:
+            verb = "is" if charge_problems == 1 else "are"
+            parts.append(f"{charge_problems} move-in charge{'s' if charge_problems != 1 else ''} {verb} not allowed")
+        headline = ", and ".join(parts)
+        if not bad:
+            headline += " under Massachusetts law"
+        return ("danger", headline,
                 f"Raise these with the landlord before you sign. We reviewed {total} clauses.")
     if odd:
         return ("warning", f"No likely violations, but {odd} unusual clause{'s' if odd != 1 else ''}",
@@ -125,8 +144,7 @@ def html_report(result: AnalysisResult, filename: str) -> str:
             f"<td>{_e(i['reason'])}</td></tr>" for i in check["items"])
         charges = f"""<h2>Move-in charges</h2>
         <table><tr><th>Charge</th><th>Amount</th><th>Status</th><th>Why</th></tr>{items}</table>
-        <p class="muted">Monthly rent ${check['monthly_rent']:,.2f}. The most a landlord may collect before move-in
-        (excluding a lock) is ${check['maximum_allowed_excluding_lock']:,.2f}.</p>"""
+        <p class="muted">{_e(per_charge_limit_note(check['monthly_rent']))}</p>"""
 
     steps = "".join(f"<li><strong>{_e(s.title)}.</strong> {_e(s.detail)}"
                     f"{(' <span class=muted>(' + _e(s.citation) + ')</span>') if s.citation else ''}</li>"

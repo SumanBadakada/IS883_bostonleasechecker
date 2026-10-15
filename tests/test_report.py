@@ -36,3 +36,21 @@ def test_display_names():
     assert Clause(4, "3. PAYMENTS. Pay rent.").display_name == "Clause 3"
     assert Clause(1, "RESIDENTIAL LEASE between...").display_name == "Opening section"
     assert Clause(7, "SECURITY DEPOSIT. The deposit...").display_name == "Part 7"
+
+
+# AI-assisted (Claude, Oct 15 2026): the banner names clauses and move-in charges separately.
+def test_verdict_counts_clauses_and_charges_separately():
+    result = run()  # the fake flags clauses, and the $3,000 deposit on $2,000 rent is a charge problem
+    bad = result.counts().get("possibly_unlawful", 0)
+    charge_problems = result.charges.check["problems_found"]
+    assert bad >= 1 and charge_problems >= 1
+    headline = overall_verdict(result)[1]
+    assert headline.startswith(f"{bad} clause")
+    assert f"{charge_problems} move-in charge" in headline and "not allowed" in headline
+    assert "item" not in headline  # no single combined count that double-counts the deposit
+
+
+def test_verdict_with_only_a_charge_problem():
+    result = run(flag_words=("zzz",))  # no clause flagged, but the deposit is still over the cap
+    headline = overall_verdict(result)[1]
+    assert headline == "1 move-in charge is not allowed under Massachusetts law"
