@@ -74,3 +74,72 @@ and average tokens per lease for the cost model. Results go to `eval/results/`.
 The code in this repository was first drafted with Claude Code (Anthropic) and is marked with an
 `# AI-assisted` comment at the top of each file. Each file names the team member who owns it. See
 [`docs/TEAM_SPLIT.md`](docs/TEAM_SPLIT.md).
+
+## Workshop checkpoint
+Team name: Team 4         Members (full names):Erdan Kudaibergen, Janice Kristabella, Munkhzaya Jambalsanjid, Suman Somaiah B A
+ 
+ 
+0. LOGISTICS
+   Attending the Oct 23 workshop? (yes / no): Yes
+   Project board link (§5.7): https://github.com/users/SumanBadakada/projects/1
+   Streamlit app URL (must load; it does not yet have to do anything): https://bostonleasechecker.streamlit.app/
+ 
+ 
+1. THE PROJECT, AS IT STANDS TODAY
+   Update these from your proposal — do not copy them across if they have changed.
+   Who the user is: A BU graduate student signing their first Greater Boston apartment lease.
+   The task, in one sentence: Before signing, find lease clauses that may violate Massachusetts tenant law or need a closer look.
+   The user's input, and what comes back to the user: The user's input is a text-based PDF or DOCX lease (scanned PDFs are rejected with a message). What comes back is Each clause flagged lawful, unusual or possibly unlawful, with an explanation and citation, plus a move-in charge check against legal limits.
+   Every source the app reads (§3.2): The AG's Guide to Landlord and Tenant Rights, M.G.L. c. 186 §15B and 940 CMR 3.17 (free, public government publications); synthetic leases we write with planted problem clauses; classmates' real leases, used with written consent.
+ 
+ 
+2. WHAT CHANGED SINCE THE PROPOSAL
+   What you changed in what you build or how you build it, and why (write "none" if nothing):
+   - Success metric: We report recall (the percentage of real problems the app catches) and precision (the percentage of the app's flags that are real problems). We dropped overall agreement, as the proposal feedback asked.
+   - Scope: Instead of limiting the app to security deposits, last month's rent and required disclosures, plus the move-in charge check, the app now reviews every clause against all of our source notes. These also cover late fees, landlord entry, repairs, landlord liability, attorney's fees, automatic renewal, heat and utilities, lead paint, broker fees, retaliation, rent increases, discrimination and subletting.
+   - Follow-up chat: We added a chat feature for a conversational interface as mentioned in class. The user can ask about their results, and the chat answers from the findings and our legal sources.
+   - More in the results: Besides the labels, citations and move-in check from the proposal, the app now lists questions to ask the landlord and offers a downloadable report.
+   
+   What the proposal feedback asked for, and what you did about it:
+   - Keep the author and the prompt writer apart, and base planted clauses on real-world wording: Not done yet. One member will write new prompt examples that are not taken from the test set, and another member will rewrite the planted clauses using wording from real leases.
+   - Put the disclaimer where the user sees it, next to the results: Done. It is directly above the results, and also on the upload page and in the downloaded report. We kept "possibly unlawful" rather than "unlawful".
+   - Report precision next to recall instead of overall agreement: Done. We report recall and precision, and we dropped overall agreement. eval/run_eval.py calculates both.
+ 
+ 
+4. WHERE THE BUILD STANDS
+   What a user can do on the deployed app today: Upload a text-based PDF or Word lease, or try the sample lease. The app shows an overall verdict, each clause labeled "possibly unlawful", "unusual" or "no issue found" with the law it cites, the full lease with problem clauses highlighted, a move-in cost check, and questions to ask the landlord. The user can ask follow-up questions in a chat and download a report. Scanned, empty and non-lease files are rejected with a message before any model call. Each session allows 3 lease checks and 15 questions.
+   For each §5.1 capability you plan to use: where it will fire, and whether it is working / in progress / not started:
+   - Structured prompting: fires every time the app reviews the clauses of a lease. The prompts are saved as versions (v1 and v2) in leasecheck/prompts.py, and the app uses v2. Working. A new version (v3) with examples not taken from the test set is not started.
+   - Tool calling: fires when the lease mentions money. Gemini decides whether to call check_move_in_charges in leasecheck/charges.py. That Python function checks each move-in charge against Massachusetts limits, and Gemini explains the result. It is working.
+   - Retrieval: fires on every clause. leasecheck/retrieval.py finds the three most similar passages from our legal source notes and adds them to the prompt. The chat uses it too. It is working, but we are still checking the source notes against the official texts.
+   - Structured output: fires on every clause review. Gemini returns the results in a fixed format defined in leasecheck/schemas.py. If the answer cannot be read, the app retries once, then marks those clauses "Not checked". It is working.
+   A first sketch of your architecture diagram (§5.2) — a photo of a whiteboard, committed and linked, is fine: 
+ 
+ 
+6. SUCCESS METRIC (§5.5)
+   The one number that says whether your app is doing its job: Recall on clauses we labeled "possibly unlawful" in advance, meaning the share of those clauses the app also flags as possibly unlawful. We report false flags per lease next to it (clauses the app flags as possibly unlawful that we did not label that way), so an app that flags every clause cannot score well.
+   Where your test inputs will come from: 20 synthetic leases covering specific clause types, consented classmate leases, and awkward inputs (a scanned PDF, a non-lease document, a clean lease).
+ 
+ 
+8. PROOF OF CONCEPT — TWO TEST INPUTS
+   For each: the input · the result you expect, written before you run anything ·
+   if your app can already run it, what it returned.
+   Input A — an ordinary input your app should handle: a 13-clause synthetic lease with monthly rent of $3,400.
+   Input A expected result: 6 clauses possibly unlawful (clause 5, a $200 late fee after 7 days; clause 7, a $3,000 security deposit, more than one month's rent; clause 14, a pet deposit; clause 18, key fees taken from the deposit; clause 28, the landlord removing belongings after abandonment; clause 35, the landlord excused unless "solely" negligent), 4 clauses unusual (clause 20, one-sided attorney's fees; clause 22, a 48-hour guest limit; clause 25, the tenant paying for all repairs; clauses 1 and 17, no landlord phone number), and the other clauses no issue. In the move-in check, first month's rent allowed, and the $3,000 deposit not allowed.
+   Input A actual result: not yet run through the evaluation.
+
+   Input B — an input you expect it to get wrong: using samples/sample_lease.docx, the fictional sample lease in the app, with monthly rent of $2,450. Its hard case is clause 13, which requires professional carpet cleaning at move-out. Many leases include this, and it sits on the line between unusual and possibly unlawful.
+   Input B expected result: 4 clauses possibly unlawful (clause 3, a $300 non-refundable pet fee; clause 10, a late fee after the 5th day; clause 11, landlord entry at any time; clause 12, no interest on the deposit or last month's rent), clause 13 on carpet cleaning unusual, and the other 10 clauses no issue. In the move-in check, first month's rent and the $2,450 deposit allowed, and the pet fee not allowed.
+   Input B actual result: all 4 expected problems flagged possibly unlawful with the right citations, the 10 ordinary clauses marked no issue found, and the pet fee marked not allowed. The app got clause 13 wrong: it flagged carpet cleaning as possibly unlawful instead of unusual, which counts as a false flag. The "Questions to ask your landlord" list also repeats the pet fee twice.
+ 
+ 
+10. THE PLAN TO YOUR PRESENTATION
+   What is left to build, and who owns each piece (it should match your board):
+  - Evaluation: prompt v3 and the before-and-after comparison, the real test set with expected labels, double labeling, the evaluation runs, and one failure our metric misses. Owner: Janice and Munkhzaya
+  - Fixes and small improvements: the two wrong citations, the duplicated landlord question, the "check one" boxes, and better handling of model overload. Owner: Suman
+  - Work outside the code: checking sources against the law, permission for the AG guide, the cost model, and the architecture diagram. Owner: Erdan
+
+What you will cut first if you fall behind: topics beyond deposits, last month's rent, late fees and move-in charges; then the "unusual" label; real leases (synthetic only) if consent lags; checkbox handling, replaced by a warning to check the ticked options.
+ 
+12. WHAT YOU NEED FROM US
+   The one thing blocking you, or the question you want answered at your table: none
