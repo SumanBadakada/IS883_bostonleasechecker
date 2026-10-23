@@ -104,7 +104,16 @@ footer { visibility: hidden; }
 .blc-table td { padding: 12px 14px; border-bottom: 1px solid #F2F4F7; vertical-align: top; }
 .blc-table tr:last-child td { border-bottom: none; }
 
-[data-testid="stSidebar"] { background: #FFFFFF; border-right: 1px solid #EAECF0; }
+[data-testid="stSidebar"] { background: linear-gradient(160deg, #0B2545 0%, #1F4E79 60%, #2E6DA4 100%);
+                            border-right: none; }
+[data-testid="stSidebar"] h3, [data-testid="stSidebar"] h5, [data-testid="stSidebar"] p,
+[data-testid="stSidebar"] li, [data-testid="stSidebar"] label { color: #FFFFFF; }
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"], [data-testid="stSidebar"] .blc-muted { color: #D6E4F5; }
+[data-testid="stSidebar"] a, [data-testid="stSidebar"] a p { color: #FFFFFF; text-decoration: underline; }
+[data-testid="stSidebar"] code { background: rgba(255,255,255,.12); color: #FFFFFF; }
+[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,.22); }
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] svg { color: #FFFFFF; fill: #FFFFFF; }
 .stTabs [data-baseweb="tab-list"] { gap: 6px; }
 .stTabs [data-baseweb="tab"] { font-weight: 600; }
 </style>
