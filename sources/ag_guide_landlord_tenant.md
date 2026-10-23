@@ -6,17 +6,20 @@
 > Official source: https://www.mass.gov/guides/the-attorney-generals-guide-to-landlord-and-tenant-rights
 > Permission: a free public guide published by the Massachusetts Attorney General's Office.
 > Statute citations below are the ones the guide relies on; verify each against the official text.
+> Broker fees: the rule is in force since Aug. 1, 2025, but its General Laws section is not yet confirmed,
+> so that chunk cites the AG's FAQ (https://www.mass.gov/info-details/frequently-asked-questions-about-residential-rental-brokers-fees).
+> Lockouts: c. 186 §14 alone was incomplete; c. 186 §15F and c. 184 §18 also bar self-help eviction.
 
 ## ag-move-in-costs | AG Guide: Move-in costs (M.G.L. c. 186 §15B(1)(b))
 Before you move in, a landlord can ask you for no more than first month's rent, last month's rent,
 a security deposit equal to one month's rent, and the cost of a new lock and key. Fees for pets,
 applications, credit checks, cleaning or "move-in" are not allowed.
 
-## ag-broker-fees | AG Guide: Broker fees (Massachusetts broker-fee law, effective Aug. 1, 2025)
+## ag-broker-fees | AG FAQ: Residential rental broker's fees (law in effect since Aug. 1, 2025)
 Since August 1, 2025, the person who hires a real-estate broker pays that broker's fee. If the landlord
 or the landlord's agent hired the broker, the landlord pays, and a lease or listing may not require the
-tenant to pay it. A tenant pays a broker fee only if the tenant hired that broker. (Verify the exact
-statutory citation and wording against the official guide.)
+tenant to pay it. A tenant pays a broker fee only if the tenant hired that broker. Landlords and their
+brokers also may not charge application, background-check or credit-check fees to apply for an apartment.
 
 ## ag-lead | AG Guide: Lead paint (M.G.L. c. 111 §197A; federal disclosure rule)
 For housing built before 1978, the landlord must give the tenant the Tenant Lead Law Notification and
@@ -57,7 +60,7 @@ A landlord may not evict, raise rent or otherwise punish a tenant for reporting 
 withholding rent lawfully over bad conditions, or organising with other tenants. If the landlord acts
 within six months of such a report, the law presumes retaliation.
 
-## ag-eviction | AG Guide: Eviction (M.G.L. c. 186 §14; c. 239)
+## ag-eviction | AG Guide: Lockouts and eviction (M.G.L. c. 186 §§14, 15F; c. 184 §18; c. 239)
 A landlord can remove a tenant only through a court eviction case. Changing the locks, shutting off
 utilities, or removing a tenant's belongings to force them out is illegal, and a lease clause allowing
 it is void. A lease cannot waive the tenant's right to a written notice to quit before an eviction case.

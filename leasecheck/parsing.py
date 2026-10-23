@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import io
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from . import config
+from .checkboxes import clause_notes, resolve_boxes
 
 
 class InputRejected(Exception):
@@ -44,6 +45,17 @@ class Clause:
         if match:
             return f"Clause {match.group(1)}"
         return "Opening section" if self.clause_id == 1 else f"Part {self.clause_id}"
+
+    @property
+    def notes(self) -> list[str]:
+        """Warnings about this clause's text itself, e.g. "check one" boxes nobody ticked."""
+        return clause_notes(self.text)
+
+
+@dataclass
+class ParsedDocument:
+    clauses: list[Clause]
+    warnings: list[str] = field(default_factory=list)  # about the whole document, shown above the results
 
 
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
@@ -78,7 +90,7 @@ def extract_text(data: bytes, filename: str) -> str:
     else:
         raise InputRejected("unsupported", "Please upload a PDF or a Word (.docx) file.")
 
-    text = _normalise(text)
+    text = resolve_boxes(_normalise(text))
     if not text.strip():
         raise InputRejected("empty", "We could not find any text in this file.")
     return text
@@ -107,15 +119,66 @@ def _pdf_text(data: bytes) -> str:
 
 
 def _pdf_pages_pymupdf(data: bytes) -> list[str]:
-    import fitz  # PyMuPDF
+    try:
+        import pymupdf as fitz  # PyMuPDF 1.24+; "fitz" is the deprecated old name
+    except ImportError:
+        import fitz
 
     try:
         with fitz.open(stream=data, filetype="pdf") as doc:
             if doc.needs_pass:
                 raise InputRejected("unreadable", "This PDF is password-protected. Please upload an unlocked copy.")
-            return [page.get_text("text") or "" for page in doc]
+            return [_pymupdf_page_text(page, fitz) or "" for page in doc]
     except (RuntimeError, ValueError) as exc:  # fitz raises FileDataError (a RuntimeError) for damaged files
         raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
+
+
+# AI-assisted (Claude Code): fillable PDF forms keep their tick boxes as form fields, which get_text() does
+# not include, so "☐ Tenant ☐ Landlord" would read as "Tenant Landlord". We put a box character back where
+# each field sits, ticked or not, and checkboxes.resolve_boxes turns it into a marker the model understands.
+def _pymupdf_page_text(page, fitz) -> str:
+    boxes = [w for w in (page.widgets() or [])
+             if w.field_type in (fitz.PDF_WIDGET_TYPE_CHECKBOX, fitz.PDF_WIDGET_TYPE_RADIOBUTTON)]
+    if not boxes:
+        return page.get_text("text")
+
+    # Rebuild the page row by row from character positions, so a box, its label and the sentence it belongs
+    # to (often separate text pieces in a form) come out on one line in reading order.
+    def inside_a_box(x: float, y: float) -> bool:
+        # A ticked box draws its own tick as a ZapfDingbats character ("3", "4", "8"...), which shows up as
+        # text inside the box. That is the box itself, not lease text.
+        return any(w.rect.x0 - 0.5 <= x <= w.rect.x1 + 0.5 and w.rect.y0 - 0.5 <= y <= w.rect.y1 + 0.5 for w in boxes)
+
+    chars = []  # (x0, x1, mid_y, character)
+    for block in page.get_text("rawdict")["blocks"]:
+        for line in block.get("lines", []):
+            for span in line["spans"]:
+                for ch in span["chars"]:
+                    x0, y0, x1, y1 = ch["bbox"]
+                    if not inside_a_box((x0 + x1) / 2, (y0 + y1) / 2):
+                        chars.append((x0, x1, (y0 + y1) / 2, ch["c"]))
+    for w in boxes:
+        r = w.rect
+        ticked = str(w.field_value).strip().lower() not in ("", "off", "false", "none", "0")
+        chars.append((r.x0, r.x1, (r.y0 + r.y1) / 2, "☒" if ticked else "☐"))
+
+    rows: list[list[tuple]] = []
+    for ch in sorted(chars, key=lambda c: c[2]):
+        if rows and abs(rows[-1][0][2] - ch[2]) <= 4:
+            rows[-1].append(ch)
+        else:
+            rows.append([ch])
+    out = []
+    for row in rows:
+        row.sort(key=lambda c: c[0])
+        text, prev_x1 = "", None
+        for x0, x1, _, c in row:
+            if prev_x1 is not None and x0 - prev_x1 > 1.5 and not text.endswith(" ") and c != " ":
+                text += " "
+            text += c
+            prev_x1 = x1
+        out.append(text)
+    return "\n".join(out)
 
 
 def _pdf_pages_pypdf(data: bytes) -> list[str]:
@@ -149,11 +212,39 @@ def _docx_text(data: bytes) -> str:
     except (PackageNotFoundError, KeyError, ValueError) as exc:
         raise InputRejected("unreadable", "This Word file could not be read.") from exc
     numbering = _WordNumbering()
-    lines = [numbering.prefix(p) + p.text for p in document.paragraphs]
+    lines = [numbering.prefix(p) + _paragraph_text(p) for p in document.paragraphs]
     for table in document.tables:
         for row in table.rows:
-            lines.append(" | ".join(cell.text for cell in row.cells))
+            lines.append(" | ".join(" ".join(_paragraph_text(p) for p in cell.paragraphs) for cell in row.cells))
     return "\n".join(lines)
+
+
+_W14 = "{http://schemas.microsoft.com/office/word/2010/wordml}"
+
+
+# AI-assisted (Claude Code): paragraph.text skips text inside content controls (where Word keeps its
+# clickable ☐/☒ boxes), legacy form-field checkboxes (which have no text at all) and symbol-font
+# characters such as Wingdings boxes. Walking the XML in order picks all three up.
+def _paragraph_text(paragraph) -> str:
+    out: list[str] = []
+    for el in paragraph._p.iter():
+        tag = el.tag
+        if tag == _W + "t":
+            out.append(el.text or "")
+        elif tag == _W + "tab":
+            out.append("\t")
+        elif tag in (_W + "br", _W + "cr"):
+            out.append("\n")
+        elif tag == _W + "sym":  # e.g. w:font="Wingdings" w:char="F0FE"
+            code = int(el.get(_W + "char", "0"), 16)
+            out.append(chr(code if code >= 0xF000 else code + 0xF000))
+        elif tag == _W + "checkBox":  # legacy form field: ticked state is in w:checked, else w:default
+            state = el.find(_W + "checked")
+            if state is None:
+                state = el.find(_W + "default")
+            ticked = state is not None and state.get(_W + "val", "1") not in ("0", "false")
+            out.append("☒ " if ticked else "☐ ")
+    return "".join(out)
 
 
 # AI-assisted (Claude, Oct 15 2026): rebuilds Word list numbers so auto-numbered leases split correctly.
@@ -328,11 +419,21 @@ def _merge_headings(blocks: list[str]) -> list[str]:
     return merged
 
 
-def load_clauses(data: bytes, filename: str) -> list[Clause]:
-    """The full deterministic front end: extract, check it is a lease, split."""
+def load_document(data: bytes, filename: str) -> ParsedDocument:
+    """The full deterministic front end: extract, check it is a lease, split, collect warnings."""
     text = extract_text(data, filename)
     check_is_lease(text)
     clauses = split_clauses(text)
     if not clauses:
         raise InputRejected("empty", "We could not find any clauses in this document.")
-    return clauses
+    warnings = []
+    unticked = [c.display_name for c in clauses if c.notes]
+    if unticked:
+        warnings.append(f"Some “check one” boxes in this lease are not ticked ({', '.join(unticked)}). "
+                        "Each affected clause says how we handled it. Make sure the right options are ticked "
+                        "before you sign.")
+    return ParsedDocument(clauses, warnings)
+
+
+def load_clauses(data: bytes, filename: str) -> list[Clause]:
+    return load_document(data, filename).clauses
