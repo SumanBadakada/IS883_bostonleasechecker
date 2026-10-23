@@ -53,7 +53,9 @@ def main() -> None:
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise SystemExit("Set GEMINI_API_KEY in your environment first.")
-    llm = GeminiLLM(api_key)
+    # No fallback model: every number in one run must come from the same model, or the before-and-after
+    # comparison would mix models. An overload makes that lease fail instead (recorded as api_error).
+    llm = GeminiLLM(api_key, fallback_models=())
     index = None if args.no_retrieval else SourceIndex.build(llm)
 
     gold_inputs = load_gold(args.private)
@@ -70,6 +72,7 @@ def main() -> None:
             record["outcome"] = "analyzed"
             record["usage"] = vars(result.usage)
             record["parse_failures"] = result.parse_failures
+            record["model_errors"] = result.errors
             predicted = [{"text": r.clause.text, "label": r.label,
                           "source_ids": r.finding.source_ids if r.finding else [],
                           "citation": r.finding.citation if r.finding else ""} for r in result.clauses]

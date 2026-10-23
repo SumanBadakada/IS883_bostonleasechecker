@@ -5,10 +5,12 @@ templated from the findings, so it costs nothing and cannot invent a new claim."
 from __future__ import annotations
 
 import html
+import re
 from dataclasses import dataclass
 from datetime import date
+from typing import Optional
 
-from .analyzer import AnalysisResult
+from .analyzer import MONEY, AnalysisResult
 
 LABEL_NAMES = {
     "possibly_unlawful": "Possibly unlawful",
@@ -50,22 +52,56 @@ class NextStep:
     citation: str = ""
 
 
+# Sources whose only subject is money at move-in. A clause flagged on these grounds is already covered by the
+# move-in charge question, so asking about it twice would repeat the same point.
+MOVE_IN_SOURCES = {"c186-15B-1b", "ag-move-in-costs", "ag-broker-fees"}
+_AMOUNT = re.compile(r"\$?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d{2}))?")
+_NAME_FILLER = {"non-refundable", "refundable", "nonrefundable", "the", "a", "fee", "charge", "of", "for"}
+
+
+def _amounts(text: str) -> set[float]:
+    return {float(m.group(1).replace(",", "") + "." + (m.group(2) or "0")) for m in _AMOUNT.finditer(text)}
+
+
+def _clause_for_charge(item: dict, clauses: list) -> Optional[object]:
+    """The clause a move-in charge comes from: the one stating its amount, else one naming it."""
+    money = [r for r in clauses if MONEY.search(r.clause.text)]
+    for r in money:
+        if any(abs(a - item["amount"]) < 0.01 for a in _amounts(r.clause.text)):
+            return r
+    words = [w for w in re.findall(r"[a-z\-']+", item["charge"].lower()) if w not in _NAME_FILLER]
+    for r in money:
+        if words and words[0] in r.clause.text.lower():
+            return r
+    return None
+
+
 def next_steps(result: AnalysisResult) -> list[NextStep]:
-    """Questions to raise with the landlord, most serious first."""
+    """Questions to raise with the landlord, most serious first, each problem asked about once."""
     steps: list[NextStep] = []
+    covered: set[int] = set()  # clauses whose problem is already asked about as a move-in charge
     check = result.charges.check
     if check:
         for item in check["items"]:
+            if item["status"] not in ("not_allowed", "check"):
+                continue
+            source = _clause_for_charge(item, result.clauses)
+            where = f" in {source.clause.display_name.lower()}" if source else ""
+            if source:
+                covered.add(source.clause.clause_id)
             if item["status"] == "not_allowed":
                 steps.append(NextStep(
-                    "high", f"Ask for the {item['charge'].lower()} (${item['amount']:,.2f}) to be removed or reduced",
+                    "high", f"Ask for the {item['charge'].lower()} (${item['amount']:,.2f}){where} to be removed or reduced",
                     item["reason"], item["citation"]))
-            elif item["status"] == "check":
+            else:
                 steps.append(NextStep(
-                    "medium", f"Ask about the {item['charge'].lower()} (${item['amount']:,.2f})",
+                    "medium", f"Ask about the {item['charge'].lower()} (${item['amount']:,.2f}){where}",
                     item["reason"], item["citation"]))
     for r in sorted(result.clauses, key=lambda r: (SEVERITY[r.label], r.clause.clause_id)):
         f = r.finding
+        if r.clause.clause_id in covered and r.label in ("possibly_unlawful", "unusual") \
+                and set(f.source_ids) <= MOVE_IN_SOURCES:
+            continue  # same point as the move-in charge question above
         if r.label == "possibly_unlawful":
             steps.append(NextStep(
                 "high", f"Ask the landlord to remove or rewrite {r.clause.display_name.lower()} ({f.topic})",
@@ -131,6 +167,7 @@ def html_report(result: AnalysisResult, filename: str) -> str:
           <div class="head"><span class="pill" style="background:{bg};color:{fg}">{LABEL_NAMES[r.label]}</span>
             <strong>{_e(r.clause.display_name)}{(': ' + _e(f.topic)) if f else ''}</strong></div>
           <blockquote>{_e(r.clause.text)}</blockquote>
+          {''.join(f'<p class="muted">{_e(n)}</p>' for n in r.clause.notes)}
           {f'<p>{_e(f.explanation)}</p>' if f else '<p>We could not check this clause automatically.</p>'}
           {f'<p class="cite">Law: {_e(f.citation)}</p>' if f and f.citation else ''}
         </div>""")
@@ -177,6 +214,7 @@ def html_report(result: AnalysisResult, filename: str) -> str:
 <span>Unusual: <b>{counts.get('unusual', 0)}</b></span><span>No issue found: <b>{counts.get('lawful', 0)}</b></span>
 <span>Not checked: <b>{counts.get('not_checked', 0)}</b></span></div>
 <p class="disclaimer">{_e(DISCLAIMER)}</p>
+{''.join(f'<p class="disclaimer">{_e(w)}</p>' for w in result.errors + result.warnings)}
 {steps_html}
 {charges}
 <h2>Clause by clause</h2>

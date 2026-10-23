@@ -5,6 +5,10 @@
 MODEL = "gemini-3.1-flash-lite"
 EMBED_MODEL = "gemini-embedding-001"
 
+# Used only when Google reports MODEL overloaded (HTTP 503), in this order. Each must be available on your
+# key's free tier (check AI Studio); one that is not is skipped automatically.
+FALLBACK_MODELS = ("gemini-2.5-flash-lite", "gemini-2.5-flash")
+
 # Generation parameters. Low temperature because we want the same clause to get the same label
 # every time; a fixed seed makes eval runs repeatable.
 TEMPERATURE = 0.1

@@ -3,7 +3,7 @@
 """Runs one lease through the whole app. Used by both app.py and eval/run_eval.py, so the eval measures
 exactly what users get.
 
-    upload -> parsing.load_clauses (code)
+    upload -> parsing.load_document (code)
            -> retrieval: top passages per clause (embeddings + cosine similarity)
            -> classify each batch of clauses (structured output, versioned prompt)
                  failure path: unparseable JSON -> one retry -> clauses marked "not_checked"
@@ -17,8 +17,8 @@ from typing import Callable, Optional
 
 from . import config, prompts
 from .charges import CHECK_MOVE_IN_CHARGES_DECLARATION, TOOLS
-from .llm import ToolCall, Usage
-from .parsing import Clause, load_clauses
+from .llm import LLMError, ToolCall, Usage
+from .parsing import Clause, load_document
 from .retrieval import Chunk, SourceIndex, format_passages
 from .schemas import BatchFindings, ClauseFinding, parse_batch
 
@@ -56,7 +56,9 @@ class AnalysisResult:
     prompt_version: str
     used_retrieval: bool
     parse_failures: int = 0
-    errors: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)  # model problems that left part of the lease unchecked
+    warnings: list[str] = field(default_factory=list)  # things about the document the user should know
+    models_used: list[str] = field(default_factory=list)
 
     def counts(self) -> dict[str, int]:
         out: dict[str, int] = {}
@@ -76,9 +78,14 @@ def analyze(
     prompt_version: str = prompts.ACTIVE_VERSION,
     progress: Callable[[str, float], None] = lambda msg, frac: None,
 ) -> AnalysisResult:
-    """Raises parsing.InputRejected for bad inputs and llm.LLMError if the API fails outright."""
+    """Raises parsing.InputRejected for bad inputs, and llm.LLMError only if the model failed before any
+    clause was checked. A failure later on keeps the clauses already checked and records the problem."""
     start_usage = Usage(llm.usage.calls, llm.usage.input_tokens, llm.usage.output_tokens)
-    clauses = load_clauses(data, filename)
+    if hasattr(llm, "models_used"):
+        llm.models_used = set()  # record which models answer for this lease only
+    document = load_document(data, filename)
+    clauses = document.clauses
+    errors: list[str] = []
     prompt = prompts.PROMPTS[prompt_version]
 
     # Retrieval: one embedding request for all clauses.
@@ -99,9 +106,19 @@ def analyze(
             passages=format_passages(passages) if passages else "(no passages retrieved)",
             clauses=prompts.format_clauses(batch),
         )
-        parsed = _classify_with_retry(llm, prompt.system, task)
-        if parsed is None:
-            parse_failures += 1
+        if errors:  # the model already failed on an earlier batch; don't make the user wait through it again
+            parsed = None
+        else:
+            try:
+                parsed = _classify_with_retry(llm, prompt.system, task)
+            except LLMError as exc:
+                if b == 0:
+                    raise  # nothing checked yet: report the failure instead of an empty result
+                errors.append(f"{exc} Clauses from {batch[0].display_name.lower()} on could not be checked.")
+                parsed = None
+            else:
+                if parsed is None:
+                    parse_failures += 1
         by_id = {f.clause_id: f for f in parsed.findings} if parsed else {}
         allowed = {p.chunk_id: p for p in passages}
         for clause in batch:
@@ -111,16 +128,25 @@ def analyze(
                 # Drop any source id the model invented; the citation must point at a passage we gave it.
                 finding.source_ids = [s for s in finding.source_ids if s in allowed]
                 cited = [allowed[s] for s in finding.source_ids]
+                # Show the citation of the passage the model actually relied on, never its own free-text
+                # citation, which can name a different section from the passage it cited.
+                finding.citation = "; ".join(dict.fromkeys(c.citation for c in cited))
             results.append(ClauseResult(clause, finding, [c.chunk_id for c in retrieved[clause.clause_id - 1]], cited))
 
     progress("Checking move-in charges", 0.9)
-    charges = check_charges(llm, clauses)
+    try:
+        charges = check_charges(llm, clauses)
+    except LLMError as exc:
+        errors.append(f"{exc} The move-in charges could not be checked.")
+        charges = ChargesResult("We could not check the move-in charges this time. Please try again later.", [])
 
     usage = Usage(llm.usage.calls - start_usage.calls,
                   llm.usage.input_tokens - start_usage.input_tokens,
                   llm.usage.output_tokens - start_usage.output_tokens)
     progress("Done", 1.0)
-    return AnalysisResult(results, charges, usage, prompt_version, index is not None, parse_failures)
+    models_used = sorted(getattr(llm, "models_used", set()))
+    return AnalysisResult(results, charges, usage, prompt_version, index is not None, parse_failures,
+                          errors=errors, warnings=document.warnings, models_used=models_used)
 
 
 def _batch_passages(per_clause: list[list[Chunk]]) -> list[Chunk]:

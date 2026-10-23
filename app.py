@@ -306,9 +306,17 @@ counts = result.counts()
 html('<div class="blc-stats">' + "".join(
     f'<div class="blc-stat {LABEL_TONE[k]}"><div class="n">{counts.get(k, 0)}</div><div class="l">{LABEL_NAMES[k]}</div></div>'
     for k in LABEL_ORDER) + "</div>")
+for problem in result.errors:  # the model failed partway (e.g. Gemini overloaded); show what was kept
+    st.error(problem, icon="⚠️")
 if result.parse_failures:
     st.warning(f"{counts.get('not_checked', 0)} clause(s) could not be checked because the model's answer was not in "
                "the expected format. Read those clauses yourself, or try again.")
+for warning in result.warnings:  # about the document itself, e.g. unticked "check one" boxes
+    st.warning(warning, icon="📋")
+backups = [m for m in result.models_used if m != config.MODEL]
+if backups:
+    st.info(f"Google's main model was overloaded, so part of this check used a backup model ({', '.join(backups)}).",
+            icon="ℹ️")
 html(f'<div class="blc-note"><b>Not legal advice.</b> {esc(DISCLAIMER)}</div>')
 
 tab_overview, tab_clauses, tab_lease, tab_money, tab_chat = st.tabs(
@@ -362,6 +370,8 @@ with tab_clauses:
             html(f'{pill(LABEL_TONE[r.label], LABEL_NAMES[r.label])}'
                  f'<span class="blc-clause-title">{esc(r.clause.display_name)}{topic}</span>'
                  f'<div class="blc-quote">{esc(r.clause.text)}</div>')
+            for note in r.clause.notes:
+                st.caption(f"☐ {md(note)}")
             if f:
                 st.markdown(md(f.explanation))
                 if f.citation:

@@ -8,6 +8,7 @@ and (3) tests can swap in a fake with the same four methods.
 """
 from __future__ import annotations
 
+import random
 import re
 import time
 from dataclasses import dataclass, field
@@ -24,6 +25,7 @@ class LLMError(Exception):
 
 REQUEST_TIMEOUT_MS = 90_000  # without a timeout a stuck request leaves the app waiting forever
 MAX_WAIT_SECONDS = 60
+OVERLOAD_TRIES_PER_MODEL = 3  # attempts on one model while Google reports it overloaded, before falling back
 
 
 def retry_delay_seconds(exc: Exception) -> float | None:
@@ -77,72 +79,108 @@ class ToolRunResult:
 
 
 class GeminiLLM:
-    def __init__(self, api_key: str, model: str = config.MODEL, embed_model: str = config.EMBED_MODEL):
+    def __init__(self, api_key: str, model: str = config.MODEL, embed_model: str = config.EMBED_MODEL,
+                 fallback_models: tuple[str, ...] = config.FALLBACK_MODELS):
         from google import genai
         from google.genai import types
 
         self.client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
         self.model = model
         self.embed_model = embed_model
+        # Tried in order when the main model is overloaded (503). The eval passes () so every number in a
+        # run comes from one model.
+        self.fallback_models = tuple(m for m in fallback_models if m != model)
+        self.models_used: set[str] = set()  # which models actually answered, shown to the user
         self.usage = Usage()
         # Called with a message whenever we pause before a retry, so the UI can say why it is waiting.
         self.on_wait: Callable[[str], None] = lambda message: None
 
     # ---------- shared plumbing ----------
 
-    def _config(self, system: str | None, **extra):
+    def _config(self, model: str, system: str | None, **extra):
         from google.genai import types
 
+        # Gemini 3 models take a thinking level; Gemini 2.x (the fallbacks) take a thinking budget instead
+        # and reject thinking_level.
+        if model.startswith("gemini-2"):
+            thinking = types.ThinkingConfig(thinking_budget=0, include_thoughts=False)
+        else:
+            thinking = types.ThinkingConfig(thinking_level="MINIMAL", include_thoughts=False)
         return types.GenerateContentConfig(
             system_instruction=system,
             temperature=config.TEMPERATURE,
             seed=config.SEED,
             max_output_tokens=config.MAX_OUTPUT_TOKENS,
-            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL", include_thoughts=False),
+            thinking_config=thinking,
             **extra,
         )
 
-    def _with_retries(self, fn: Callable[[], Any]) -> Any:
-        """Retry rate limits, server errors and timeouts; turn anything else into LLMError."""
+    def _with_retries(self, fn: Callable[[str], Any], models: tuple[str, ...] | None = None) -> Any:
+        """Call fn(model), retrying rate limits, overloads and timeouts; turn anything else into LLMError.
+
+        Overload (5xx) is Google's side, not ours, and often lasts minutes on one model while others are
+        fine. So we retry the main model twice with growing, jittered waits, then move on to each fallback
+        model in turn. A fallback this API key cannot use (404) is skipped.
+        """
         import httpx
         from google.genai import errors
 
-        delay = 5.0
-        for attempt in range(4):
-            last = attempt == 3
+        models = models if models is not None else (self.model, *self.fallback_models)
+        overloaded_tries, rate_limited_tries, timeouts = 0, 0, 0
+        delay = 4.0
+        i = 0
+        while i < len(models):
+            model = models[i]
             try:
-                return fn()
+                result = fn(model)
+                if model != self.embed_model:
+                    self.models_used.add(model)
+                return result
             except errors.ClientError as exc:
+                if exc.code == 404 and i > 0:  # a fallback this key cannot use
+                    i += 1
+                    continue
                 if exc.code != 429:
                     raise LLMError(f"The model request was rejected ({exc.code} {exc.status}).") from exc
                 if is_daily_quota(exc):
                     raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
-                if last:
+                rate_limited_tries += 1
+                if rate_limited_tries > 3:
                     raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again.") from exc
                 wait = min(retry_delay_seconds(exc) or delay, MAX_WAIT_SECONDS)
                 self.on_wait(f"Free-tier rate limit reached, waiting {wait:.0f} seconds before continuing...")
             except errors.ServerError as exc:
-                if last:
-                    raise LLMError("The model service is having problems right now. Please try again shortly.") from exc
-                wait = delay
-                self.on_wait(f"The model service is busy, retrying in {wait:.0f} seconds...")
+                overloaded_tries += 1
+                if overloaded_tries >= OVERLOAD_TRIES_PER_MODEL:
+                    overloaded_tries = 0
+                    i += 1
+                    if i >= len(models):
+                        raise LLMError("Google's Gemini service is overloaded right now (this is on Google's side, "
+                                       "not a problem with your lease). Please try again in a few minutes.") from exc
+                    self.on_wait(f"{model} is overloaded, switching to {models[i]}...")
+                    continue
+                wait = delay + random.uniform(0, delay / 2)  # jitter, so many users do not retry in lockstep
+                self.on_wait(f"Gemini is overloaded, retrying in {wait:.0f} seconds...")
             except httpx.TimeoutException as exc:
-                if attempt >= 1:
+                timeouts += 1
+                if timeouts > 1:
                     raise LLMError("The model took too long to respond. Please try again.") from exc
                 wait = 1.0
                 self.on_wait("The model is slow to respond, retrying...")
             except Exception as exc:  # network failures and the like
                 raise LLMError("Could not reach the model service. Please try again.") from exc
             time.sleep(wait)
-            delay *= 2
+            delay = min(delay * 2, MAX_WAIT_SECONDS)
+        raise LLMError("No Gemini model was available. Please try again in a few minutes.")
 
     # ---------- the four operations the app uses ----------
 
     def generate_json(self, system: str, prompt: str, schema: Any) -> str:
         """Structured output: ask for JSON matching `schema`. Returns raw text; the caller parses it."""
-        cfg = self._config(system, response_mime_type="application/json", response_schema=schema)
         response = self._with_retries(
-            lambda: self.client.models.generate_content(model=self.model, contents=prompt, config=cfg)
+            lambda model: self.client.models.generate_content(
+                model=model, contents=prompt,
+                config=self._config(model, system, response_mime_type="application/json", response_schema=schema))
         )
         self.usage.add(response)
         return response.text or ""
@@ -156,16 +194,18 @@ class GeminiLLM:
         """
         from google.genai import types
 
-        cfg = self._config(
-            system,
-            tools=[types.Tool(function_declarations=declarations)],
-            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-        )
+        def cfg(model: str):
+            return self._config(
+                model, system,
+                tools=[types.Tool(function_declarations=declarations)],
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+            )
+
         contents: list = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
         calls: list[ToolCall] = []
         for _ in range(max_rounds):
             response = self._with_retries(
-                lambda: self.client.models.generate_content(model=self.model, contents=contents, config=cfg)
+                lambda model: self.client.models.generate_content(model=model, contents=contents, config=cfg(model))
             )
             self.usage.add(response)
             function_calls = response.function_calls or []
@@ -196,9 +236,9 @@ class GeminiLLM:
             for h in history
         ]
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
-        cfg = self._config(system)
         response = self._with_retries(
-            lambda: self.client.models.generate_content(model=self.model, contents=contents, config=cfg)
+            lambda model: self.client.models.generate_content(model=model, contents=contents,
+                                                              config=self._config(model, system))
         )
         self.usage.add(response)
         return response.text or ""
@@ -210,11 +250,13 @@ class GeminiLLM:
         vectors = []
         for start in range(0, len(texts), 100):  # API batch limit
             batch = texts[start:start + 100]
+            # Embeddings must all come from one model to be comparable, so no fallback here.
             response = self._with_retries(
-                lambda: self.client.models.embed_content(
-                    model=self.embed_model, contents=batch,
+                lambda model: self.client.models.embed_content(
+                    model=model, contents=batch,
                     config=types.EmbedContentConfig(task_type=task_type),
-                )
+                ),
+                models=(self.embed_model,),
             )
             self.usage.calls += 1
             vectors.extend(e.values for e in response.embeddings)

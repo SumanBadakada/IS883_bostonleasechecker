@@ -19,7 +19,9 @@ from typing import Any
 from google.genai import types
 
 CITE_15B_1B = "M.G.L. c. 186 §15B(1)(b)"
-CITE_BROKER = "Massachusetts broker-fee law, effective Aug. 1, 2025 (verify the citation)"
+# The broker-fee rule took effect Aug. 1, 2025 (FY2026 state budget). We cite the Attorney General's guidance
+# rather than a General Laws section until a team member confirms the codified section on malegislature.gov.
+CITE_BROKER = "Mass. broker-fee law (in effect since Aug. 1, 2025); AG FAQ on residential rental broker's fees"
 
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 

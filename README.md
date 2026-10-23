@@ -38,7 +38,10 @@ downloadable printable report (`leasecheck/report.py`), and a one-click sample l
 
 Other required behaviour: per-session cap (`config.MAX_ANALYSES_PER_SESSION`, `MAX_CHAT_MESSAGES_PER_SESSION`)
 in `st.session_state`; key in Streamlit secrets; a visible disclaimer; scanned, empty, non-lease and
-oversized files rejected before any model call; API errors retried, then shown as a message.
+oversized files rejected before any model call; API errors retried, then shown as a message. When Gemini is
+overloaded the app retries, then falls back to `config.FALLBACK_MODELS`, and keeps the clauses already
+checked if it still fails partway (the eval turns the fallback off). Tick boxes in PDF forms and Word files
+are read as `[ticked]` / `[not ticked]` before the model sees the text (`leasecheck/checkboxes.py`).
 
 ## Layout
 

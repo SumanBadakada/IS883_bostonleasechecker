@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for rate-limit, quota and timeout handling ---
+# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for rate-limit, quota, overload and timeout handling ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 import httpx
 import pytest
@@ -14,11 +14,20 @@ def rate_limited(retry="37s", quota_id="GenerateRequestsPerMinutePerProjectPerMo
         {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": retry}]}})
 
 
+def overloaded():
+    return errors.ServerError(503, {"error": {"code": 503, "status": "UNAVAILABLE",
+                                              "message": "The model is overloaded. Please try again later."}})
+
+
+def not_found():
+    return errors.ClientError(404, {"error": {"code": 404, "status": "NOT_FOUND", "message": "model not found"}})
+
+
 @pytest.fixture
 def llm(monkeypatch):
     sleeps = []
     monkeypatch.setattr(llm_module.time, "sleep", sleeps.append)
-    client = GeminiLLM("fake-key")
+    client = GeminiLLM("fake-key", model="main", fallback_models=("backup-1", "backup-2"))
     client.sleeps = sleeps
     client.messages = []
     client.on_wait = client.messages.append
@@ -26,12 +35,15 @@ def llm(monkeypatch):
 
 
 def flaky(*failures, result="ok"):
+    """fn(model) that raises the queued failures in order, then returns result; records the models tried."""
     queue = list(failures)
 
-    def fn():
+    def fn(model):
+        fn.models.append(model)
         if queue:
             raise queue.pop(0)
         return result
+    fn.models = []
     return fn
 
 
@@ -68,3 +80,45 @@ def test_other_client_errors_are_not_retried(llm):
     with pytest.raises(LLMError, match="400"):
         llm._with_retries(flaky(bad_key))
     assert llm.sleeps == []
+
+
+def test_overload_retries_then_recovers_on_main_model(llm):
+    fn = flaky(overloaded())
+    assert llm._with_retries(fn) == "ok"
+    assert fn.models == ["main", "main"] and llm.models_used == {"main"}
+    assert "overloaded" in llm.messages[0]
+
+
+def test_persistent_overload_falls_back_to_next_model(llm):
+    n = llm_module.OVERLOAD_TRIES_PER_MODEL
+    fn = flaky(*[overloaded()] * n)
+    assert llm._with_retries(fn) == "ok"
+    assert fn.models == ["main"] * n + ["backup-1"]
+    assert llm.models_used == {"backup-1"}
+    assert any("switching to backup-1" in m for m in llm.messages)
+
+
+def test_unavailable_fallback_is_skipped(llm):
+    n = llm_module.OVERLOAD_TRIES_PER_MODEL
+    fn = flaky(*[overloaded()] * n, not_found())
+    assert llm._with_retries(fn) == "ok"
+    assert fn.models[-2:] == ["backup-1", "backup-2"]
+
+
+def test_all_models_overloaded_gives_a_clear_message(llm):
+    n = llm_module.OVERLOAD_TRIES_PER_MODEL
+    with pytest.raises(LLMError, match="overloaded right now"):
+        llm._with_retries(flaky(*[overloaded()] * (3 * n)))
+
+
+def test_embeddings_never_fall_back(llm):
+    n = llm_module.OVERLOAD_TRIES_PER_MODEL
+    fn = flaky(*[overloaded()] * n)
+    with pytest.raises(LLMError):
+        llm._with_retries(fn, models=("embed-model",))
+    assert set(fn.models) == {"embed-model"}
+
+
+def test_thinking_config_matches_model_family(llm):
+    assert llm._config("gemini-2.5-flash-lite", "s").thinking_config.thinking_budget == 0
+    assert llm._config("gemini-3.1-flash-lite", "s").thinking_config.thinking_level is not None
