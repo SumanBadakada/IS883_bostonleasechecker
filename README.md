@@ -42,6 +42,8 @@ oversized files rejected before any model call; API errors retried, then shown a
 overloaded the app retries, then falls back to `config.FALLBACK_MODELS`, and keeps the clauses already
 checked if it still fails partway (the eval turns the fallback off). Tick boxes in PDF forms and Word files
 are read as `[ticked]` / `[not ticked]` before the model sees the text (`leasecheck/checkboxes.py`).
+Page headers/footers (e.g. initials + page number) are removed before splitting, a page break in the
+middle of a sentence never starts a new clause, and a lease naming another state gets a warning.
 
 ## Layout
 
@@ -65,6 +67,7 @@ export GEMINI_API_KEY=...
 python -m eval.run_eval --limit 2     # develop on two inputs first
 python -m eval.run_eval --prompt-version v1   # "before"
 python -m eval.run_eval --prompt-version v2   # "after"
+python -m eval.format_robustness              # clause splitting across 6 formats, no API key needed
 ```
 
 `run_eval` reports recall on possibly-unlawful clauses (the planned headline metric), overall

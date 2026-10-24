@@ -113,9 +113,60 @@ def _pdf_text(data: bytes) -> str:
             "This looks like a scanned PDF (an image of the pages), so there is no text for us to check. "
             "Please upload the lease as a text-based PDF or a Word file.",
         )
-    text = "\n".join(pages)
+    text = "\n".join(_strip_page_furniture(pages))
     _check_spacing(text)
     return text
+
+
+# AI-assisted (Claude Code): running headers and footers ("MJMJ 4" = tenant initials + page number,
+# "Page 4 of 10", the lease title on every page) sit between the last line of one page and the first line
+# of the next. Left in, they end up inside a clause, and an ALL-CAPS footer even looks like a heading,
+# which split clause 30 of a real lease in two at a page break.
+_PAGE_MARK = re.compile(
+    r"^\s*(?:"
+    r"(?:page|pg\.?)\s*\d{1,3}(?:\s*(?:of|/)\s*\d{1,3})?"   # Page 4, Page 4 of 10, pg. 4/10
+    r"|-?\s*\d{1,3}\s*-?"                                    # 4, - 4 -
+    r"|\d{1,3}\s*(?:of|/)\s*\d{1,3}"                          # 4 of 10, 4/10
+    r"|[A-Z]{2,6}\s+\d{1,3}|\d{1,3}\s+[A-Z]{2,6}"               # MJMJ 4 (initials and a page number)
+    r"|(?:tenant|landlord|lessee|lessor)?\s*initials?:?\s*_*\s*(?:\d{1,3})?"  # Initials: ____
+    r"|.{1,60}?[\s\-–|,]\s*(?:page|pg\.?)\s*\d{1,3}(?:\s*(?:of|/)\s*\d{1,3})?"  # LEASE TITLE - Page 2 of 5
+    r")\s*$",
+    re.IGNORECASE,
+)
+_EDGE_LINES = 3  # how many lines at the top and bottom of a page count as header/footer territory
+
+
+def _furniture_key(line: str) -> str:
+    """A line with its numbers blanked out, so "MJMJ 4" and "MJMJ 5" count as the same footer."""
+    return re.sub(r"\d+", "#", line.strip().lower())
+
+
+def _strip_page_furniture(pages: list[str]) -> list[str]:
+    """Remove running headers/footers from the top and bottom lines of each page.
+
+    A line is furniture if it is an obvious page marker (_PAGE_MARK), or if the same short line, numbers
+    ignored and not ending in a full stop, appears at the top or bottom of at least two pages. Only edge
+    lines are touched, so a sentence that repeats in the body of the lease is never removed."""
+    split = [p.split("\n") for p in pages]
+
+    def edges(lines: list[str]) -> list[int]:
+        filled = [i for i, line in enumerate(lines) if line.strip()]
+        return sorted(set(filled[:_EDGE_LINES] + filled[-_EDGE_LINES:]))
+
+    seen: dict[str, int] = {}
+    for lines in split:
+        for key in {_furniture_key(lines[i]) for i in edges(lines)}:
+            seen[key] = seen.get(key, 0) + 1
+    # Running headers and footers are short labels, not sentences, so a repeated line that ends a sentence
+    # (on a short page the edge lines can be body text) is kept.
+    repeated = {k for k, n in seen.items() if n >= 2 and len(k) <= 60 and not k.rstrip().endswith(".")}
+
+    cleaned = []
+    for lines in split:
+        drop = {i for i in edges(lines)
+                if _PAGE_MARK.match(lines[i]) or _furniture_key(lines[i]) in repeated}
+        cleaned.append("\n".join(line for i, line in enumerate(lines) if i not in drop))
+    return cleaned
 
 
 def _pdf_pages_pymupdf(data: bytes) -> list[str]:
@@ -380,8 +431,10 @@ def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
     text = _break_inline_numbers(text)
     lines = [line.rstrip() for line in text.split("\n")]
+    lines = [line for i, line in enumerate(lines) if not _stray_page_mark(lines, i)]
     starts = [i for i, line in enumerate(lines)
-              if _NUMBERED.match(line) or _HEADING.match(line) or _LEAD_IN.match(line)]
+              if _NUMBERED.match(line)
+              or ((_HEADING.match(line) or _LEAD_IN.match(line)) and not _mid_sentence(lines, i))]
 
     blocks: list[str] = []
     if len(starts) >= 3:
@@ -404,6 +457,25 @@ def split_clauses(text: str) -> list[Clause]:
     return [Clause(clause_id=i + 1, text=b) for i, b in enumerate(cleaned)]
 
 
+def _neighbours(lines: list[str], i: int) -> tuple[str, str]:
+    before = next((l.strip() for l in reversed(lines[:i]) if l.strip()), "")
+    after = next((l.strip() for l in lines[i + 1:] if l.strip()), "")
+    return before, after
+
+
+def _mid_sentence(lines: list[str], i: int) -> bool:
+    """True when line i sits inside a sentence: the text before it does not end a sentence and the text
+    after it carries on in lowercase ("...disturb any / MJMJ 4 / other residents..."). A heading there
+    is really a stray page header or footer, so it must not start a new clause."""
+    before, after = _neighbours(lines, i)
+    return bool(before) and not re.search(r"[.:;!?)\]\"”]$", before) and after[:1].islower()
+
+
+def _stray_page_mark(lines: list[str], i: int) -> bool:
+    """A page marker left in the middle of a sentence (e.g. a footer on a page with no repeat to compare)."""
+    return bool(_PAGE_MARK.match(lines[i])) and lines[i].strip() != "" and _mid_sentence(lines, i)
+
+
 def _merge_headings(blocks: list[str]) -> list[str]:
     """A bare heading line ("SECURITY DEPOSIT") belongs with the text after it."""
     merged: list[str] = []
@@ -419,6 +491,52 @@ def _merge_headings(blocks: list[str]) -> list[str]:
     return merged
 
 
+# AI-assisted (Claude Code): the app only knows Massachusetts law. A lease for a property elsewhere would be
+# judged against the wrong rules, so we look for the state it names and warn when it is not Massachusetts.
+STATES = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado",
+    "CT": "Connecticut", "DE": "Delaware", "DC": "District of Columbia", "FL": "Florida", "GA": "Georgia",
+    "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts",
+    "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi", "MO": "Missouri", "MT": "Montana",
+    "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico",
+    "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
+    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota",
+    "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
+    "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
+}
+_STATE_NAMES = "|".join(sorted(map(re.escape, STATES.values()), key=len, reverse=True))
+# Only places where a name clearly means the state, so "Washington Street" or "Virginia Ave" never count:
+_STATE_MENTIONS = [
+    re.compile(rf"\b(?i:state|commonwealth) (?i:of) ({_STATE_NAMES})\b"),            # State of Texas
+    re.compile(rf"\b(?i:laws of (?:the )?(?:state of |commonwealth of )?)({_STATE_NAMES})\b"),  # laws of New York
+    re.compile(rf",\s*({_STATE_NAMES}),?\s+\d{{5}}\b"),                                 # Austin, Texas 78701
+    re.compile(rf"\b({_STATE_NAMES}) (?i:law|statutes?|general laws|revised statutes)\b"),  # Texas law
+]
+_STATE_CODE = re.compile(r",\s*([A-Z]{2})\.?\s+\d{5}(?:-\d{4})?\b")                     # Austin, TX 78701
+
+
+def states_named(text: str) -> set[str]:
+    found = {m.group(1) for pattern in _STATE_MENTIONS for m in pattern.finditer(text)}
+    found |= {STATES[m.group(1)] for m in _STATE_CODE.finditer(text) if m.group(1) in STATES}
+    if re.search(r"\bM\.?G\.?L\.?\b|\bMassachusetts\b", text):
+        found.add("Massachusetts")
+    return found
+
+
+def state_warning(text: str) -> str | None:
+    """A warning when the lease names another state, or None for Massachusetts (or no state at all)."""
+    others = sorted(states_named(text) - {"Massachusetts"})
+    if not others:
+        return None
+    names = " and ".join(others)
+    if "Massachusetts" in states_named(text):
+        return (f"This lease also mentions {names}. This app checks against Massachusetts law only, so make sure "
+                "the property is in Massachusetts and that the lease is governed by Massachusetts law.")
+    return (f"This lease appears to be for a property in {names}, but this app only checks Massachusetts law. "
+            "The results below may not apply to your lease. Check with a tenant-rights resource in that state.")
+
+
 def load_document(data: bytes, filename: str) -> ParsedDocument:
     """The full deterministic front end: extract, check it is a lease, split, collect warnings."""
     text = extract_text(data, filename)
@@ -427,6 +545,9 @@ def load_document(data: bytes, filename: str) -> ParsedDocument:
     if not clauses:
         raise InputRejected("empty", "We could not find any clauses in this document.")
     warnings = []
+    other_state = state_warning(text)
+    if other_state:
+        warnings.append(other_state)
     unticked = [c.display_name for c in clauses if c.notes]
     if unticked:
         warnings.append(f"Some “check one” boxes in this lease are not ticked ({', '.join(unticked)}). "

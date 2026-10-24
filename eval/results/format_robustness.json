@@ -1,0 +1,56 @@
+{
+  "docx_numbered": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  },
+  "docx_auto_numbered": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  },
+  "docx_unnumbered": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  },
+  "pdf_text": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  },
+  "pdf_header_footer": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  },
+  "pdf_two_column": {
+    "clauses": 258,
+    "exact": 258,
+    "merged": 0,
+    "split": 0,
+    "leaked_furniture": 0,
+    "rejected": 0,
+    "exact_rate": 1.0
+  }
+}
