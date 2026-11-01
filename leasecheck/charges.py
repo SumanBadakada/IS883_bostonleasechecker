@@ -19,9 +19,18 @@ from typing import Any
 from google.genai import types
 
 CITE_15B_1B = "M.G.L. c. 186 §15B(1)(b)"
-# The broker-fee rule took effect Aug. 1, 2025 (FY2026 state budget). We cite the Attorney General's guidance
-# rather than a General Laws section until a team member confirms the codified section on malegislature.gov.
-CITE_BROKER = "Mass. broker-fee law (in effect since Aug. 1, 2025); AG FAQ on residential rental broker's fees"
+# Confirmed against the Board of Registration of Real Estate Brokers and Salespersons' broker-fee advisory
+# (mass.gov/doc/broker-fee-advisory/download) and its follow-up guidance (mass.gov/doc/recent-brokertenant-fee-law-guidance-2025/download):
+# the rule is codified at M.G.L. c. 112 §87DDD½ (the Broker Licensing Law), which also amended c. 186 §15B to
+# reach charges by a landlord's agent. Effective Aug. 1, 2025: whoever engaged the broker (tenant or landlord)
+# is the only party who may pay the fee.
+CITE_BROKER = "M.G.L. c. 112 §87DDD½ (effective Aug. 1, 2025); amends M.G.L. c. 186 §15B"
+# Utility charges aren't one of the four move-in charges §15B(1)(b) governs at all, so they shouldn't be
+# flagged "not_allowed" under that section. Whether the tenant can be billed for them is a separate
+# question answered by 105 CMR 410 (heat/hot water/electricity are the landlord's cost unless the unit
+# has its own meter and the lease says in writing the tenant pays; water needs a submeter too).
+CITE_UTILITIES = "105 CMR 410 (AG Guide: Heat and utilities)"
+UTILITY_WORDS = ("utility", "utilities", "heat", "gas", "electric", "water")
 
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 
@@ -94,6 +103,12 @@ def check_move_in_charges(
             add(name, amount, CHECK,
                 "Since Aug. 1, 2025 you pay a broker only if you hired the broker yourself. "
                 "If the landlord hired them, the landlord pays.", CITE_BROKER)
+        elif any(word in lower for word in UTILITY_WORDS):
+            add(name, amount, CHECK,
+                "Not one of the four move-in charges, so this law doesn't cover it. Separately, the "
+                "landlord must pay for heat, hot water and electricity unless the unit has its own "
+                "meter and the lease says in writing that the tenant pays (water also needs a submeter).",
+                CITE_UTILITIES)
         else:
             add(name, amount, NOT_ALLOWED,
                 "Not one of the four charges a landlord may collect at move-in.")
@@ -128,7 +143,7 @@ CHECK_MOVE_IN_CHARGES_DECLARATION = types.FunctionDeclaration(
             "lock_and_key_fee": types.Schema(type=types.Type.NUMBER, description="Fee for a lock and key. 0 if none."),
             "other_fees": types.Schema(
                 type=types.Type.ARRAY,
-                description="Every other fee or deposit due at or before move-in (pet fee, application fee, broker fee, cleaning fee, pet deposit...).",
+                description="Every other fee or deposit due at or before move-in (pet fee, application fee, broker fee, cleaning fee, pet deposit, utility hookup/activation fee...). Use the charge's own name, e.g. 'Utility activation fee', so it can be told apart from a plain move-in fee.",
                 items=types.Schema(
                     type=types.Type.OBJECT,
                     properties={
