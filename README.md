@@ -32,8 +32,10 @@ See [`docs/architecture.md`](docs/architecture.md) for the diagram.
 
 **Interface:** an Overview tab with "questions to ask your landlord", a clause review that shows the cited
 law, the full lease with problem clauses highlighted, a move-in cost table, a follow-up chat, a
-downloadable printable report (`leasecheck/report.py`), and a one-click sample lease
-(`samples/sample_lease.docx`, rebuilt by `python scripts/make_sample_lease.py`). Developer options
+downloadable printable report (`leasecheck/report.py`), and a picker of five sample leases
+(`samples/sample_lease*.docx`, rebuilt by `python scripts/make_sample_lease.py`) so a visitor without
+a lease of their own can see a clean lease, several kinds of violations, and an "unusual but lawful"
+lease. Developer options
 (prompt version, retrieval on/off, token counts) appear only at `<app-url>/?dev=1`.
 
 Other required behaviour: per-session cap (`config.MAX_ANALYSES_PER_SESSION`, `MAX_CHAT_MESSAGES_PER_SESSION`)

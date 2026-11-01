@@ -19,7 +19,16 @@ from leasecheck.retrieval import SourceIndex, format_passages
 st.set_page_config(page_title="Boston Lease Checker", page_icon="🏠", layout="wide",
                    initial_sidebar_state="auto")
 
-SAMPLE_LEASE = Path(__file__).parent / "samples" / "sample_lease.docx"
+SAMPLE_DIR = Path(__file__).parent / "samples"
+# Five sample leases (see scripts/make_sample_lease.py), each telling a different story so a visitor
+# without a lease can see the range of what the app catches, not the same scenario five times.
+SAMPLE_LEASES = {
+    "Clean lease (no violations)": SAMPLE_DIR / "sample_lease_clean.docx",
+    "Mixed violations (fees, entry, interest, carpet)": SAMPLE_DIR / "sample_lease.docx",
+    "Habitability / repairs violation": SAMPLE_DIR / "sample_lease_repairs.docx",
+    "Entry / eviction violation": SAMPLE_DIR / "sample_lease_entry.docx",
+    "Mostly fine, a couple of unusual clauses": SAMPLE_DIR / "sample_lease_unusual.docx",
+}
 DEV_MODE = st.query_params.get("dev") == "1"  # developer options only appear at <app-url>/?dev=1
 
 LABEL_ORDER = ["possibly_unlawful", "unusual", "lawful", "not_checked"]
@@ -266,7 +275,9 @@ if st.session_state.result is None:
             b1, b2 = st.columns(2)
             run = b1.button("Check my lease", type="primary", disabled=uploaded is None, use_container_width=True)
             sample = b2.button("Try a sample lease", use_container_width=True,
-                               disabled=not SAMPLE_LEASE.exists())
+                               disabled=not any(p.exists() for p in SAMPLE_LEASES.values()))
+            sample_choice = st.selectbox("Which sample?", list(SAMPLE_LEASES.keys()),
+                                         label_visibility="collapsed")
             html('<div class="blc-muted">Tip: remove your name, address and other personal details first. '
                  'The text is sent to Google\'s Gemini API for analysis.</div>')
         if run and uploaded is not None:
@@ -274,7 +285,8 @@ if st.session_state.result is None:
             if st.session_state.result is not None:
                 st.rerun()
         if sample:
-            run_check(SAMPLE_LEASE.read_bytes(), "Sample lease (fictional).docx")
+            sample_path = SAMPLE_LEASES[sample_choice]
+            run_check(sample_path.read_bytes(), f"Sample lease — {sample_choice} (fictional).docx")
             if st.session_state.result is not None:
                 st.rerun()
     with right:
