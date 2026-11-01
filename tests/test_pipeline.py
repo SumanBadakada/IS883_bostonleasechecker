@@ -86,6 +86,18 @@ def test_charges_broker_and_lock_need_checking():
     assert r["problems_found"] == 0 and r["needs_checking"] == 2
 
 
+def test_charges_utility_fee_is_checked_not_flagged_unlawful():
+    # A utility hookup fee isn't one of the four §15B(1)(b) charges, but it's also not automatically
+    # illegal (unlike an application or cleaning fee) -- it's governed by a different rule (105 CMR 410),
+    # so it must come back "check", never "not_allowed".
+    r = check_move_in_charges(2000, first_month_rent=2000,
+                              other_fees=[{"name": "Utility activation fee", "amount": 75}])
+    item = next(i for i in r["items"] if i["charge"] == "Utility activation fee")
+    assert item["status"] == "check"
+    assert "105 CMR 410" in item["citation"]
+    assert r["problems_found"] == 0 and r["needs_checking"] == 1
+
+
 def test_charges_bad_rent():
     assert "error" in check_move_in_charges(0)
 

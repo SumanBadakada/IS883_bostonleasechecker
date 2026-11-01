@@ -6,8 +6,9 @@
 > Official source: https://www.mass.gov/guides/the-attorney-generals-guide-to-landlord-and-tenant-rights
 > Permission: a free public guide published by the Massachusetts Attorney General's Office.
 > Statute citations below are the ones the guide relies on; verify each against the official text.
-> Broker fees: the rule is in force since Aug. 1, 2025, but its General Laws section is not yet confirmed,
-> so that chunk cites the AG's FAQ (https://www.mass.gov/info-details/frequently-asked-questions-about-residential-rental-brokers-fees).
+> Broker fees: the rule has been in force since Aug. 1, 2025 and is codified at M.G.L. c. 112 §87DDD½
+> (the Broker Licensing Law, which also amended c. 186 §15B); see the Board of Registration of Real
+> Estate Brokers and Salespersons' advisory (mass.gov/doc/broker-fee-advisory/download).
 > Lockouts: c. 186 §14 alone was incomplete; c. 186 §15F and c. 184 §18 also bar self-help eviction.
 
 ## ag-move-in-costs | AG Guide: Move-in costs (M.G.L. c. 186 §15B(1)(b))
