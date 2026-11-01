@@ -43,7 +43,14 @@ def check_move_in_charges(
     lock_and_key_fee: float = 0.0,
     other_fees: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Return one verdict per charge, plus totals. All amounts are in US dollars."""
+    """Return one verdict per charge, plus totals. All amounts are in US dollars.
+
+    A prorated first month (tenancy starts mid-month, so first_month_rent < monthly_rent) needs no
+    special handling here: every check below only catches an amount that's *too high*, never one that's
+    lower than monthly_rent, so a correctly extracted prorated amount already passes as OK. The real risk
+    is upstream, in extraction -- the model mixing up the prorated figure with the real monthly_rent --
+    which is guarded against in CHECK_MOVE_IN_CHARGES_DECLARATION's field descriptions, not here.
+    """
     rent = float(monthly_rent or 0)
     if rent <= 0:
         return {"error": "monthly_rent must be a positive number of dollars."}
@@ -136,8 +143,13 @@ CHECK_MOVE_IN_CHARGES_DECLARATION = types.FunctionDeclaration(
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "monthly_rent": types.Schema(type=types.Type.NUMBER, description="The regular monthly rent in dollars."),
-            "first_month_rent": types.Schema(type=types.Type.NUMBER, description="First month's rent due at signing. 0 if not stated."),
+            "monthly_rent": types.Schema(type=types.Type.NUMBER, description=(
+                "The lease's regular, full monthly rent rate (e.g. from a 'Rent' or 'Monthly Rent' clause). "
+                "Use the full rate even if the lease also states a smaller, prorated amount due for a partial "
+                "first month -- never the prorated amount itself.")),
+            "first_month_rent": types.Schema(type=types.Type.NUMBER, description=(
+                "The amount actually due at signing for the first month, which may be less than monthly_rent "
+                "if the lease prorates it for a partial month (e.g. the tenancy starts mid-month). 0 if not stated.")),
             "last_month_rent": types.Schema(type=types.Type.NUMBER, description="Last month's rent collected in advance. 0 if not stated."),
             "security_deposit": types.Schema(type=types.Type.NUMBER, description="The security deposit. 0 if none."),
             "lock_and_key_fee": types.Schema(type=types.Type.NUMBER, description="Fee for a lock and key. 0 if none."),
