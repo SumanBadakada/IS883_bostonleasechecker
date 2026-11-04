@@ -122,3 +122,4 @@ def test_embeddings_never_fall_back(llm):
 def test_thinking_config_matches_model_family(llm):
     assert llm._config("gemini-2.5-flash-lite", "s").thinking_config.thinking_budget == 0
     assert llm._config("gemini-3.1-flash-lite", "s").thinking_config.thinking_level is not None
+    assert llm._config("gemini-3.5-flash-lite", "s").thinking_config.thinking_level is not None

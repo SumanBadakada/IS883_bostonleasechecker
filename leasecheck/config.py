@@ -1,13 +1,14 @@
 # --- Owner: (assign, see docs/TEAM_SPLIT.md) | settings shared by the app and the eval ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 
-# Model choices. Flash-lite is the model the course uses on the free tier.
-MODEL = "gemini-3.1-flash-lite"
+# Model choices. Flash-lite is the model the course uses on the free tier (the course notebook moved its
+# default from 3.1 to 3.5 Flash-Lite on Nov 2, 2026; 3.1 stays first in line as a fallback).
+MODEL = "gemini-3.5-flash-lite"
 EMBED_MODEL = "gemini-embedding-001"
 
 # Used only when Google reports MODEL overloaded (HTTP 503), in this order. Each must be available on your
 # key's free tier (check AI Studio); one that is not is skipped automatically.
-FALLBACK_MODELS = ("gemini-2.5-flash-lite", "gemini-2.5-flash")
+FALLBACK_MODELS = ("gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-2.5-flash")
 
 # Generation parameters. Low temperature because we want the same clause to get the same label
 # every time; a fixed seed makes eval runs repeatable.
