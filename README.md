@@ -60,6 +60,14 @@ docs/                      architecture diagram, suggested ownership split
 
 ## Tests and evaluation
 
+**§5.5 evaluation:** results and discussion in [`docs/evaluation.md`](docs/evaluation.md). The test set
+(3 real leases, altered, malicious, abusive, invalid and out-of-scope inputs, chat questions) is built by
+`python -m eval.build_test_set_v2`, with expected results committed before the first run. Rerun it with
+`python -m eval.run_v2 main` and `python -m eval.run_v2 compare` (retrieval vs the model's own knowledge,
+seeds 1–10), or in Colab: [`eval/eval_v2_colab.ipynb`](eval/eval_v2_colab.ipynb).
+
+The earlier synthetic set:
+
 ```bash
 python -m pytest                      # offline, no key needed
 python -m eval.build_test_set         # regenerates eval/test_set/ (20 leases + 3 awkward inputs)
