@@ -303,7 +303,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": 0.0,
+   "sd_diff": 0.0,
+   "lower_in": 0,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "temperature_0.3": {
   "settings": {
@@ -457,7 +464,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": 0.0,
+   "sd_diff": 0.0,
+   "lower_in": 0,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "chain_of_thought": {
   "settings": {
@@ -612,7 +626,14 @@
      "real_05": 0.5714285714285714
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.17575757575757578,
+   "sd_diff": 0.06470956516382613,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "top_k_1": {
   "settings": {
@@ -766,7 +787,14 @@
      "real_05": 0.42857142857142855
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.19393939393939394,
+   "sd_diff": 0.05620374845754972,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "top_k_5": {
   "settings": {
@@ -920,7 +948,14 @@
      "real_05": 0.8571428571428571
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": 0.030303030303030297,
+   "sd_diff": 0.057495957457606925,
+   "lower_in": 1,
+   "higher_in": 3,
+   "runs": 5
+  }
  },
  "top_k_10": {
   "settings": {
@@ -1074,7 +1109,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": 0.012121212121212133,
+   "sd_diff": 0.049236596391733126,
+   "lower_in": 2,
+   "higher_in": 3,
+   "runs": 5
+  }
  },
  "no_persona": {
   "settings": {
@@ -1228,7 +1270,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.07878787878787878,
+   "sd_diff": 0.08698606117822624,
+   "lower_in": 3,
+   "higher_in": 1,
+   "runs": 5
+  }
  },
  "no_context": {
   "settings": {
@@ -1382,7 +1431,14 @@
      "real_05": 0.5714285714285714
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.09696969696969696,
+   "sd_diff": 0.052135304648743226,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "no_instruction": {
   "settings": {
@@ -1536,7 +1592,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.006060606060606055,
+   "sd_diff": 0.07761362712039815,
+   "lower_in": 1,
+   "higher_in": 2,
+   "runs": 5
+  }
  },
  "no_exemplar": {
   "settings": {
@@ -1690,7 +1753,14 @@
      "real_05": 0.5714285714285714
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.1090909090909091,
+   "sd_diff": 0.04535342286998713,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "no_format": {
   "settings": {
@@ -1844,7 +1914,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.030303030303030276,
+   "sd_diff": 0.04285495643554836,
+   "lower_in": 3,
+   "higher_in": 1,
+   "runs": 5
+  }
  },
  "no_constraints": {
   "settings": {
@@ -1998,7 +2075,14 @@
      "real_05": 0.7142857142857143
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.07878787878787878,
+   "sd_diff": 0.05620374845754971,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "no_tone": {
   "settings": {
@@ -2152,7 +2236,14 @@
      "real_05": 0.42857142857142855
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.21212121212121213,
+   "sd_diff": 0.03319530651546464,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "no_data": {
   "settings": {
@@ -2307,7 +2398,14 @@
      "real_05": 0.0
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.6484848484848486,
+   "sd_diff": 0.04535342286998718,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  },
  "no_schema": {
   "settings": {
@@ -2449,6 +2547,13 @@
      "real_05": 0.0
     }
    }
-  ]
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.6727272727272727,
+   "sd_diff": 0.03533910239300184,
+   "lower_in": 5,
+   "higher_in": 0,
+   "runs": 5
+  }
  }
 }

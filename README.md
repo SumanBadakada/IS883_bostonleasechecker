@@ -61,7 +61,8 @@ docs/                      architecture diagram, suggested ownership split
 ## Tests and evaluation
 
 **§5.5 evaluation:** results and discussion in [`docs/evaluation.md`](docs/evaluation.md), also as a Word
-report: [`docs/Evaluation_Report.docx`](docs/Evaluation_Report.docx). The test set
+report: [`docs/Evaluation_Report.docx`](docs/Evaluation_Report.docx), and in Russian with the code behind each
+setting and its file:line location: [`docs/Evaluation_Report_with_code_RU.docx`](docs/Evaluation_Report_with_code_RU.docx). The test set
 (5 real leases, altered, malicious, abusive, invalid and out-of-scope inputs, chat questions) is built by
 `python -m eval.build_test_set_v2`, with expected results committed before the first run. Rerun it with
 `python -m eval.run_v2 main` and `python -m eval.run_v2 compare` (retrieval vs the model's own knowledge,

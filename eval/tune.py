@@ -282,6 +282,14 @@ def summary() -> dict:
             "mean_passages_per_batch": statistics.mean(passages) if passages else None,
             "per_seed": per_seed,
         }
+    # Paired by seed: every version ran on the baseline's seeds, so compare run with run, not mean with mean.
+    base = {p["seed"]: p for p in out.get("baseline", {}).get("per_seed", [])}
+    for name, v in out.items():
+        diffs = [p["recall"] - base[p["seed"]]["recall"] for p in v["per_seed"] if p["seed"] in base]
+        if name != "baseline" and diffs:
+            v["recall_vs_baseline"] = {"mean_diff": statistics.mean(diffs), "sd_diff": statistics.pstdev(diffs),
+                                       "lower_in": sum(d < 0 for d in diffs), "higher_in": sum(d > 0 for d in diffs),
+                                       "runs": len(diffs)}
     return out
 
 
