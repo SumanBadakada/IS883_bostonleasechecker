@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | runs the §5.5 test set and the repeated comparison ---
+# --- Erdan: runs the §5.5 test set through the app's pipeline, and the repeated comparison ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Run the app's own pipeline (leasecheck.analyzer.analyze and the chat prompt) on test set v2.
 
@@ -41,7 +41,7 @@ SEEDS = range(1, 11)
 COMPARE_INPUTS = ["real_01_gh_addendum.pdf", "real_02_st_paul_brookline.pdf", "alt_late_fee_31_days.pdf",
                   "alt_late_fee_5_days.pdf", "alt_deposit_1_5_months.pdf", "alt_broker_tenant_hired.pdf"]
 
-# ---------- the "model's own knowledge" prompt: v2 with every reference to the passages removed ----------
+# --- Erdan: the "model's own knowledge" prompt: v2 with every reference to the passages removed ---
 
 _MEMORY_EDITS = [
     ("conflicts with a Massachusetts law in the SOURCE PASSAGES, or asks the\n  tenant to give up a right the "
@@ -78,7 +78,7 @@ def memory_prompt() -> PromptVersion:
 prompts.PROMPTS["v2-memory"] = memory_prompt()  # registered for this process only; the app never sees it
 
 
-# ---------- a GeminiLLM that logs every request and retries Google's passing overloads ----------
+# --- Erdan: a GeminiLLM that logs every request's tokens and retries Google's passing overloads ---
 
 class EvalLLM(GeminiLLM):
     RETRIES, WAIT = 5, 60
@@ -132,7 +132,7 @@ class EvalLLM(GeminiLLM):
         return np.stack([self._embed_cache[(task_type, t)] for t in texts])
 
 
-# ---------- inputs ----------
+# --- Erdan: loading the inputs, running one, scoring it (checks, clause rows, tokens and cost) ---
 
 def load_inputs() -> tuple[list[dict], list[dict]]:
     gold = json.loads((V2 / "gold.json").read_text())
@@ -214,7 +214,7 @@ def tokens_by_stage(calls: list[dict]) -> dict:
     return out
 
 
-# ---------- main run: every input once ----------
+# --- Erdan: main run (every input once) and merging inputs added later ---
 
 def run_main(llm: EvalLLM, index) -> dict:
     inputs, chat = load_inputs()
@@ -292,7 +292,7 @@ def add_to_main(llm: EvalLLM, index, names: list[str]) -> dict:
     return {"summary": main_summary(llm.model, records, saved["chat"]), "inputs": records, "chat": saved["chat"]}
 
 
-# ---------- comparison: retrieval vs the model's own knowledge, ten seeds each ----------
+# --- Erdan: comparison: retrieval vs the model's own knowledge, ten seeds each ---
 
 VERSIONS = {"retrieval": "v2", "memory": "v2-memory"}
 

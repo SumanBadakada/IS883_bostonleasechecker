@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | offline tests for the tuning harness ---
+# --- Erdan: offline tests for the tuning harness ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 import json
 

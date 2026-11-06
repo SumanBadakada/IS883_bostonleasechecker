@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | offline tests for the §5.5 harness ---
+# --- Erdan: offline tests for the §5.5 harness ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 import json
 from pathlib import Path

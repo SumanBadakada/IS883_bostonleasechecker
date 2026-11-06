@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | one-change-at-a-time tuning on the five real leases ---
+# --- Erdan: one-change-at-a-time tuning on the five real leases ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Change one thing at a time against the app's settings and measure recall and precision on the five real
 leases, each version run with seeds 1..N.
@@ -36,7 +36,7 @@ TUNE = OUT / "tune"
 LEASES = ["real_01_gh_addendum.pdf", "real_02_st_paul_brookline.pdf", "real_03_104_academy.pdf",
           "real_04_residential_lease_2025_noimages.pdf", "real_05_graduate_residence_license.pdf"]
 
-# ---------- prompt v2 cut into its elements ----------
+# --- Erdan: prompt v2 cut into its eight elements, and the chain-of-thought prompt and schema ---
 # Each piece is (element, text). Joined in order they give back prompt v2 exactly (checked below), so removing
 # one element removes only that element's words. "keep" pieces are the clauses themselves and the headings.
 
@@ -116,7 +116,7 @@ class BatchFindingsCoT(BaseModel):
     findings: list[ClauseFindingCoT]
 
 
-# ---------- the versions: each differs from the baseline in one setting ----------
+# --- Erdan: the 16 versions (each differs from the baseline in one setting) and how they are applied ---
 
 VARIANTS: dict[str, dict] = {
     "baseline": {},
@@ -162,7 +162,7 @@ def apply(variant: dict, llm: TuneLLM) -> None:
     llm.schema_mode = variant.get("schema", "schema")
 
 
-# ---------- running ----------
+# --- Erdan: running every version on seeds 1..N, resuming after quota stops ---
 
 def _count_passages(log: list[int]):
     original = analyzer._batch_passages
@@ -232,7 +232,7 @@ class QuotaExhausted(Exception):
     pass
 
 
-# ---------- summary ----------
+# --- Erdan: summary: mean, spread, tokens, cost, and the seed-by-seed comparison with the baseline ---
 
 def summary() -> dict:
     out = {}

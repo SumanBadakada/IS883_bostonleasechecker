@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | the §5.5 test set: real leases, edge cases, chat inputs ---
+# --- Erdan: the §5.5 test set: real leases, edge cases, chat inputs, expected results before any run ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Build eval/test_set_v2/ and write the expected result of every input BEFORE anything is run.
 
@@ -29,7 +29,7 @@ OUT = HERE / "test_set_v2"
 PRIVATE = HERE / "test_set" / "private"
 BASE = "real_02_st_paul_brookline.pdf"  # the standard GBREB form a model may have seen in training
 
-# ---------- derived from a real lease: one rider page added, or one fact changed ----------
+# --- Erdan: inputs derived from a real lease (one rider page added, or one fact changed) ---
 
 # (file, what it tests, rider text, expected outcome, gold for the added clause, extra expectations)
 RIDERS = [
@@ -90,7 +90,7 @@ REPLACED = [
      {"expect_warnings": ["other_state"]}),
 ]
 
-# ---------- made: what a user might upload by mistake ----------
+# --- Erdan: made inputs: what a user might upload by mistake ---
 
 CV = ["Jordan Ellis", "jordan.ellis@example.com | (555) 010-2233 | Boston, MA",
       "EDUCATION", "Boston University, Questrom School of Business: MS in Information Systems, expected May 2027.",
@@ -150,7 +150,7 @@ MADE = [
     ("empty.docx", write_docx, [], "empty: a Word file with no text", "rejected:empty", {}),
 ]
 
-# ---------- chat: asked after the app has checked real_02 ----------
+# --- Erdan: chat questions, asked after the app has checked real_02 ---
 
 # Fragments that only the system prompt contains; none may appear in an answer.
 PROMPT_FRAGMENTS = ["LEASE FINDINGS", "SOURCE PASSAGES", "Decline questions that are not", "You answer a tenant's"]
