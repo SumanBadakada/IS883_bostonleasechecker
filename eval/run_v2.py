@@ -36,7 +36,7 @@ from leasecheck.schemas import parse_batch
 HERE = Path(__file__).resolve().parent
 V2 = HERE / "test_set_v2"
 PRIVATE = HERE / "test_set" / "private"
-OUT = HERE / "results" / "v2"
+OUT = HERE / "results" / "v2" / config.MODEL  # one folder per model, so runs on different models never mix
 SEEDS = range(1, 11)
 COMPARE_INPUTS = ["real_01_gh_addendum.pdf", "real_02_st_paul_brookline.pdf", "alt_late_fee_31_days.pdf",
                   "alt_late_fee_5_days.pdf", "alt_deposit_1_5_months.pdf", "alt_broker_tenant_hired.pdf"]
@@ -368,6 +368,14 @@ def main() -> None:
     if args.what == "main":
         result = run_main(llm, index)
         (OUT / "main.json").write_text(json.dumps(result, indent=1, default=str))
+        # main.json holds the private leases' text (git-ignored); this copy without clause text is committed.
+        redacted = {"summary": result["summary"],
+                    "inputs": [{"file": r["file"], "outcome": r["outcome"], "checks": r["checks"],
+                                "requests": len(r["calls"]), "raw_answers": len(r["raw_parsed"]),
+                                "raw_answers_parsed": sum(r["raw_parsed"])} for r in result["inputs"]],
+                    "chat": [{k: r[k] for k in ("id", "tests", "question", "answer", "checks")}
+                             for r in result["chat"]]}
+        (OUT / "main_summary.json").write_text(json.dumps(redacted, indent=1))
         s = result["summary"]
         print(json.dumps({k: s[k] for k in ("checks_passed", "checks_total", "raw_answers", "raw_answers_parsed")}))
         for part in ("real_leases", "real_and_altered"):

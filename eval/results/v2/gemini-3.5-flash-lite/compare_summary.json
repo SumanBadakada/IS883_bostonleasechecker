@@ -1,0 +1,639 @@
+{
+ "retrieval": {
+  "runs": 10,
+  "recall": {
+   "mean": 0.6692307692307692,
+   "min": 0.6153846153846154,
+   "max": 0.6923076923076923,
+   "sd": 0.03525058226889105
+  },
+  "precision": {
+   "mean": 0.32389528861942657,
+   "min": 0.26666666666666666,
+   "max": 0.36,
+   "sd": 0.02753004430610336
+  },
+  "per_seed": [
+   {
+    "seed": 1,
+    "recall": 0.6923076923076923,
+    "precision": 0.3333333333333333,
+    "input_tokens": 103447,
+    "output_tokens": 24982,
+    "leases": 6
+   },
+   {
+    "seed": 2,
+    "recall": 0.6153846153846154,
+    "precision": 0.3333333333333333,
+    "input_tokens": 103447,
+    "output_tokens": 27972,
+    "leases": 6
+   },
+   {
+    "seed": 3,
+    "recall": 0.6923076923076923,
+    "precision": 0.34615384615384615,
+    "input_tokens": 103447,
+    "output_tokens": 24704,
+    "leases": 6
+   },
+   {
+    "seed": 4,
+    "recall": 0.6923076923076923,
+    "precision": 0.3,
+    "input_tokens": 103447,
+    "output_tokens": 23756,
+    "leases": 6
+   },
+   {
+    "seed": 5,
+    "recall": 0.6153846153846154,
+    "precision": 0.26666666666666666,
+    "input_tokens": 103447,
+    "output_tokens": 25632,
+    "leases": 6
+   },
+   {
+    "seed": 6,
+    "recall": 0.6923076923076923,
+    "precision": 0.32142857142857145,
+    "input_tokens": 103447,
+    "output_tokens": 26857,
+    "leases": 6
+   },
+   {
+    "seed": 7,
+    "recall": 0.6923076923076923,
+    "precision": 0.3103448275862069,
+    "input_tokens": 103447,
+    "output_tokens": 24631,
+    "leases": 6
+   },
+   {
+    "seed": 8,
+    "recall": 0.6923076923076923,
+    "precision": 0.36,
+    "input_tokens": 103447,
+    "output_tokens": 26757,
+    "leases": 6
+   },
+   {
+    "seed": 9,
+    "recall": 0.6923076923076923,
+    "precision": 0.36,
+    "input_tokens": 103447,
+    "output_tokens": 27272,
+    "leases": 6
+   },
+   {
+    "seed": 10,
+    "recall": 0.6153846153846154,
+    "precision": 0.3076923076923077,
+    "input_tokens": 103447,
+    "output_tokens": 27336,
+    "leases": 6
+   }
+  ],
+  "input_tokens_per_lease": 17241.166666666668,
+  "output_tokens_per_lease": 4331.65,
+  "cost_per_1000_leases_usd": 3.456776666666667,
+  "clause_label_counts": {
+   "real_01_gh_addendum.pdf:c2": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c3": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c4": {
+    "gold": "unusual",
+    "unusual": 4,
+    "possibly_unlawful": 4,
+    "lawful": 2
+   },
+   "real_01_gh_addendum.pdf:c9": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c10": {
+    "gold": "unusual",
+    "lawful": 9,
+    "unusual": 1
+   },
+   "real_01_gh_addendum.pdf:c11": {
+    "gold": "unusual",
+    "lawful": 5,
+    "possibly_unlawful": 3,
+    "unusual": 2
+   },
+   "real_01_gh_addendum.pdf:c14": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c16": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c17": {
+    "gold": "unusual",
+    "lawful": 6,
+    "unusual": 4
+   },
+   "real_01_gh_addendum.pdf:c20": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c21": {
+    "gold": "unusual",
+    "lawful": 10
+   },
+   "real_01_gh_addendum.pdf:c22": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c23": {
+    "gold": "possibly_unlawful",
+    "unusual": 4,
+    "lawful": 6
+   },
+   "real_01_gh_addendum.pdf:c24": {
+    "gold": "possibly_unlawful",
+    "unusual": 8,
+    "lawful": 2
+   },
+   "real_01_gh_addendum.pdf:c26": {
+    "gold": "unusual",
+    "possibly_unlawful": 9,
+    "lawful": 1
+   },
+   "real_01_gh_addendum.pdf:c27": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 7,
+    "unusual": 3
+   },
+   "real_01_gh_addendum.pdf:c30": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c32": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c33": {
+    "gold": "unusual",
+    "possibly_unlawful": 9,
+    "unusual": 1
+   },
+   "real_01_gh_addendum.pdf:c34": {
+    "gold": "unusual",
+    "lawful": 9,
+    "unusual": 1
+   },
+   "real_01_gh_addendum.pdf:c39": {
+    "gold": "unusual",
+    "unusual": 9,
+    "possibly_unlawful": 1
+   },
+   "real_01_gh_addendum.pdf:c40": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c46": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c47": {
+    "gold": "possibly_unlawful",
+    "unusual": 9,
+    "lawful": 1
+   },
+   "real_01_gh_addendum.pdf:c48": {
+    "gold": "unusual",
+    "unusual": 9,
+    "lawful": 1
+   },
+   "real_01_gh_addendum.pdf:c50": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c51": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c53": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c54": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c55": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_01_gh_addendum.pdf:c57": {
+    "gold": "unusual",
+    "possibly_unlawful": 8,
+    "unusual": 2
+   },
+   "real_01_gh_addendum.pdf:c58": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_01_gh_addendum.pdf:c60": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c8": {
+    "gold": "unusual",
+    "lawful": 9,
+    "possibly_unlawful": 1
+   },
+   "real_02_st_paul_brookline.pdf:c10": {
+    "gold": "unusual",
+    "unusual": 7,
+    "possibly_unlawful": 2,
+    "lawful": 1
+   },
+   "real_02_st_paul_brookline.pdf:c25": {
+    "gold": "unusual",
+    "unusual": 4,
+    "lawful": 5,
+    "possibly_unlawful": 1
+   },
+   "real_02_st_paul_brookline.pdf:c27": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c28": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c30": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c34": {
+    "gold": "unusual",
+    "unusual": 10
+   },
+   "real_02_st_paul_brookline.pdf:c38": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c39": {
+    "gold": "unusual",
+    "possibly_unlawful": 9,
+    "unusual": 1
+   },
+   "real_02_st_paul_brookline.pdf:c40": {
+    "gold": "unusual",
+    "possibly_unlawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c41": {
+    "gold": "possibly_unlawful",
+    "lawful": 10
+   },
+   "real_02_st_paul_brookline.pdf:c48": {
+    "gold": "unusual",
+    "possibly_unlawful": 9,
+    "lawful": 1
+   },
+   "alt_late_fee_31_days.pdf:rider": {
+    "gold": "lawful",
+    "lawful": 10
+   },
+   "alt_late_fee_5_days.pdf:rider": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "alt_deposit_1_5_months.pdf:rider": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 10
+   },
+   "alt_broker_tenant_hired.pdf:rider": {
+    "gold": "lawful",
+    "lawful": 10
+   }
+  }
+ },
+ "memory": {
+  "runs": 9,
+  "recall": {
+   "mean": 0.4700854700854701,
+   "min": 0.38461538461538464,
+   "max": 0.5384615384615384,
+   "sd": 0.056694440860776046
+  },
+  "precision": {
+   "mean": 0.3235681921182437,
+   "min": 0.2727272727272727,
+   "max": 0.375,
+   "sd": 0.04194991809376051
+  },
+  "per_seed": [
+   {
+    "seed": 1,
+    "recall": 0.46153846153846156,
+    "precision": 0.35294117647058826,
+    "input_tokens": 70845,
+    "output_tokens": 20522,
+    "leases": 6
+   },
+   {
+    "seed": 2,
+    "recall": 0.5384615384615384,
+    "precision": 0.3684210526315789,
+    "input_tokens": 70845,
+    "output_tokens": 20897,
+    "leases": 6
+   },
+   {
+    "seed": 3,
+    "recall": 0.46153846153846156,
+    "precision": 0.375,
+    "input_tokens": 70845,
+    "output_tokens": 21059,
+    "leases": 6
+   },
+   {
+    "seed": 4,
+    "recall": 0.5384615384615384,
+    "precision": 0.3333333333333333,
+    "input_tokens": 70845,
+    "output_tokens": 20745,
+    "leases": 6
+   },
+   {
+    "seed": 5,
+    "recall": 0.5384615384615384,
+    "precision": 0.3684210526315789,
+    "input_tokens": 70845,
+    "output_tokens": 22138,
+    "leases": 6
+   },
+   {
+    "seed": 6,
+    "recall": 0.46153846153846156,
+    "precision": 0.2857142857142857,
+    "input_tokens": 70845,
+    "output_tokens": 20520,
+    "leases": 6
+   },
+   {
+    "seed": 7,
+    "recall": 0.46153846153846156,
+    "precision": 0.2727272727272727,
+    "input_tokens": 70845,
+    "output_tokens": 21337,
+    "leases": 6
+   },
+   {
+    "seed": 8,
+    "recall": 0.38461538461538464,
+    "precision": 0.2777777777777778,
+    "input_tokens": 70845,
+    "output_tokens": 20427,
+    "leases": 6
+   },
+   {
+    "seed": 9,
+    "recall": 0.38461538461538464,
+    "precision": 0.2777777777777778,
+    "input_tokens": 70845,
+    "output_tokens": 20853,
+    "leases": 6
+   }
+  ],
+  "input_tokens_per_lease": 11807.5,
+  "output_tokens_per_lease": 3490.703703703704,
+  "cost_per_1000_leases_usd": 2.577031481481482,
+  "clause_label_counts": {
+   "real_01_gh_addendum.pdf:c2": {
+    "gold": "unusual",
+    "unusual": 6,
+    "possibly_unlawful": 3
+   },
+   "real_01_gh_addendum.pdf:c3": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c4": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c9": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c10": {
+    "gold": "unusual",
+    "lawful": 8,
+    "unusual": 1
+   },
+   "real_01_gh_addendum.pdf:c11": {
+    "gold": "unusual",
+    "lawful": 9
+   },
+   "real_01_gh_addendum.pdf:c14": {
+    "gold": "unusual",
+    "unusual": 6,
+    "possibly_unlawful": 3
+   },
+   "real_01_gh_addendum.pdf:c16": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 7,
+    "lawful": 2
+   },
+   "real_01_gh_addendum.pdf:c17": {
+    "gold": "unusual",
+    "lawful": 8,
+    "unusual": 1
+   },
+   "real_01_gh_addendum.pdf:c20": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c21": {
+    "gold": "unusual",
+    "unusual": 9
+   },
+   "real_01_gh_addendum.pdf:c22": {
+    "gold": "possibly_unlawful",
+    "lawful": 9
+   },
+   "real_01_gh_addendum.pdf:c23": {
+    "gold": "possibly_unlawful",
+    "unusual": 9
+   },
+   "real_01_gh_addendum.pdf:c24": {
+    "gold": "possibly_unlawful",
+    "unusual": 6,
+    "lawful": 3
+   },
+   "real_01_gh_addendum.pdf:c26": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c27": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 6,
+    "unusual": 3
+   },
+   "real_01_gh_addendum.pdf:c30": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 9
+   },
+   "real_01_gh_addendum.pdf:c32": {
+    "gold": "possibly_unlawful",
+    "lawful": 7,
+    "possibly_unlawful": 2
+   },
+   "real_01_gh_addendum.pdf:c33": {
+    "gold": "unusual",
+    "unusual": 9
+   },
+   "real_01_gh_addendum.pdf:c34": {
+    "gold": "unusual",
+    "lawful": 9
+   },
+   "real_01_gh_addendum.pdf:c39": {
+    "gold": "unusual",
+    "unusual": 7,
+    "possibly_unlawful": 2
+   },
+   "real_01_gh_addendum.pdf:c40": {
+    "gold": "unusual",
+    "unusual": 8,
+    "possibly_unlawful": 1
+   },
+   "real_01_gh_addendum.pdf:c46": {
+    "gold": "unusual",
+    "lawful": 9
+   },
+   "real_01_gh_addendum.pdf:c47": {
+    "gold": "possibly_unlawful",
+    "lawful": 9
+   },
+   "real_01_gh_addendum.pdf:c48": {
+    "gold": "unusual",
+    "lawful": 4,
+    "unusual": 5
+   },
+   "real_01_gh_addendum.pdf:c50": {
+    "gold": "unusual",
+    "unusual": 9
+   },
+   "real_01_gh_addendum.pdf:c51": {
+    "gold": "unusual",
+    "lawful": 5,
+    "possibly_unlawful": 4
+   },
+   "real_01_gh_addendum.pdf:c53": {
+    "gold": "unusual",
+    "unusual": 9
+   },
+   "real_01_gh_addendum.pdf:c54": {
+    "gold": "unusual",
+    "possibly_unlawful": 7,
+    "unusual": 2
+   },
+   "real_01_gh_addendum.pdf:c55": {
+    "gold": "unusual",
+    "unusual": 8,
+    "possibly_unlawful": 1
+   },
+   "real_01_gh_addendum.pdf:c57": {
+    "gold": "unusual",
+    "unusual": 6,
+    "possibly_unlawful": 3
+   },
+   "real_01_gh_addendum.pdf:c58": {
+    "gold": "unusual",
+    "unusual": 6,
+    "possibly_unlawful": 3
+   },
+   "real_01_gh_addendum.pdf:c60": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_02_st_paul_brookline.pdf:c8": {
+    "gold": "unusual",
+    "lawful": 8,
+    "unusual": 1
+   },
+   "real_02_st_paul_brookline.pdf:c10": {
+    "gold": "unusual",
+    "unusual": 4,
+    "possibly_unlawful": 3,
+    "lawful": 2
+   },
+   "real_02_st_paul_brookline.pdf:c25": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_02_st_paul_brookline.pdf:c27": {
+    "gold": "unusual",
+    "lawful": 6,
+    "unusual": 2,
+    "possibly_unlawful": 1
+   },
+   "real_02_st_paul_brookline.pdf:c28": {
+    "gold": "unusual",
+    "possibly_unlawful": 4,
+    "unusual": 5
+   },
+   "real_02_st_paul_brookline.pdf:c30": {
+    "gold": "unusual",
+    "lawful": 9
+   },
+   "real_02_st_paul_brookline.pdf:c34": {
+    "gold": "unusual",
+    "unusual": 6,
+    "lawful": 3
+   },
+   "real_02_st_paul_brookline.pdf:c38": {
+    "gold": "unusual",
+    "possibly_unlawful": 6,
+    "unusual": 3
+   },
+   "real_02_st_paul_brookline.pdf:c39": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_02_st_paul_brookline.pdf:c40": {
+    "gold": "unusual",
+    "possibly_unlawful": 9
+   },
+   "real_02_st_paul_brookline.pdf:c41": {
+    "gold": "possibly_unlawful",
+    "lawful": 8,
+    "unusual": 1
+   },
+   "real_02_st_paul_brookline.pdf:c48": {
+    "gold": "unusual",
+    "unusual": 9
+   },
+   "alt_late_fee_31_days.pdf:rider": {
+    "gold": "lawful",
+    "lawful": 9
+   },
+   "alt_late_fee_5_days.pdf:rider": {
+    "gold": "possibly_unlawful",
+    "possibly_unlawful": 9
+   },
+   "alt_deposit_1_5_months.pdf:rider": {
+    "gold": "possibly_unlawful",
+    "lawful": 5,
+    "possibly_unlawful": 4
+   },
+   "alt_broker_tenant_hired.pdf:rider": {
+    "gold": "lawful",
+    "lawful": 9
+   }
+  }
+ }
+}
