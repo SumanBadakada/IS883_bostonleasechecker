@@ -104,7 +104,7 @@ class EvalLLM(GeminiLLM):
             try:
                 return super()._with_retries(fn, models)
             except LLMError as exc:
-                if not any(t in str(exc) for t in ("overloaded", "Could not reach")) or attempt == self.RETRIES:
+                if not any(t in str(exc) for t in ("overloaded", "Could not reach", "rate limit was reached")) or attempt == self.RETRIES:
                     raise
             print(f"  Gemini overloaded or unreachable, retrying this request in {self.WAIT}s", flush=True)
             time.sleep(self.WAIT)
@@ -218,7 +218,7 @@ def tokens_by_stage(calls: list[dict]) -> dict:
 
 def run_main(llm: EvalLLM, index) -> dict:
     inputs, chat = load_inputs()
-    records, all_rows, real_rows = [], [], []
+    records = []
     base = None
     for n, item in enumerate(inputs, 1):
         print(f"[{n}/{len(inputs)}] {item['file']}", flush=True)
@@ -226,11 +226,7 @@ def run_main(llm: EvalLLM, index) -> dict:
         if Path(item["file"]).name == "real_02_st_paul_brookline.pdf":
             base = record
         record["checks"] = score_input(item, record, base)
-        rows = clause_rows(item, record)
-        record["rows"] = rows
-        all_rows += rows
-        if item.get("source") == "real":
-            real_rows += rows
+        record["rows"] = clause_rows(item, record)
         records.append(record)
 
     chat_records = []
@@ -256,12 +252,19 @@ def run_main(llm: EvalLLM, index) -> dict:
 
     for r in records:
         r.pop("_result", None)
+    return {"summary": main_summary(llm.model, records, chat_records), "inputs": records, "chat": chat_records}
+
+
+def main_summary(model: str, records: list[dict], chat_records: list[dict]) -> dict:
+    sources = {i["file"]: i.get("source") for i in load_inputs()[0]}
+    real_rows = [row for r in records if sources.get(r["file"]) == "real" for row in r["rows"]]
+    all_rows = [row for r in records for row in r["rows"]]
     raw = [ok for r in records for ok in r["raw_parsed"]]
     calls = [c for r in records for c in r["calls"]] + [c for r in chat_records for c in r["calls"]]
     every_check = [c for r in records for c in r["checks"]] + [c for r in chat_records for c in r["checks"]]
     analyzed = [r for r in records if r["outcome"] == "analyzed"]
-    summary = {
-        "model": llm.model, "temperature": config.TEMPERATURE, "seed": config.SEED,
+    return {
+        "model": model, "temperature": config.TEMPERATURE, "seed": config.SEED,
         "real_leases": summarise(real_rows) if real_rows else {},
         "real_and_altered": summarise(all_rows) if all_rows else {},
         "raw_answers": len(raw), "raw_answers_parsed": sum(raw),
@@ -269,7 +272,24 @@ def run_main(llm: EvalLLM, index) -> dict:
         "tokens_by_stage": tokens_by_stage(calls),
         "requests_per_analyzed_input": sum(len(r["calls"]) for r in analyzed) / max(len(analyzed), 1),
     }
-    return {"summary": summary, "inputs": records, "chat": chat_records}
+
+
+def add_to_main(llm: EvalLLM, index, names: list[str]) -> dict:
+    """Run only the named inputs (e.g. leases added later) and merge them into the saved main run."""
+    saved = json.loads((OUT / "main.json").read_text())
+    inputs = {Path(i["file"]).name: i for i in load_inputs()[0]}
+    by_file = {r["file"]: r for r in saved["inputs"]}
+    for name in names:
+        item = inputs[name]
+        print(f"[add] {item['file']}", flush=True)
+        record = run_input(llm, index, item)
+        record.pop("_result", None)
+        record["checks"] = score_input(item, record, None)
+        record["rows"] = clause_rows(item, record)
+        record["added_later"] = True
+        by_file[item["file"]] = record
+    records = list(by_file.values())
+    return {"summary": main_summary(llm.model, records, saved["chat"]), "inputs": records, "chat": saved["chat"]}
 
 
 # ---------- comparison: retrieval vs the model's own knowledge, ten seeds each ----------
@@ -353,7 +373,8 @@ def compare_summary() -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["main", "compare", "report"])
+    ap.add_argument("what", choices=["main", "add", "compare", "report"])
+    ap.add_argument("files", nargs="*", help="for add: input file names to run and merge into main.json")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     if args.what == "report":
@@ -365,8 +386,8 @@ def main() -> None:
         raise SystemExit("Set GEMINI_API_KEY in your environment first.")
     llm = EvalLLM(api_key)
     index = SourceIndex.build(llm)
-    if args.what == "main":
-        result = run_main(llm, index)
+    if args.what in ("main", "add"):
+        result = run_main(llm, index) if args.what == "main" else add_to_main(llm, index, args.files)
         (OUT / "main.json").write_text(json.dumps(result, indent=1, default=str))
         # main.json holds the private leases' text (git-ignored); this copy without clause text is committed.
         redacted = {"summary": result["summary"],

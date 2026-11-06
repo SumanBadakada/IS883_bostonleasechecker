@@ -225,3 +225,4 @@ eval/test_set/private/
 # §5.5 raw results hold the private leases' text; only the redacted summaries are committed
 eval/results/v2/*/main.json
 eval/results/v2/*/compare/
+eval/results/v2/*/tune/
