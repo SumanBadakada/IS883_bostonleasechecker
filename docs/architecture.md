@@ -33,7 +33,7 @@ flowchart TD
     C --> M
     subgraph TOOL [Capability 2: tool calling, leasecheck/charges.py]
       M[Clauses that mention money] --> G2[Gemini decides whether to call<br/>check_move_in_charges]
-      G2 -- calls --> F[Python function applies<br/>c.186 §15B&#40;1&#41;&#40;b&#41; limits]
+      G2 -- calls --> F["Python function applies<br/>c.186 §15B(1)(b) limits"]
       F --> G3[Result returned to Gemini<br/>which summarises it]
       G2 -- no amounts --> NONE[No charges found]
     end
@@ -43,8 +43,7 @@ flowchart TD
     G3 --> UI
     NONE --> UI
     UI[Streamlit results: counts, move-in table,<br/>clause cards with citations, disclaimer] --> CHAT[Follow-up chat<br/>findings + retrieved passages, st.session_state memory]
-
-    APIERR[[Any API error after retries]] -.-> MSG[Friendly error message;<br/>session cap counted]
+    APIERR[[Any API error after retries]] -.-> MSG["Friendly error message;<br/>session cap counted"]
 ```
 
 Where each capability fires:
