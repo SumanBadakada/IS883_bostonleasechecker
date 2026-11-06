@@ -60,11 +60,13 @@ docs/                      architecture diagram, suggested ownership split
 
 ## Tests and evaluation
 
-**§5.5 evaluation:** results and discussion in [`docs/evaluation.md`](docs/evaluation.md). The test set
-(3 real leases, altered, malicious, abusive, invalid and out-of-scope inputs, chat questions) is built by
+**§5.5 evaluation:** results and discussion in [`docs/evaluation.md`](docs/evaluation.md), also as a Word
+report: [`docs/Evaluation_Report.docx`](docs/Evaluation_Report.docx). The test set
+(5 real leases, altered, malicious, abusive, invalid and out-of-scope inputs, chat questions) is built by
 `python -m eval.build_test_set_v2`, with expected results committed before the first run. Rerun it with
 `python -m eval.run_v2 main` and `python -m eval.run_v2 compare` (retrieval vs the model's own knowledge,
-seeds 1–10), or in Colab: [`eval/eval_v2_colab.ipynb`](eval/eval_v2_colab.ipynb).
+seeds 1–10) and `python -m eval.tune run --seeds 5` (16 one-change tuning versions on the five real
+leases), or in Colab: [`eval/eval_v2_colab.ipynb`](eval/eval_v2_colab.ipynb).
 
 The earlier synthetic set:
 

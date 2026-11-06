@@ -4,92 +4,92 @@
   "temperature": 0.1,
   "seed": 883,
   "real_leases": {
-   "clauses": 145,
-   "recall_possibly_unlawful": 0.6470588235294118,
-   "precision_possibly_unlawful": 0.4074074074074074,
-   "agreement": 0.6689655172413793,
+   "clauses": 236,
+   "recall_possibly_unlawful": 0.696969696969697,
+   "precision_possibly_unlawful": 0.575,
+   "agreement": 0.7203389830508474,
    "flags_with_citation": 1.0,
-   "correct_citation_on_true_flags": 0.9090909090909091,
+   "correct_citation_on_true_flags": 0.9565217391304348,
    "confusion": {
     "lawful": {
-     "lawful": 72,
-     "unusual": 13,
-     "possibly_unlawful": 3,
+     "lawful": 126,
+     "unusual": 15,
+     "possibly_unlawful": 4,
      "not_checked": 0,
      "missing": 0
     },
     "unusual": {
-     "lawful": 13,
-     "unusual": 14,
+     "lawful": 24,
+     "unusual": 21,
      "possibly_unlawful": 13,
      "not_checked": 0,
      "missing": 0
     },
     "possibly_unlawful": {
-     "lawful": 3,
-     "unusual": 3,
-     "possibly_unlawful": 11,
+     "lawful": 6,
+     "unusual": 4,
+     "possibly_unlawful": 23,
      "not_checked": 0,
      "missing": 0
     }
    }
   },
   "real_and_altered": {
-   "clauses": 150,
-   "recall_possibly_unlawful": 0.6842105263157895,
-   "precision_possibly_unlawful": 0.4482758620689655,
-   "agreement": 0.68,
+   "clauses": 241,
+   "recall_possibly_unlawful": 0.7142857142857143,
+   "precision_possibly_unlawful": 0.5952380952380952,
+   "agreement": 0.7261410788381742,
    "flags_with_citation": 1.0,
-   "correct_citation_on_true_flags": 0.9230769230769231,
+   "correct_citation_on_true_flags": 0.96,
    "confusion": {
     "lawful": {
-     "lawful": 75,
-     "unusual": 13,
-     "possibly_unlawful": 3,
+     "lawful": 129,
+     "unusual": 15,
+     "possibly_unlawful": 4,
      "not_checked": 0,
      "missing": 0
     },
     "unusual": {
-     "lawful": 13,
-     "unusual": 14,
+     "lawful": 24,
+     "unusual": 21,
      "possibly_unlawful": 13,
      "not_checked": 0,
      "missing": 0
     },
     "possibly_unlawful": {
-     "lawful": 3,
-     "unusual": 3,
-     "possibly_unlawful": 13,
+     "lawful": 6,
+     "unusual": 4,
+     "possibly_unlawful": 25,
      "not_checked": 0,
      "missing": 0
     }
    }
   },
-  "raw_answers": 43,
-  "raw_answers_parsed": 43,
-  "checks_passed": 45,
-  "checks_total": 55,
+  "raw_answers": 49,
+  "raw_answers_parsed": 49,
+  "checks_passed": 49,
+  "checks_total": 61,
   "tokens_by_stage": {
    "embed": {
-    "requests": 21,
+    "requests": 23,
     "input": 0,
     "output": 0,
     "thinking": 0,
     "cost_usd": 0.0
    },
    "classify": {
-    "requests": 43,
-    "input": 270593,
-    "output": 60417,
+    "requests": 49,
+    "input": 305005,
+    "output": 67764,
     "thinking": 0,
-    "cost_usd": 0.051226100000000004
+    "cost_usd": 0.05760610000000001
    },
    "charges": {
-    "requests": 32,
-    "input": 244189,
-    "output": 3223,
+    "requests": 34,
+    "input": 249302,
+    "output": 3417,
     "thinking": 0,
-    "cost_usd": 0.0257081
+    "cost_usd": 0.026297
    },
    "chat": {
     "requests": 5,
@@ -99,7 +99,7 @@
     "cost_usd": 0.0015441
    }
   },
-  "requests_per_analyzed_input": 5.6875
+  "requests_per_analyzed_input": 5.611111111111111
  },
  "inputs": [
   {
@@ -540,6 +540,63 @@
      "check": "outcome",
      "pass": true,
      "detail": "expected rejected:empty, got rejected:empty"
+    }
+   ],
+   "requests": 0,
+   "raw_answers": 0,
+   "raw_answers_parsed": 0
+  },
+  {
+   "file": "private/real_04_residential_lease_2025_noimages.pdf",
+   "outcome": "analyzed",
+   "checks": [
+    {
+     "check": "outcome",
+     "pass": true,
+     "detail": "expected analyzed, got analyzed"
+    },
+    {
+     "check": "tool:called",
+     "pass": false,
+     "detail": ""
+    }
+   ],
+   "requests": 4,
+   "raw_answers": 3,
+   "raw_answers_parsed": 3
+  },
+  {
+   "file": "private/real_05_graduate_residence_license.pdf",
+   "outcome": "analyzed",
+   "checks": [
+    {
+     "check": "outcome",
+     "pass": true,
+     "detail": "expected analyzed, got analyzed"
+    },
+    {
+     "check": "tool:called",
+     "pass": true,
+     "detail": ""
+    },
+    {
+     "check": "tool:monthly_rent",
+     "pass": true,
+     "detail": "expected 2190, got 2190.0"
+    }
+   ],
+   "requests": 6,
+   "raw_answers": 3,
+   "raw_answers_parsed": 3
+  },
+  {
+   "file": "private/real_04_residential_lease_2025.pdf",
+   "outcome": "rejected:too_large",
+   "checks": [
+    {
+     "check": "outcome",
+     "pass": false,
+     "detail": "expected analyzed, got rejected:too_large"
     }
    ],
    "requests": 0,

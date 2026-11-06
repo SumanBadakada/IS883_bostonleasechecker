@@ -205,9 +205,10 @@ def run(llm: TuneLLM, index: SourceIndex, seeds: range, only: Optional[list[str]
                 record["passages_per_batch"] = list(passages_log)
                 records.append(record)
             apply({}, llm)
-            if any(r["outcome"].startswith("api_error") for r in records):
+            # A lease cut off part-way by an API error (r["errors"]) is as unusable as one that never started.
+            if any(r["outcome"].startswith("api_error") or r.get("errors") for r in records):
                 print("API error in this run; not saved. Rerun later.", flush=True)
-                if any("daily quota" in r["outcome"] for r in records):
+                if any("daily quota" in r["outcome"] + " ".join(r.get("errors", [])) for r in records):
                     raise QuotaExhausted
                 continue
             path.write_text(json.dumps({"variant": name, "settings": variant, "seed": seed, "inputs": records},
