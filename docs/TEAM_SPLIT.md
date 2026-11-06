@@ -15,5 +15,5 @@ This is a starting suggestion; agree on it as a team and mirror it on the projec
 | Legal sources and retrieval | `sources/`, `leasecheck/retrieval.py`, `scripts/fetch_sources.py` | 3 | Erdan | **Replace the paraphrased notes with verified official text**; test chunk sizes; commit `sources/index.npz` |
 | Prompts and structured output | `leasecheck/prompts.py`, `leasecheck/schemas.py`, `leasecheck/analyzer.py` | 1, 4 | Janice | Iterate prompt versions against the eval; batch size; label calibration |
 | Move-in charge tool | `leasecheck/charges.py`, `leasecheck/llm.py` | 2 | Munkhzaya | Verify the rules (broker-fee law citation); add edge cases (prorated first month, utilities at signing) |
-| Evaluation | `eval/`, `tests/` | §5.5 | Munkhzaya + Janice | Double-label the clause bank; collect consented leases; run v1 vs v2; find the failure the metric misses |
-| Cost model | (report) | §5.6 | Erdan | Use `avg_*_tokens_per_lease` from `eval/results/` and current Gemini prices |
+| Evaluation | `eval/`, `tests/` | §5.5 | Erdan | Double-label the clause bank; collect consented leases; run v1 vs v2; find the failure the metric misses |
+| Cost model | (report) | §5.6 | Munkhzaya | Use `avg_*_tokens_per_lease` from `eval/results/` and current Gemini prices |
