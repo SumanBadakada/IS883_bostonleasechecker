@@ -27,6 +27,7 @@ Clauses:
 Return one finding per clause."""
 
 
+# --- Erdan: prompt v2, system and task (the active classification prompt) ---
 _SYSTEM_V2 = """You are a careful Massachusetts tenant-rights reviewer. Your reader is a graduate student
 about to sign their first Boston apartment lease. They are not a lawyer.
 
@@ -97,6 +98,7 @@ CHARGES_TASK = """Lease excerpts that mention money:
 
 # ---------- follow-up chat ----------
 
+# --- Erdan: follow-up chat system prompt ---
 CHAT_SYSTEM = """You answer a tenant's follow-up questions about their Massachusetts lease.
 Use only the LEASE FINDINGS and SOURCE PASSAGES below. If they do not answer the question, say so and
 suggest contacting a tenant-rights organisation or a lawyer. Keep answers short and plain. Cite passages
