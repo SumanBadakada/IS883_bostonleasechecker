@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | settings shared by the app and the eval ---
+# --- Owner: Erdan | settings shared by the app and the eval ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 
 # Model choices. Flash-lite is the model the course uses on the free tier (the course notebook moved its
@@ -10,12 +10,17 @@ EMBED_MODEL = "gemini-embedding-001"
 # key's free tier (check AI Studio); one that is not is skipped automatically.
 FALLBACK_MODELS = ("gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-2.5-flash")
 
+# --- Erdan: generation parameters and why the temperature is 0.1 ---
 # Generation parameters. Low temperature because we want the same clause to get the same label
 # every time; a fixed seed makes eval runs repeatable.
+# Tested in eval/tune.py (docs/evaluation.md §5): on gemini-3.5-flash-lite, temperatures 0.0, 0.1 and 0.3
+# gave word-for-word identical answers at the same seed (a probe at 1.0 and 2.0 did too); only the seed
+# changed the output. So 0.1 is kept: it costs nothing and states the intent if the model is ever changed.
 TEMPERATURE = 0.1
 SEED = 883
 MAX_OUTPUT_TOKENS = 8192
 
+# --- Erdan: batch size and retrieval top-k ---
 # How many clauses go into one classification request. Bigger batches use fewer free-tier
 # requests (a typical lease is then one request); smaller batches give the model less to keep track of.
 CLAUSES_PER_BATCH = 20

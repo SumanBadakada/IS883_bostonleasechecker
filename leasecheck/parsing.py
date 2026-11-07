@@ -65,6 +65,7 @@ MIN_CHARS_PER_PAGE = 80
 # ("Nopetsofanykindareallowed..."), and the model would be checking garbled text.
 MAX_AVG_WORD_LEN = 10
 
+# --- Erdan: detecting whether the upload is a lease ---
 # Words that almost every residential lease uses. A document needs several of them to count as a lease.
 LEASE_TERMS = (
     "landlord", "lessor", "tenant", "lessee", "rent", "premises", "lease",
