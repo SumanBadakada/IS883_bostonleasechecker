@@ -155,9 +155,11 @@ Members (full names): Erdan Kudaibergen, Janice Kristabella, Munkhzaya Jambalsan
  
 6. THE PLAN TO YOUR PRESENTATION
    What is left to build, and who owns each piece (it should match your board):
-  - Evaluation: prompt v3 and the before-and-after comparison, the real test set with expected labels, double labeling, the evaluation runs, and one failure our metric misses. Owner: Janice and Munkhzaya
+  - Evaluation: prompt v3 and the before-and-after comparison, the real test set with expected labels, double labeling, the evaluation runs, and one failure our metric misses. Owner: Erdan
   - Fixes and small improvements: the two wrong citations, the duplicated landlord question, the "check one" boxes, and better handling of model overload. Owner: Suman
-  - Work outside the code: checking sources against the law, permission for the AG guide, the cost model, and the architecture diagram. Owner: Erdan
+  - Legal sources: checking sources against the law and permission for the AG guide. Owner: Suman
+  - Cost model. Owner: Munkhzaya
+  - Architecture diagram. Owner: Erdan
 
 What you will cut first if you fall behind: topics beyond deposits, last month's rent, late fees and move-in charges; then the "unusual" label; real leases (synthetic only) if consent lags; checkbox handling, replaced by a warning to check the ticked options.
  
