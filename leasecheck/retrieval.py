@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | retrieval over our legal sources (capability 3) ---
+# --- Owner: Erdan | retrieval over our legal sources (capability 3) ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Embed the legal sources in sources/, then find the passages most similar to each clause.
 

@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | reading the upload and splitting it into clauses ---
+# --- Owner: Suman | reading the upload and splitting it into clauses ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Turn an uploaded PDF or DOCX into a list of clauses.
 
@@ -98,12 +98,9 @@ def extract_text(data: bytes, filename: str) -> str:
 
 
 def _pdf_text(data: bytes) -> str:
-    """PyMuPDF rebuilds word spacing from glyph positions far better than pypdf, so we prefer it.
-    pypdf stays as a fallback in case PyMuPDF is not installed."""
-    try:
-        pages = _pdf_pages_pymupdf(data)
-    except ImportError:
-        pages = _pdf_pages_pypdf(data)
+    """PyMuPDF rebuilds word spacing from glyph positions and reads form tick boxes, so it is the only
+    PDF reader (it is in requirements.txt; an earlier pypdf fallback never ran in practice)."""
+    pages = _pdf_pages_pymupdf(data)
 
     if not pages:
         raise InputRejected("empty", "This PDF has no pages.")
@@ -233,17 +230,6 @@ def _pymupdf_page_text(page, fitz) -> str:
     return "\n".join(out)
 
 
-def _pdf_pages_pypdf(data: bytes) -> list[str]:
-    from pypdf import PdfReader
-    from pypdf.errors import PdfReadError
-
-    try:
-        reader = PdfReader(io.BytesIO(data))
-        return [page.extract_text() or "" for page in reader.pages]
-    except (PdfReadError, ValueError, KeyError) as exc:
-        raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
-
-
 def _check_spacing(text: str) -> None:
     """Refuse text whose spaces were lost in extraction, before spending model calls on it."""
     words = re.findall(r"[A-Za-z]+", text)
@@ -271,7 +257,8 @@ def _docx_text(data: bytes) -> str:
     return "\n".join(lines)
 
 
-_W14 = "{http://schemas.microsoft.com/office/word/2010/wordml}"
+# Word's main XML namespace: every tag name in a .docx is prefixed with it, e.g. _W + "t" is a text run.
+_W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 
 # AI-assisted (Claude Code): paragraph.text skips text inside content controls (where Word keeps its
@@ -300,7 +287,6 @@ def _paragraph_text(paragraph) -> str:
 
 
 # AI-assisted (Claude, Oct 15 2026): rebuilds Word list numbers so auto-numbered leases split correctly.
-_W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 
 def _list_info(paragraph) -> tuple[str, int, bool] | None:
@@ -442,7 +428,7 @@ def split_clauses(text: str) -> list[Clause]:
         # Anything before the first numbered line is the preamble (parties, address), kept as its own block.
         if starts[0] > 0:
             blocks.append("\n".join(lines[: starts[0]]))
-        for a, b in zip(starts, starts[1:] + [len(lines)]):
+        for a, b in zip(starts, starts[1:] + [len(lines)], strict=True):
             blocks.append("\n".join(lines[a:b]))
         blocks = _merge_headings(blocks)
     else:
@@ -556,6 +542,3 @@ def load_document(data: bytes, filename: str) -> ParsedDocument:
                         "before you sign.")
     return ParsedDocument(clauses, warnings)
 
-
-def load_clauses(data: bytes, filename: str) -> list[Clause]:
-    return load_document(data, filename).clauses

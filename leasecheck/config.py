@@ -28,6 +28,8 @@ CLAUSES_PER_BATCH = 20
 # Retrieval: how many source chunks to fetch per clause, and the cap per batch prompt.
 TOP_K_PER_CLAUSE = 3
 MAX_CHUNKS_PER_BATCH = 16
+# Passages retrieved for each follow-up chat question (one more than per clause: a question can span rules).
+CHAT_TOP_K = 4
 
 # Input limits (public app, free tier).
 MAX_FILE_MB = 5

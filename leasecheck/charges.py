@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | move-in charge check, the tool the model calls (capability 2) ---
+# --- Owner: Munkhzaya | move-in charge check, the tool the model calls (capability 2) ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Check move-in charges against M.G.L. c. 186 §15B(1)(b).
 
@@ -14,6 +14,7 @@ read the lease, find the amounts, and decide to call this function with them.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from google.genai import types
@@ -33,6 +34,10 @@ CITE_UTILITIES = "105 CMR 410 (AG Guide: Heat and utilities)"
 UTILITY_WORDS = ("utility", "utilities", "heat", "gas", "electric", "water")
 
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
+
+# Which clauses go to the move-in check (analyzer.check_charges) and can be matched to a charge (report.py):
+# a dollar amount, or the words deposit, fee, first month, last month or lock.
+MONEY = re.compile(r"\$\s?\d|\bdeposit\b|\bfee\b|\bfirst month|\blast month|\block\b", re.IGNORECASE)
 
 
 def check_move_in_charges(

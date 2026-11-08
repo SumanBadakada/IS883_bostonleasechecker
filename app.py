@@ -1,5 +1,5 @@
 # Author: Suman Somaiah B A (original placeholder)
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | Streamlit UI, usage cap, secrets, error display ---
+# --- Owner: Suman | Streamlit UI, usage cap, secrets, error display ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 from html import escape
 from pathlib import Path
@@ -10,9 +10,8 @@ from leasecheck import config, prompts
 from leasecheck.analyzer import AnalysisResult, analyze, findings_digest
 from leasecheck.llm import GeminiLLM, LLMError
 from leasecheck.parsing import InputRejected
-from leasecheck.report import (DISCLAIMER, HELP_RESOURCES, LABEL_NAMES, SEVERITY,
-                               html_report, next_steps, overall_verdict,
-                               per_charge_limit_note)
+from leasecheck.report import (DISCLAIMER, HELP_RESOURCES, LABEL_NAMES, LABEL_ORDER, LABEL_TONE, SEVERITY,
+                               STATUS_TONE, html_report, next_steps, overall_verdict, per_charge_limit_note)
 from leasecheck.art import ART_CSS, compact_skyline_svg, hero_skyline_svg, scanning_house_html
 from leasecheck.retrieval import SourceIndex, format_passages
 
@@ -22,9 +21,6 @@ st.set_page_config(page_title="Boston Lease Checker", page_icon="🏠", layout="
 SAMPLE_LEASE = Path(__file__).parent / "samples" / "sample_lease.docx"
 DEV_MODE = st.query_params.get("dev") == "1"  # developer options only appear at <app-url>/?dev=1
 
-LABEL_ORDER = ["possibly_unlawful", "unusual", "lawful", "not_checked"]
-LABEL_TONE = {"possibly_unlawful": "danger", "unusual": "warning", "lawful": "success", "not_checked": "neutral"}
-STATUS_TONE = {"ok": ("success", "Allowed"), "check": ("warning", "Check"), "not_allowed": ("danger", "Not allowed")}
 SUGGESTED_QUESTIONS = [
     "Which of these issues matter most before I sign?",
     "Can my landlord keep part of my deposit for cleaning?",
@@ -33,91 +29,8 @@ SUGGESTED_QUESTIONS = [
 
 # ---------- styling ----------
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-html, body, [class*="css"], .stMarkdown, .stButton button, .stTabs button { font-family: 'Inter', sans-serif; }
-.block-container { padding-top: 2rem; padding-bottom: 4rem; max-width: 1200px; }
-footer { visibility: hidden; }
-
-.blc-hero { background: linear-gradient(135deg, #0B2545 0%, #1F4E79 60%, #2E6DA4 100%); color: #FFFFFF;
-            border-radius: 18px; padding: 34px 38px; margin-bottom: 22px; box-shadow: 0 10px 30px rgba(11,37,69,.18); }
-.blc-hero h1 { color: #FFFFFF; font-size: 2.1rem; font-weight: 700; margin: 0 0 6px 0; padding: 0; letter-spacing: -0.02em; }
-.blc-hero.compact { padding: 18px 26px; margin-bottom: 18px; }
-.blc-hero.compact h1 { font-size: 1.35rem; margin: 0; }
-.blc-hero.compact p { font-size: .9rem; }
-.blc-hero p { color: #D6E4F5; font-size: 1.05rem; margin: 0; max-width: 760px; }
-.blc-badges { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
-.blc-badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); color: #FFFFFF;
-             border-radius: 999px; padding: 4px 12px; font-size: .82rem; font-weight: 500; }
-
-.blc-card { background: #FFFFFF; color: #101828; border: 1px solid #EAECF0; border-radius: 14px; padding: 20px 22px;
-            box-shadow: 0 1px 2px rgba(16,24,40,.04); }
-.blc-card h4 { margin: 0 0 12px 0; font-size: 1rem; font-weight: 600; color: #101828; }
-.blc-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; color: #344054; font-size: .93rem; }
-.blc-step-n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #E8F0F9; color: #1F4E79; font-weight: 700;
-              display: flex; align-items: center; justify-content: center; font-size: .85rem; }
-.blc-note { background: #FFFAEB; border: 1px solid #FEDF89; color: #7A2E0E; border-radius: 12px;
-            padding: 12px 16px; font-size: .9rem; margin: 6px 0 18px 0; }
-.blc-muted { color: #667085; font-size: .85rem; }
-
-.blc-verdict { border-radius: 14px; padding: 18px 22px; margin: 6px 0 18px 0; border: 1px solid; }
-.blc-verdict b { font-size: 1.2rem; display: block; margin-bottom: 2px; }
-.blc-verdict.danger  { background: #FEF3F2; border-color: #FECDCA; color: #912018; }
-.blc-verdict.warning { background: #FFFAEB; border-color: #FEDF89; color: #93370D; }
-.blc-verdict.success { background: #ECFDF3; border-color: #ABEFC6; color: #085D3A; }
-
-.blc-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
-@media (max-width: 800px) { .blc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.blc-stat { background: #FFFFFF; border: 1px solid #EAECF0; border-radius: 14px; padding: 14px 18px; }
-.blc-stat .n { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
-.blc-stat .l { color: #475467; font-size: .85rem; font-weight: 500; }
-.blc-stat.danger .n { color: #B42318; } .blc-stat.warning .n { color: #B54708; }
-.blc-stat.success .n { color: #067647; } .blc-stat.neutral .n { color: #475467; }
-
-.blc-pill { display: inline-block; white-space: nowrap; font-size: .75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
-            margin-right: 8px; vertical-align: middle; }
-.blc-pill.danger { background: #FEE4E2; color: #B42318; } .blc-pill.warning { background: #FEF0C7; color: #B54708; }
-.blc-pill.success { background: #DCFAE6; color: #067647; } .blc-pill.neutral { background: #EAECF0; color: #475467; }
-.blc-clause-title { font-weight: 600; color: #101828; font-size: 1rem; vertical-align: middle; }
-.blc-quote { border-left: 3px solid #D0D5DD; padding: 4px 0 4px 14px; margin: 12px 0; color: #344054; font-size: .92rem; }
-.blc-cite { color: #1F4E79; font-weight: 600; font-size: .85rem; }
-
-.blc-step-item { border: 1px solid #EAECF0; border-left: 4px solid; border-radius: 10px; padding: 12px 16px;
-                 margin-bottom: 10px; background: #FFFFFF; color: #101828; }
-.blc-step-item.high { border-left-color: #D92D20; } .blc-step-item.medium { border-left-color: #F79009; }
-.blc-step-item .t { font-weight: 600; } .blc-step-item .d { color: #475467; font-size: .9rem; margin-top: 2px; }
-
-.blc-lease { background: #FFFFFF; border: 1px solid #EAECF0; border-radius: 14px; padding: 26px 30px;
-             font-family: Georgia, 'Times New Roman', serif; color: #1D2939; line-height: 1.65; }
-.blc-lease .c { padding: 6px 12px; margin: 6px -12px; border-radius: 8px; border-left: 4px solid transparent; }
-.blc-lease .c.danger { background: #FEF3F2; border-left-color: #D92D20; }
-.blc-lease .c.warning { background: #FFFAEB; border-left-color: #F79009; }
-.blc-lease .c.neutral { background: #F2F4F7; border-left-color: #98A2B3; }
-.blc-lease .tag { font-family: 'Inter', sans-serif; font-size: .72rem; font-weight: 600; margin-left: 6px; }
-.blc-lease .c.danger .tag { color: #B42318; } .blc-lease .c.warning .tag { color: #B54708; }
-
-.blc-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #FFFFFF; border: 1px solid #EAECF0;
-             border-radius: 14px; overflow: hidden; font-size: .92rem; color: #101828; }
-.blc-table th { background: #F9FAFB; color: #475467; font-weight: 600; text-align: left; padding: 12px 14px;
-                border-bottom: 1px solid #EAECF0; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
-.blc-table td { padding: 12px 14px; border-bottom: 1px solid #F2F4F7; vertical-align: top; }
-.blc-table tr:last-child td { border-bottom: none; }
-
-[data-testid="stSidebar"] { background: linear-gradient(160deg, #0B2545 0%, #1F4E79 60%, #2E6DA4 100%);
-                            border-right: none; }
-[data-testid="stSidebar"] h3, [data-testid="stSidebar"] h5, [data-testid="stSidebar"] p,
-[data-testid="stSidebar"] li, [data-testid="stSidebar"] label { color: #FFFFFF; }
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"], [data-testid="stSidebar"] .blc-muted { color: #D6E4F5; }
-[data-testid="stSidebar"] a, [data-testid="stSidebar"] a p { color: #FFFFFF; text-decoration: underline; }
-[data-testid="stSidebar"] code { background: rgba(255,255,255,.12); color: #FFFFFF; }
-[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,.22); }
-[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
-[data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] svg { color: #FFFFFF; fill: #FFFFFF; }
-.stTabs [data-baseweb="tab-list"] { gap: 6px; }
-.stTabs [data-baseweb="tab"] { font-weight: 600; }
-</style>
-""", unsafe_allow_html=True)
+APP_CSS = (Path(__file__).parent / "app.css").read_text(encoding="utf-8")
+st.markdown(f"<style>{APP_CSS}</style>", unsafe_allow_html=True)
 st.markdown(f"<style>{ART_CSS}</style>", unsafe_allow_html=True)
 
 
@@ -154,7 +67,7 @@ def get_index(api_key: str) -> SourceIndex:
 
 
 for key, value in {"analyses_used": 0, "chat_used": 0, "result": None, "filename": None, "chat": [],
-                   "llm": None, "pending_question": None}.items():
+                   "llm": None, "pending_question": None, "report_html": None}.items():
     st.session_state.setdefault(key, value)
 
 api_key = get_api_key()
@@ -240,7 +153,9 @@ def run_check(data: bytes, filename: str) -> None:
     try:
         index = get_index(api_key) if use_retrieval else None
         result = analyze(data, filename, llm, index, prompt_version=version, progress=show_progress)
-        st.session_state.update(result=result, filename=filename, chat=[], pending_question=None)
+        # Build the downloadable report once here, not on every rerun of the results page.
+        st.session_state.update(result=result, filename=filename, chat=[], pending_question=None,
+                                report_html=html_report(result, filename))
     except InputRejected as exc:
         st.session_state.analyses_used -= 1  # rejected before any model call; don't count it
         st.error(exc.message, icon="📄")
@@ -301,11 +216,11 @@ filename: str = st.session_state.filename
 
 head_l, head_r1, head_r2 = st.columns([6, 2, 2], vertical_alignment="center")
 head_l.markdown(f"### Results for *{esc(filename)}*")
-head_r1.download_button("⬇ Download report", data=html_report(result, filename),
+head_r1.download_button("⬇ Download report", data=st.session_state.report_html or html_report(result, filename),
                         file_name=f"lease-review-{Path(filename).stem}.html", mime="text/html",
                         use_container_width=True, help="A printable report. Open it in a browser and print to PDF.")
 if head_r2.button("↺ Check another lease", use_container_width=True):
-    st.session_state.update(result=None, filename=None, chat=[], pending_question=None)
+    st.session_state.update(result=None, filename=None, chat=[], pending_question=None, report_html=None)
     st.rerun()
 
 tone, headline, sub = overall_verdict(result)
@@ -398,7 +313,7 @@ with tab_lease:
     st.caption("Your lease as we read it. Highlighted clauses are the ones to look at.")
     parts = []
     for r in result.clauses:
-        cls = {"possibly_unlawful": "danger", "unusual": "warning", "not_checked": "neutral"}.get(r.label, "")
+        cls = "" if r.label == "lawful" else LABEL_TONE[r.label]  # highlight everything except "no issue found"
         tag = f'<span class="tag">{LABEL_NAMES[r.label].upper()}</span>' if cls else ""
         parts.append(f'<div class="c {cls}">{esc(r.clause.text)}{tag}</div>')
     html('<div class="blc-lease">' + "".join(parts) + "</div>")
@@ -428,7 +343,7 @@ def answer_question(question: str) -> str:
     try:
         passages = ""
         if result.used_retrieval:
-            hits = get_index(api_key).search_many(llm, [question], k=4)[0]
+            hits = get_index(api_key).search_many(llm, [question], k=config.CHAT_TOP_K)[0]
             passages = format_passages([c for c, _ in hits])
         system = prompts.CHAT_SYSTEM.format(findings=findings_digest(result), passages=passages or "(none)")
         return llm.chat(system, st.session_state.chat[-10:], question[:2000])
@@ -444,7 +359,7 @@ with tab_chat:
 
     if not st.session_state.chat and not question:
         cols = st.columns(len(SUGGESTED_QUESTIONS))
-        for col, q in zip(cols, SUGGESTED_QUESTIONS):
+        for col, q in zip(cols, SUGGESTED_QUESTIONS, strict=True):
             if col.button(q, use_container_width=True):
                 st.session_state.pending_question = q
                 st.rerun()

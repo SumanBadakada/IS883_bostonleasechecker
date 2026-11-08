@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | versioned prompts (capability 1) ---
+# --- Owner: Janice | versioned prompts (capability 1) ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """All prompts, versioned. Never edit a released version in place: copy it to a new key, change the
 copy, and run the eval on both (python -m eval.run_eval --prompt-version v1 / v2) to get the

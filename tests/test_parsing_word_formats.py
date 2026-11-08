@@ -10,7 +10,7 @@ import io
 
 import docx
 
-from leasecheck.parsing import load_clauses
+from leasecheck.parsing import load_document
 
 HEADINGS = ["THE PARTIES", "RENT", "LATE FEE", "SECURITY DEPOSIT", "RIGHT OF ENTRY", "ATTORNEYS' FEES"]
 
@@ -32,7 +32,7 @@ def _template_docx(numbered: bool, with_subitems: bool = False) -> bytes:
 
 
 def test_word_auto_numbering_splits_into_clauses():
-    clauses = load_clauses(_template_docx(numbered=True), "template.docx")
+    clauses = load_document(_template_docx(numbered=True), "template.docx").clauses
     assert len(clauses) == len(HEADINGS)
     assert clauses[0].text.startswith("MASSACHUSETTS RESIDENTIAL LEASE AGREEMENT 1. THE PARTIES.")
     assert clauses[3].text.startswith("4. SECURITY DEPOSIT.")
@@ -40,13 +40,13 @@ def test_word_auto_numbering_splits_into_clauses():
 
 
 def test_all_caps_lead_in_splits_without_numbering():
-    clauses = load_clauses(_template_docx(numbered=False), "template.docx")
+    clauses = load_document(_template_docx(numbered=False), "template.docx").clauses
     assert len(clauses) == len(HEADINGS)
     assert clauses[2].text.startswith("LATE FEE.")
 
 
 def test_sub_items_stay_inside_their_clause():
-    clauses = load_clauses(_template_docx(numbered=True, with_subitems=True), "template.docx")
+    clauses = load_document(_template_docx(numbered=True, with_subitems=True), "template.docx").clauses
     assert len(clauses) == len(HEADINGS)
     rent = clauses[1].text
     assert rent.startswith("2. RENT.") and "pays by check" in rent and "first day of each month" in rent
@@ -64,7 +64,7 @@ def test_bullets_stay_inside_their_clause():
             d.add_paragraph("The Tenant abandons the Premises.", style="List Bullet")
     buf = io.BytesIO()
     d.save(buf)
-    clauses = load_clauses(buf.getvalue(), "bullets.docx")
+    clauses = load_document(buf.getvalue(), "bullets.docx").clauses
     # The opening paragraph, then clauses 1 to 3. The bullets do not start new clauses.
     assert [c.display_name for c in clauses] == ["Opening section", "Clause 1", "Clause 2", "Clause 3"]
     default = next(c for c in clauses if "DEFAULT" in c.text)

@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | decorative house illustrations and their animations ---
+# --- Owner: Suman | decorative house illustrations and their animations ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Inline SVG illustrations of Boston rowhouses, animated with CSS.
 

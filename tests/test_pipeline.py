@@ -9,7 +9,7 @@ import pytest
 from eval.metrics import score_charges, score_lease, summarise
 from leasecheck.analyzer import analyze
 from leasecheck.charges import check_move_in_charges
-from leasecheck.parsing import InputRejected, load_clauses, split_clauses
+from leasecheck.parsing import InputRejected, load_document, split_clauses
 from leasecheck.retrieval import SourceIndex, load_chunks
 from leasecheck.schemas import parse_batch
 from tests.fakes import FakeLLM
@@ -44,7 +44,7 @@ def test_split_numbered_clauses():
 
 
 def test_docx_round_trip():
-    clauses = load_clauses(docx_bytes(LEASE.splitlines()), "lease.docx")
+    clauses = load_document(docx_bytes(LEASE.splitlines()), "lease.docx").clauses
     assert len(clauses) == 7
 
 
@@ -55,13 +55,13 @@ def test_docx_round_trip():
 ])
 def test_rejections(data, name, reason):
     with pytest.raises(InputRejected) as exc:
-        load_clauses(data, name)
+        load_document(data, name)
     assert exc.value.reason == reason
 
 
 def test_not_a_lease_rejected():
     with pytest.raises(InputRejected) as exc:
-        load_clauses(docx_bytes(["Shopping list", "1. Milk and eggs", "2. Bread", "3. Apples"]), "list.docx")
+        load_document(docx_bytes(["Shopping list", "1. Milk and eggs", "2. Bread", "3. Apples"]), "list.docx")
     assert exc.value.reason == "not_a_lease"
 
 

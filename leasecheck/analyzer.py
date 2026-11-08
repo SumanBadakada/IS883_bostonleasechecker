@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | the pipeline: clauses -> retrieval -> classify -> charges ---
+# --- Owner: Janice | the pipeline: clauses -> retrieval -> classify -> charges ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Runs one lease through the whole app. Used by both app.py and eval/run_eval.py, so the eval measures
 exactly what users get.
@@ -11,12 +11,11 @@ exactly what users get.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 from . import config, prompts
-from .charges import CHECK_MOVE_IN_CHARGES_DECLARATION, TOOLS
+from .charges import CHECK_MOVE_IN_CHARGES_DECLARATION, MONEY, TOOLS
 from .llm import LLMError, ToolCall, Usage
 from .parsing import Clause, load_document
 from .retrieval import Chunk, SourceIndex, format_passages
@@ -65,9 +64,6 @@ class AnalysisResult:
         for r in self.clauses:
             out[r.label] = out.get(r.label, 0) + 1
         return out
-
-
-MONEY = re.compile(r"\$\s?\d|\bdeposit\b|\bfee\b|\bfirst month|\blast month|\block\b", re.IGNORECASE)
 
 
 def analyze(
