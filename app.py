@@ -24,6 +24,8 @@ SAMPLES_DIR = Path(__file__).parent / "samples"
 SAMPLES = {
     "Apartment: common problems": ("sample_lease.docx", "Sample - Boston apartment (fictional).docx"),
     "Shared house: harsher terms": ("sample_shared_house.docx", "Sample - shared house (fictional).docx"),
+    "Agent-listed: fee problems": ("sample_agent_fees.docx", "Sample - agent-listed apartment (fictional).docx"),
+    "Form lease: unticked boxes": ("sample_checkbox_form.docx", "Sample - form lease with unticked boxes (fictional).docx"),
     "Fair lease: few issues": ("sample_fair_lease.docx", "Sample - fair lease (fictional).docx"),
 }
 DEV_MODE = st.query_params.get("dev") == "1"  # developer options only appear at <app-url>/?dev=1
