@@ -1,5 +1,5 @@
-# --- Owner: Suman | "check one" boxes in lease forms ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: "check one" boxes in lease forms ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Make tick boxes explicit before the model reads a lease.
 
 Standard lease forms (such as the Massachusetts standard residential lease) offer choices with boxes:

@@ -1,5 +1,5 @@
-# --- Owner: Suman | builds the sample leases offered in the app ("Try a sample lease") ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: builds the sample leases offered in the app ("Try a sample lease") ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Write the fictional sample leases in samples/, so visitors without a lease can try the app (§5.4 asks
 for a few ready-made example inputs). They are NOT part of the eval test set. Each sample is built from
 eval/clause_bank.py, whose clauses carry the label we expect, so what each sample should show is known:

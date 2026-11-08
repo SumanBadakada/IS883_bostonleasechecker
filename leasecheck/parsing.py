@@ -1,5 +1,5 @@
-# --- Owner: Suman | reading the upload and splitting it into clauses ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: reading the upload and splitting it into clauses ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Turn an uploaded PDF or DOCX into a list of clauses.
 
 No model is used here: text extraction, scanned-PDF detection, the lease check and clause splitting
@@ -25,6 +25,7 @@ class InputRejected(Exception):
         self.message = message
 
 
+# --- Munkhzaya: the lease's own clause number, including "3.Rent" with no space (common in PDFs) ---
 # The lease's own clause number at the start of a clause: "3. Rent", "3) Rent", "Section 3 - Rent",
 # and also "3.Rent" with no space (common in PDFs), but only when a capital letter follows, so that
 # "2-bedroom" or "2.5 months" is not read as a clause number.
@@ -34,6 +35,7 @@ _LEADING_NUMBER = re.compile(
 )
 
 
+# --- Suman: clauses, the parsed document, and the input-check thresholds ---
 @dataclass
 class Clause:
     clause_id: int  # our own position counter, used to match the model's answers to clauses
@@ -62,6 +64,7 @@ class ParsedDocument:
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
 MIN_CHARS_PER_PAGE = 80
 
+# --- Munkhzaya: the lost-spaces threshold ---
 # Normal English averages about 5 letters per word. Far above that means the extractor lost the spaces
 # ("Nopetsofanykindareallowed..."), and the model would be checking garbled text.
 MAX_AVG_WORD_LEN = 10
@@ -75,6 +78,7 @@ LEASE_TERMS = (
 MIN_LEASE_TERMS = 4
 
 
+# --- Suman: reading the file: PDF and Word text, scanned PDFs, page headers and footers ---
 def extract_text(data: bytes, filename: str) -> str:
     """Extract plain text. Raises InputRejected for empty, unsupported, oversized or scanned files."""
     if not data:
@@ -168,6 +172,7 @@ def _strip_page_furniture(pages: list[str]) -> list[str]:
     return cleaned
 
 
+# --- Munkhzaya: opening the PDF with PyMuPDF ---
 def _pdf_pages_pymupdf(data: bytes) -> list[str]:
     try:
         import pymupdf as fitz  # PyMuPDF 1.24+; "fitz" is the deprecated old name
@@ -183,6 +188,7 @@ def _pdf_pages_pymupdf(data: bytes) -> list[str]:
         raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
 
 
+# --- Suman: tick boxes in fillable PDF forms ---
 # AI-assisted (Claude Code): fillable PDF forms keep their tick boxes as form fields, which get_text() does
 # not include, so "☐ Tenant ☐ Landlord" would read as "Tenant Landlord". We put a box character back where
 # each field sits, ticked or not, and checkboxes.resolve_boxes turns it into a marker the model understands.
@@ -231,6 +237,7 @@ def _pymupdf_page_text(page, fitz) -> str:
     return "\n".join(out)
 
 
+# --- Munkhzaya: rejecting PDFs whose spaces were lost ---
 def _check_spacing(text: str) -> None:
     """Refuse text whose spaces were lost in extraction, before spending model calls on it."""
     words = re.findall(r"[A-Za-z]+", text)
@@ -242,6 +249,7 @@ def _check_spacing(text: str) -> None:
         )
 
 
+# --- Suman: reading Word files and their checkboxes ---
 def _docx_text(data: bytes) -> str:
     import docx
     from docx.opc.exceptions import PackageNotFoundError
@@ -287,6 +295,7 @@ def _paragraph_text(paragraph) -> str:
     return "".join(out)
 
 
+# --- Janice: rebuilding Word's automatic list numbering ---
 # AI-assisted (Claude, Oct 15 2026): rebuilds Word list numbers so auto-numbered leases split correctly.
 
 
@@ -351,6 +360,7 @@ class _WordNumbering:
         return f"({chr(ord('a') + (n - 1) % 26)}) "
 
 
+# --- Suman: tidying whitespace, and check_is_lease ---
 def _normalise(text: str) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\u00a0", " ")
     text = re.sub(r"[ \t]+", " ", text)
@@ -369,6 +379,7 @@ def check_is_lease(text: str) -> None:
         )
 
 
+# --- Munkhzaya: where a clause starts (numbered lines, ALL-CAPS headings) ---
 # A line that starts a new clause: "1.", "12)", "3.1", "4.No pets" (no space, capital next),
 # "Section 4", "ARTICLE V", or a short ALL-CAPS heading such as "SECURITY DEPOSIT".
 # "(a)" is NOT a new clause (sub-item). Roman numerals still need a space, so "i.e." is not a clause.
@@ -379,10 +390,12 @@ _NUMBERED = re.compile(
     re.IGNORECASE,
 )
 _HEADING = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/\-]{3,60}:?\s*$")
+# --- Janice: ALL-CAPS lead-in clauses ("LATE FEE. If rent...") ---
 # AI-assisted (Claude, Oct 15 2026): a clause that opens with an ALL-CAPS lead-in ending in a period,
 # e.g. "LATE FEE. If Rent is not paid...", as in common Massachusetts lease templates.
 _LEAD_IN = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/()\-]{2,60}\.\s+\S")
 
+# --- Munkhzaya: clause numbers in the middle of a line ---
 # A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
 # The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
 _INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,2})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
@@ -415,6 +428,7 @@ def _break_inline_numbers(text: str) -> str:
     return "\n".join(pieces)
 
 
+# --- Suman: splitting into clauses, page-break guards, state detection and the document warnings ---
 def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
     text = _break_inline_numbers(text)

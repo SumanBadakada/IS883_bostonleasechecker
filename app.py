@@ -1,6 +1,5 @@
-# Author: Suman Somaiah B A (original placeholder)
-# --- Owner: Suman | Streamlit UI, usage cap, secrets, error display ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: Streamlit UI, usage cap, secrets, error display ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from html import escape
 from pathlib import Path
 
@@ -277,6 +276,7 @@ with tab_overview:
             problems, review = check["problems_found"], check["needs_checking"]
             badges = (pill("danger", f"{problems} not allowed") if problems else pill("success", "Within the limits")) \
                 + (pill("warning", f"{review} to check") if review else "")
+            # --- Janice: the per-charge limit note on the move-in card ---
             # AI-assisted (Claude, Oct 15 2026): explain the per-charge limits instead of one "legal maximum"
             # for the total, which looked fine even when a single charge (e.g. the deposit) was over its cap.
             html(f'<div class="blc-card"><div class="blc-muted">Total requested before move-in</div>'

@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | download the official legal texts for checking sources/ ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: download the official legal texts for checking sources/ ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Save the official pages behind sources/*.md into sources/official/ as plain text.
 
 Run from the repo root on your own machine:  python scripts/fetch_sources.py
