@@ -15,6 +15,9 @@ def test_every_variant_changes_one_setting_from_the_app():
             assert settings == {"prompt": "tune-no-data", "retrieval": False}
         elif name == "chain_of_thought":
             assert settings == {"prompt": "tune-cot", "schema": "cot"}
+        elif name == "own_knowledge":  # passages swapped for the model's memory: the comparison's 'memory' version
+            assert settings == {"prompt": "v2-memory", "retrieval": False}
+            assert "v2-memory" in prompts.PROMPTS
         else:
             assert len(settings) <= 1, name
 
