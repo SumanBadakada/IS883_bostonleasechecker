@@ -1,5 +1,5 @@
 # --- Versioned prompts (capability 1) ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """All prompts, versioned. Never edit a released version in place: copy it to a new key, change the
 copy, and run the eval on both (python -m eval.run_eval --prompt-version v1 / v2) to get the
 before-and-after number §5.5 asks for.

@@ -1,5 +1,5 @@
 # --- Erdan: runs the §5.5 test set through the app's pipeline, and the repeated comparison ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Run the app's own pipeline (leasecheck.analyzer.analyze and the chat prompt) on test set v2.
 
     export GEMINI_API_KEY=...

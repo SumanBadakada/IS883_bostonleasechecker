@@ -1,5 +1,5 @@
 # --- Gemini client: retries, token counting, tool loop ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Every call to Gemini goes through this file.
 
 Keeping it in one place means: (1) retries and error handling are written once, (2) token usage is

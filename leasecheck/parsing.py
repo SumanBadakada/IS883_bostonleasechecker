@@ -1,5 +1,5 @@
 # --- Reading the upload and splitting it into clauses ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Turn an uploaded PDF or DOCX into a list of clauses.
 
 No model is used here: text extraction, scanned-PDF detection, the lease check and clause splitting
@@ -25,7 +25,7 @@ class InputRejected(Exception):
         self.message = message
 
 
-# --- Munkhzaya: the lease's own clause number, including "3.Rent" with no space (common in PDFs) ---
+# --- Munkhzaya: reads the lease's own clause number, including "3.Rent" with no space (common in PDFs) ---
 # The lease's own clause number at the start of a clause: "3. Rent", "3) Rent", "Section 3 - Rent",
 # and also "3.Rent" with no space (common in PDFs), but only when a capital letter follows, so that
 # "2-bedroom" or "2.5 months" is not read as a clause number.
@@ -64,7 +64,7 @@ class ParsedDocument:
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
 MIN_CHARS_PER_PAGE = 80
 
-# --- Munkhzaya: the lost-spaces threshold ---
+# --- Munkhzaya: sets the threshold for PDFs that lost their spaces ---
 # Normal English averages about 5 letters per word. Far above that means the extractor lost the spaces
 # ("Nopetsofanykindareallowed..."), and the model would be checking garbled text.
 MAX_AVG_WORD_LEN = 10
@@ -121,7 +121,7 @@ def _pdf_text(data: bytes) -> str:
     return text
 
 
-# AI-assisted (Claude Code): running headers and footers ("MJMJ 4" = tenant initials + page number,
+# [AI] running headers and footers ("MJMJ 4" = tenant initials + page number,
 # "Page 4 of 10", the lease title on every page) sit between the last line of one page and the first line
 # of the next. Left in, they end up inside a clause, and an ALL-CAPS footer even looks like a heading,
 # which split clause 30 of a real lease in two at a page break.
@@ -172,7 +172,7 @@ def _strip_page_furniture(pages: list[str]) -> list[str]:
     return cleaned
 
 
-# --- Munkhzaya: opening the PDF with PyMuPDF ---
+# --- Munkhzaya: opens the PDF with PyMuPDF and rejects locked or damaged files ---
 def _pdf_pages_pymupdf(data: bytes) -> list[str]:
     try:
         import pymupdf as fitz  # PyMuPDF 1.24+; "fitz" is the deprecated old name
@@ -189,7 +189,7 @@ def _pdf_pages_pymupdf(data: bytes) -> list[str]:
 
 
 # --- Tick boxes in fillable PDF forms ---
-# AI-assisted (Claude Code): fillable PDF forms keep their tick boxes as form fields, which get_text() does
+# [AI] fillable PDF forms keep their tick boxes as form fields, which get_text() does
 # not include, so "☐ Tenant ☐ Landlord" would read as "Tenant Landlord". We put a box character back where
 # each field sits, ticked or not, and checkboxes.resolve_boxes turns it into a marker the model understands.
 def _pymupdf_page_text(page, fitz) -> str:
@@ -237,7 +237,7 @@ def _pymupdf_page_text(page, fitz) -> str:
     return "\n".join(out)
 
 
-# --- Munkhzaya: rejecting PDFs whose spaces were lost ---
+# --- Munkhzaya: rejects PDFs whose spaces were lost ---
 def _check_spacing(text: str) -> None:
     """Refuse text whose spaces were lost in extraction, before spending model calls on it."""
     words = re.findall(r"[A-Za-z]+", text)
@@ -270,7 +270,7 @@ def _docx_text(data: bytes) -> str:
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 
-# AI-assisted (Claude Code): paragraph.text skips text inside content controls (where Word keeps its
+# [AI] paragraph.text skips text inside content controls (where Word keeps its
 # clickable ☐/☒ boxes), legacy form-field checkboxes (which have no text at all) and symbol-font
 # characters such as Wingdings boxes. Walking the XML in order picks all three up.
 def _paragraph_text(paragraph) -> str:
@@ -295,8 +295,8 @@ def _paragraph_text(paragraph) -> str:
     return "".join(out)
 
 
-# --- Janice: rebuilding Word's automatic list numbering ---
-# AI-assisted (Claude, Oct 15 2026): rebuilds Word list numbers so auto-numbered leases split correctly.
+# --- Janice: rebuilds Word's automatic list numbering ---
+# [AI] rebuilds Word list numbers so auto-numbered leases split correctly.
 
 
 def _list_info(paragraph) -> tuple[str, int, bool] | None:
@@ -379,7 +379,7 @@ def check_is_lease(text: str) -> None:
         )
 
 
-# --- Munkhzaya: where a clause starts (numbered lines, ALL-CAPS headings) ---
+# --- Munkhzaya: finds where a clause starts (numbered lines, ALL-CAPS headings) ---
 # A line that starts a new clause: "1.", "12)", "3.1", "4.No pets" (no space, capital next),
 # "Section 4", "ARTICLE V", or a short ALL-CAPS heading such as "SECURITY DEPOSIT".
 # "(a)" is NOT a new clause (sub-item). Roman numerals still need a space, so "i.e." is not a clause.
@@ -390,12 +390,12 @@ _NUMBERED = re.compile(
     re.IGNORECASE,
 )
 _HEADING = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/\-]{3,60}:?\s*$")
-# --- Janice: ALL-CAPS lead-in clauses ("LATE FEE. If rent...") ---
-# AI-assisted (Claude, Oct 15 2026): a clause that opens with an ALL-CAPS lead-in ending in a period,
+# --- Janice: splits clauses that open with an ALL-CAPS lead-in ("LATE FEE. If rent...") ---
+# [AI] a clause that opens with an ALL-CAPS lead-in ending in a period,
 # e.g. "LATE FEE. If Rent is not paid...", as in common Massachusetts lease templates.
 _LEAD_IN = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/()\-]{2,60}\.\s+\S")
 
-# --- Munkhzaya: clause numbers in the middle of a line ---
+# --- Munkhzaya: finds clause numbers in the middle of a line ---
 # A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
 # The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
 _INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,2})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
@@ -493,7 +493,7 @@ def _merge_headings(blocks: list[str]) -> list[str]:
     return merged
 
 
-# AI-assisted (Claude Code): the app only knows Massachusetts law. A lease for a property elsewhere would be
+# [AI] the app only knows Massachusetts law. A lease for a property elsewhere would be
 # judged against the wrong rules, so we look for the state it names and warn when it is not Massachusetts.
 STATES = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado",
@@ -539,7 +539,7 @@ def state_warning(text: str) -> str | None:
             "The results below may not apply to your lease. Check with a tenant-rights resource in that state.")
 
 
-# AI-assisted (Claude Code): warnings for inputs the evaluation found the app accepted silently (§5.5):
+# [AI] warnings for inputs the evaluation found the app accepted silently (§5.5):
 # commercial and parking leases, which Massachusetts tenant law does not cover, and impossible or
 # implausible terms (a 99-year lease, a lease that ends before it begins). Warnings, not rejections:
 # the user may still want the clause check, and our pattern matching can be wrong.

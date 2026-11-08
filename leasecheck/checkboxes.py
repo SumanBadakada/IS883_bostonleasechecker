@@ -1,5 +1,5 @@
 # --- "check one" boxes in lease forms ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Make tick boxes explicit before the model reads a lease.
 
 Standard lease forms (such as the Massachusetts standard residential lease) offer choices with boxes:

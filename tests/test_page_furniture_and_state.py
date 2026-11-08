@@ -1,5 +1,5 @@
 # --- Tests for page headers/footers, page-break splits, other-state leases and formats ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import pytest
 
 from eval.build_test_set import build_leases

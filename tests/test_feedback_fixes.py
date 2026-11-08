@@ -1,5 +1,5 @@
 # --- Tests for the workshop-feedback fixes (citations, duplicate questions, overload) ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import pytest
 
 from leasecheck import config

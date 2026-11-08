@@ -1,5 +1,5 @@
 # --- Next steps and the downloadable report ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Turn an AnalysisResult into things a tenant can act on. Plain code, no model calls: the wording is
 templated from the findings, so it costs nothing and cannot invent a new claim."""
 from __future__ import annotations
@@ -45,8 +45,8 @@ HELP_RESOURCES = [
 ]
 
 
-# --- Janice: the per-charge limit note ---
-# AI-assisted (Claude, Oct 15 2026): shown next to the move-in total. A single "legal maximum" for the total
+# --- Janice: explains the per-charge limits (one month's rent each) ---
+# [AI] shown next to the move-in total. A single "legal maximum" for the total
 # was misleading, because each charge has its own cap: a $3,000 deposit on $2,000 rent breaks the law even
 # though the total is below three months' rent.
 def per_charge_limit_note(monthly_rent: float) -> str:
@@ -136,8 +136,8 @@ def overall_verdict(result: AnalysisResult) -> tuple[str, str, str]:
     odd = counts.get("unusual", 0)
     total = len(result.clauses)
     if bad or charge_problems:
-        # --- Janice: counting clause problems and charge problems separately in the headline ---
-        # AI-assisted (Claude, Oct 15 2026): name clauses and move-in charges separately. They come from two
+        # --- Janice: counts clause problems and charge problems separately in the headline ---
+        # [AI] name clauses and move-in charges separately. They come from two
         # different checks (the clause review and the charge tool), and one problem such as an oversized
         # deposit is often caught by both, so adding them into a single "items" number double-counted it.
         parts = []

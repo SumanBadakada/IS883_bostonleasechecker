@@ -1,5 +1,5 @@
 # --- Erdan: the §5.5 test set: real leases, edge cases, chat inputs, expected results before any run ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Build eval/test_set_v2/ and write the expected result of every input BEFORE anything is run.
 
     python -m eval.build_test_set_v2

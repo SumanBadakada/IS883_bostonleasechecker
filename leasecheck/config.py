@@ -1,5 +1,5 @@
 # --- Owner: Erdan | settings shared by the app and the eval ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 
 # --- Model choices and backup models ---
 # Model choices. Flash-lite is the model the course uses on the free tier (the course notebook moved its

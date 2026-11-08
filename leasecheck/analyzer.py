@@ -1,5 +1,5 @@
 # --- The pipeline: clauses -> retrieval -> classify -> charges ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Runs one lease through the whole app. Used by both app.py and eval/run_eval.py, so the eval measures
 exactly what users get.
 

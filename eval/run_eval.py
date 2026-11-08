@@ -1,5 +1,5 @@
 # --- Runs the app's pipeline on the test set and reports the metric ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Run the real pipeline (leasecheck.analyzer.analyze) on every test input and score it.
 
     export GEMINI_API_KEY=...            # never commit it

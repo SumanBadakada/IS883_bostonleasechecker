@@ -1,5 +1,5 @@
 # --- Tests for "check one" boxes in PDFs, Word files and plain text ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import io
 
 import docx

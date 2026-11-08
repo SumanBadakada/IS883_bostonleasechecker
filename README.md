@@ -89,8 +89,9 @@ and average tokens per lease for the cost model. Results go to `eval/results/`.
 
 ## Generative AI disclosure
 
-The code in this repository was first drafted with Claude Code (Anthropic) and is marked with an
-`# AI-assisted` comment at the top of each file. Each file names the team member who owns it. See
+See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md): which tool was used, how, and what the tags in the code mean
+(`# AI-assisted: Claude Code, see AI_DISCLOSURE.md` at the top of a file, `# [AI]` above a block). Sections
+a teammate wrote themselves are marked `# --- Name: what the code does ---`. Ownership of each area is in
 [`docs/TEAM_SPLIT.md`](docs/TEAM_SPLIT.md).
 
 ## Workshop checkpoint

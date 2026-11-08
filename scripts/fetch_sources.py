@@ -1,5 +1,5 @@
 # --- Download the official legal texts for checking sources/ ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Save the official pages behind sources/*.md into sources/official/ as plain text.
 
 Run from the repo root on your own machine:  python scripts/fetch_sources.py

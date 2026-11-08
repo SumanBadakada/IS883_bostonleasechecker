@@ -1,5 +1,5 @@
 # --- Builds the sample leases offered in the app ("Try a sample lease") ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Write the fictional sample leases in samples/, so visitors without a lease can try the app (§5.4 asks
 for a few ready-made example inputs). They are NOT part of the eval test set. Each sample is built from
 eval/clause_bank.py, whose clauses carry the label we expect, so what each sample should show is known:

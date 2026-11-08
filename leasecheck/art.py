@@ -1,5 +1,5 @@
 # --- Decorative house illustrations and their animations ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Inline SVG illustrations of Boston rowhouses, animated with CSS.
 
 Drawn in code rather than loaded as images: nothing to license or host, nothing extra to download,

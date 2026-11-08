@@ -1,5 +1,5 @@
 # --- Tests for the decorative illustrations ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 from leasecheck.art import ART_CSS, compact_skyline_svg, hero_skyline_svg, scanning_house_html
 
 

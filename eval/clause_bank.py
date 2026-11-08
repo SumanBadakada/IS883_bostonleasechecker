@@ -1,5 +1,5 @@
 # --- Labelled clause bank for the synthetic test leases ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Every clause the synthetic leases are built from, with its expected label written BEFORE any run.
 
 Labels follow the labelling guide in eval/LABELING_GUIDE.md. `cite` lists the source chunk IDs

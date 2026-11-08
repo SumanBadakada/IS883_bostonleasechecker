@@ -1,5 +1,5 @@
 # --- Builds the synthetic test leases and their expected results ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Write eval/test_set/: 20 synthetic leases (DOCX and PDF) plus awkward inputs, and gold.json with the
 expected result for every input. Deterministic (fixed seed): re-running gives the same leases and labels.
 

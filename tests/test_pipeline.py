@@ -1,5 +1,5 @@
 # --- Offline tests: parsing, tool, schema, retrieval, pipeline, metrics ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import io
 import json
 
@@ -86,7 +86,7 @@ def test_charges_broker_and_lock_need_checking():
     assert r["problems_found"] == 0 and r["needs_checking"] == 2
 
 
-# --- Munkhzaya: prorated first month and utility-fee tests ---
+# --- Munkhzaya: tests a prorated first month and utility fees ---
 def test_charges_prorated_first_month_is_not_flagged():
     # Tenancy starts mid-month, so first month is prorated to less than a full month's rent. This must
     # not be treated as "too low" or otherwise suspicious -- only amounts *above* the cap are flagged.

@@ -1,5 +1,5 @@
 # --- Retrieval over our legal sources (capability 3) ---
-# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Embed the legal sources in sources/, then find the passages most similar to each clause.
 
 Why retrieval rather than pasting every source into each prompt: the sources together are far longer
