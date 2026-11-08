@@ -1,5 +1,6 @@
 # --- Suman: move-in charge check, the tool the model calls (capability 2) ---
 # AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# Owner (docs/TEAM_SPLIT.md): Munkhzaya, who reviews and improves this file and explains it in Q&A.
 """Check move-in charges against M.G.L. c. 186 §15B(1)(b).
 
 At or before the start of a tenancy a Massachusetts landlord may collect only:

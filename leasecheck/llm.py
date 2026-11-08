@@ -1,5 +1,6 @@
 # --- Suman: Gemini client: retries, token counting, tool loop ---
 # AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# Owner (docs/TEAM_SPLIT.md): Munkhzaya, who reviews and improves this file and explains it in Q&A.
 """Every call to Gemini goes through this file.
 
 Keeping it in one place means: (1) retries and error handling are written once, (2) token usage is
