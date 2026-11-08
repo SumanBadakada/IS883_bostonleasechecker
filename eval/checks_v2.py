@@ -1,5 +1,5 @@
 # --- Erdan: deterministic checks for the §5.5 test set (outcome, warnings, charge tool, labels, text) ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Pure functions (no API calls) that decide pass or fail for each test input, so a program, not a
 person or another model, makes the call. Each returns {"check": name, "pass": bool, "detail": str}.
 """

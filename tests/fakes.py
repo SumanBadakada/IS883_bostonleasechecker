@@ -1,5 +1,5 @@
-# --- Suman: a fake model for offline tests ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- A fake model for offline tests ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Stands in for GeminiLLM so tests run without an API key or network."""
 from __future__ import annotations
 

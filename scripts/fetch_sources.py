@@ -1,5 +1,5 @@
-# --- Suman: download the official legal texts for checking sources/ ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Download the official legal texts for checking sources/ ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Save the official pages behind sources/*.md into sources/official/ as plain text.
 
 Run from the repo root on your own machine:  python scripts/fetch_sources.py

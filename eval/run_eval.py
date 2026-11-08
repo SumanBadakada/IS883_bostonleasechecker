@@ -1,5 +1,5 @@
-# --- Suman: runs the app's pipeline on the test set and reports the metric ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Runs the app's pipeline on the test set and reports the metric ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Run the real pipeline (leasecheck.analyzer.analyze) on every test input and score it.
 
     export GEMINI_API_KEY=...            # never commit it

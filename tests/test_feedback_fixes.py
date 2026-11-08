@@ -1,5 +1,5 @@
-# --- Suman: tests for the workshop-feedback fixes (citations, duplicate questions, overload) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Tests for the workshop-feedback fixes (citations, duplicate questions, overload) ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import pytest
 
 from leasecheck import config

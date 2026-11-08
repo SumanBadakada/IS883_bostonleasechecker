@@ -1,7 +1,7 @@
 # --- Owner: Erdan | settings shared by the app and the eval ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 
-# --- Suman: model choices and backup models ---
+# --- Model choices and backup models ---
 # Model choices. Flash-lite is the model the course uses on the free tier (the course notebook moved its
 # default from 3.1 to 3.5 Flash-Lite on Nov 2, 2026; 3.1 stays first in line as a fallback).
 MODEL = "gemini-3.5-flash-lite"
@@ -32,7 +32,7 @@ MAX_CHUNKS_PER_BATCH = 16
 # Passages retrieved for each follow-up chat question (one more than per clause: a question can span rules).
 CHAT_TOP_K = 4
 
-# --- Suman: input limits, usage caps and prices ---
+# --- Input limits, usage caps and prices ---
 # Input limits (public app, free tier).
 MAX_FILE_MB = 5
 # Real leases with riders and addenda run long (one reached 86 clauses), so 80 rejected real uploads.

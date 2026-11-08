@@ -1,5 +1,5 @@
-# --- Suman: does clause splitting survive different lease formats? (no API calls) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Does clause splitting survive different lease formats? (no API calls) ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Render the same labelled leases in several formats and measure how well parsing recovers the clauses.
 
 A wrong label can come from the model or from the parser handing it the wrong text (two clauses glued

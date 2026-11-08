@@ -1,5 +1,5 @@
-# --- Suman: structured output schemas (capability 4) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Structured output schemas (capability 4) ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 from __future__ import annotations
 
 import json

@@ -1,5 +1,5 @@
-# --- Suman: labelled clause bank for the synthetic test leases ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Labelled clause bank for the synthetic test leases ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Every clause the synthetic leases are built from, with its expected label written BEFORE any run.
 
 Labels follow the labelling guide in eval/LABELING_GUIDE.md. `cite` lists the source chunk IDs

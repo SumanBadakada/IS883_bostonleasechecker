@@ -1,5 +1,5 @@
-# --- Suman: move-in charge check, the tool the model calls (capability 2) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Move-in charge check, the tool the model calls (capability 2) ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Check move-in charges against M.G.L. c. 186 §15B(1)(b).
 
 At or before the start of a tenancy a Massachusetts landlord may collect only:
@@ -20,7 +20,7 @@ from typing import Any
 from google.genai import types
 
 CITE_15B_1B = "M.G.L. c. 186 §15B(1)(b)"
-# --- Munkhzaya: the broker-fee and utility citations and rules (PR #30) ---
+# --- Munkhzaya: cites and applies the broker-fee and utility rules (PR #30) ---
 # Confirmed against the Board of Registration of Real Estate Brokers and Salespersons' broker-fee advisory
 # (mass.gov/doc/broker-fee-advisory/download) and its follow-up guidance (mass.gov/doc/recent-brokertenant-fee-law-guidance-2025/download):
 # the rule is codified at M.G.L. c. 112 §87DDD½ (the Broker Licensing Law), which also amended c. 186 §15B to
@@ -34,7 +34,7 @@ CITE_BROKER = "M.G.L. c. 112 §87DDD½ (effective Aug. 1, 2025); amends M.G.L. c
 CITE_UTILITIES = "105 CMR 410 (AG Guide: Heat and utilities)"
 UTILITY_WORDS = ("utility", "utilities", "heat", "gas", "electric", "water")
 
-# --- Suman: the move-in calculator ---
+# --- The move-in calculator ---
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 
 # Which clauses go to the move-in check (analyzer.check_charges) and can be matched to a charge (report.py):
@@ -42,8 +42,8 @@ OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 MONEY = re.compile(r"\$\s?\d|\bdeposit\b|\bfee\b|\bfirst month|\blast month|\block\b", re.IGNORECASE)
 
 
-# Munkhzaya wrote the prorated-first-month note in this docstring and the rent field descriptions in the
-# declaration below (PR #31), and the utility-fee branch (PR #30).
+# --- Munkhzaya: explains the prorated first month in this docstring and in the rent descriptions of the
+# declaration below (PR #31); writes the utility-fee branch (PR #30) ---
 def check_move_in_charges(
     monthly_rent: float,
     first_month_rent: float = 0.0,
@@ -152,7 +152,7 @@ CHECK_MOVE_IN_CHARGES_DECLARATION = types.FunctionDeclaration(
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            # --- Munkhzaya: full monthly rent vs a prorated first month (PR #31) ---
+            # --- Munkhzaya: tells the model the full monthly rent apart from a prorated first month (PR #31) ---
             "monthly_rent": types.Schema(type=types.Type.NUMBER, description=(
                 "The lease's regular, full monthly rent rate (e.g. from a 'Rent' or 'Monthly Rent' clause). "
                 "Use the full rate even if the lease also states a smaller, prorated amount due for a partial "

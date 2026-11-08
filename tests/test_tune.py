@@ -1,5 +1,5 @@
 # --- Erdan: offline tests for the tuning harness ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import json
 
 from eval import tune

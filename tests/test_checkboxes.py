@@ -1,5 +1,5 @@
-# --- Suman: tests for "check one" boxes in PDFs, Word files and plain text ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Tests for "check one" boxes in PDFs, Word files and plain text ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 import io
 
 import docx

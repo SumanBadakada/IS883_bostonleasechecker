@@ -1,5 +1,5 @@
-# --- Suman: versioned prompts (capability 1) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Versioned prompts (capability 1) ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """All prompts, versioned. Never edit a released version in place: copy it to a new key, change the
 copy, and run the eval on both (python -m eval.run_eval --prompt-version v1 / v2) to get the
 before-and-after number §5.5 asks for.
@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-# --- Suman: versioned prompts and the v1 baseline ---
+# --- Versioned prompts and the v1 baseline ---
 @dataclass(frozen=True)
 class PromptVersion:
     system: str
@@ -71,7 +71,7 @@ CLAUSES TO REVIEW
 Return one finding per clause."""
 
 
-# --- Suman: the prompt registry, clause formatting and the move-in prompts ---
+# --- The prompt registry, clause formatting and the move-in prompts ---
 PROMPTS: dict[str, PromptVersion] = {
     "v1": PromptVersion(system=_SYSTEM_V1, task=_TASK_V1),
     "v2": PromptVersion(system=_SYSTEM_V2, task=_TASK_V2),

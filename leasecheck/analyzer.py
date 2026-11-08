@@ -1,5 +1,5 @@
-# --- Suman: the pipeline: clauses -> retrieval -> classify -> charges ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- The pipeline: clauses -> retrieval -> classify -> charges ---
+# AI-assisted: Claude Code, see AI_DISCLOSURE.md
 """Runs one lease through the whole app. Used by both app.py and eval/run_eval.py, so the eval measures
 exactly what users get.
 
