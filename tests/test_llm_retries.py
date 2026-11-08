@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for rate-limit, quota, overload and timeout handling ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: tests for rate-limit, quota, overload and timeout handling ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 import httpx
 import pytest
 from google.genai import errors

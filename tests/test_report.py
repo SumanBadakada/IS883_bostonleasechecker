@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for next steps, verdicts and the downloadable report ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: tests for next steps, verdicts and the downloadable report ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from leasecheck.analyzer import analyze
 from leasecheck.parsing import Clause
 from leasecheck.report import html_report, next_steps, overall_verdict
@@ -38,6 +38,7 @@ def test_display_names():
     assert Clause(7, "SECURITY DEPOSIT. The deposit...").display_name == "Part 7"
 
 
+# --- Janice: verdict tests for clauses and charges counted separately ---
 # AI-assisted (Claude, Oct 15 2026): the banner names clauses and move-in charges separately.
 def test_verdict_counts_clauses_and_charges_separately():
     result = run()  # the fake flags clauses, and the $3,000 deposit on $2,000 rent is a charge problem

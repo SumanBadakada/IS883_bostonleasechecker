@@ -1,5 +1,5 @@
-# --- Owner: Janice | structured output schemas (capability 4) ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: structured output schemas (capability 4) ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from __future__ import annotations
 
 import json

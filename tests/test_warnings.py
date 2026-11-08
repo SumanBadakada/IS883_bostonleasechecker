@@ -1,5 +1,5 @@
-# --- Owner: Suman | tests for the document warnings: not residential, implausible term, backwards dates ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: tests for the document warnings: not residential, implausible term, backwards dates ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from pathlib import Path
 
 import pytest
@@ -55,6 +55,23 @@ def test_numeric_dates_in_the_wrong_order_are_flagged():
     assert any("end before it begins" in w for w in term_warnings("The lease runs from 9/1/2027 to 8/31/2026."))
 
 
-@pytest.mark.parametrize("name", ["sample_lease.docx", "sample_fair_lease.docx", "sample_shared_house.docx"])
+@pytest.mark.parametrize("name", ["sample_lease.docx", "sample_fair_lease.docx", "sample_shared_house.docx",
+                                  "sample_agent_fees.docx"])
 def test_the_sample_leases_raise_no_warnings(name):
     assert load_document((SAMPLES / name).read_bytes(), name).warnings == []
+
+
+def test_the_checkbox_sample_shows_its_unticked_boxes():
+    doc = load_document((SAMPLES / "sample_checkbox_form.docx").read_bytes(), "sample_checkbox_form.docx")
+    assert [w for w in doc.warnings if "not ticked" in w] and len(doc.warnings) == 1
+    text = {c.display_name: c.text for c in doc.clauses}
+    assert "[ticked] Fixed term" in text["Clause 3"]
+    assert "[assumed chosen] $1,950" in text["Clause 4"]
+    assert "[no box ticked] Landlord" in text["Clause 5"]
+
+
+def test_every_sample_offered_in_the_app_exists():
+    import re
+    app = (ROOT / "app.py").read_text(encoding="utf-8")
+    files = re.findall(r'\("(sample_[a-z_]+\.docx)"', app)
+    assert len(files) == 5 and all((SAMPLES / f).exists() for f in files)

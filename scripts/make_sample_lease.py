@@ -1,5 +1,5 @@
-# --- Owner: Suman | builds the sample leases offered in the app ("Try a sample lease") ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: builds the sample leases offered in the app ("Try a sample lease") ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Write the fictional sample leases in samples/, so visitors without a lease can try the app (§5.4 asks
 for a few ready-made example inputs). They are NOT part of the eval test set. Each sample is built from
 eval/clause_bank.py, whose clauses carry the label we expect, so what each sample should show is known:
@@ -10,6 +10,12 @@ eval/clause_bank.py, whose clauses carry the label we expect, so what each sampl
   sample_shared_house.docx  Shared house, harsher terms: 7 possibly unlawful (1.5-month deposit, lockout for
                             non-payment, tenant does all repairs, no heat Nov-Apr limits, flat water charge,
                             liability waiver, deposit forfeited on early exit), 3 unusual
+  sample_agent_fees.docx    Agent-listed apartment: 4 possibly unlawful (broker fee for the landlord's own agent,
+                            $300 of the deposit kept for cleaning, tenant pays all pest control, lease ends if a
+                            child under six moves in), 3 unusual; the move-in table shows the broker fee as "check"
+  sample_checkbox_form.docx Standard form with "check one" boxes left blank: a warning listing the affected clauses;
+                            the deposit box is read as [assumed chosen] (the filled-in amount), heat and pets as
+                            [no box ticked]; the ticked tenancy box is read as ticked
 
     python scripts/make_sample_lease.py
 """
@@ -36,6 +42,9 @@ def lease(title, parties, rent, term, clauses):
                                      "of each month.")] + clauses
     return lines + [f"{n}. {text}" for n, (_key, text) in enumerate(body, start=1)]
 
+
+# The clause bank's broker clause names a made-up agency; the samples use an obviously fictional name.
+_FICTIONAL_AGENT = ("Back Bay Realty", "Example Realty Partners")
 
 SAMPLES = {
     "sample_lease.docx": lease(
@@ -69,6 +78,30 @@ SAMPLES = {
         + pick(UNUSUAL, ["guests", "lockout_fee", "auto_renew"])
         + pick(LAWFUL, ["keys"])),
 }
+
+SAMPLES["sample_agent_fees.docx"] = lease(
+    "RESIDENTIAL LEASE AGREEMENT",
+    "This lease is made between Harbor Example Holdings LLC (\"Landlord\") and Riley Example (\"Tenant\") for the "
+    "apartment at 12 Example Court, Apt 1B, Somerville, Massachusetts (the \"premises\").",
+    2300, "TERM. The term of this lease is twelve months, beginning August 1, 2026 and ending July 31, 2027.",
+    [("m_broker", money_clauses(2300)["m_broker"][0].replace(*_FICTIONAL_AGENT))]
+    + pick(LAWFUL, ["use", "occupancy", "noise", "entry_ok", "repairs_ok", "insurance", "laundry", "keys"])
+    + pick(UNLAWFUL, ["cleaning_keep", "pests", "children"])
+    + pick(UNUSUAL, ["returned_check", "moveout_notice", "ac"]))
+
+# A standard-form lease where the tenant must tick one option in several places. Only the tenancy type is
+# ticked; the deposit has one option filled in and one blank; heat and pets have nothing ticked.
+SAMPLES["sample_checkbox_form.docx"] = lease(
+    "STANDARD FORM APARTMENT LEASE",
+    "This lease is made between Charles Example Realty Trust (\"Landlord\") and Morgan Example (\"Tenant\") for the "
+    "apartment at 3 Example Place, Unit 5, Brighton, Massachusetts (the \"premises\").",
+    1950, "TERM. The term of this lease is twelve months, beginning September 1, 2026 and ending August 31, 2027.",
+    [("tenancy", "TYPE OF TENANCY. ☐ Tenancy at will ☒ Fixed term of twelve months, as stated above."),
+     ("deposit", "SECURITY DEPOSIT. At signing Tenant shall pay first month's rent of $1,950 and a security "
+                 "deposit of: ☐ $1,950 ☐ $____"),
+     ("heat", "HEAT AND HOT WATER. Heat and hot water shall be paid for by: ☐ Landlord ☐ Tenant"),
+     ("pets", "PETS. ☐ No pets are allowed. ☐ Pets are allowed with Landlord's written consent.")]
+    + pick(LAWFUL, ["use", "trash", "smoking", "entry_ok", "repairs_ok", "account_ok", "condition_ok", "keys"]))
 
 if __name__ == "__main__":
     for name, lines in SAMPLES.items():

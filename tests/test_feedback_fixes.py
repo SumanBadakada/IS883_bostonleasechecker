@@ -1,5 +1,5 @@
-# --- Owner: Suman | tests for the workshop-feedback fixes (citations, duplicate questions, overload) ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: tests for the workshop-feedback fixes (citations, duplicate questions, overload) ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 import pytest
 
 from leasecheck import config

@@ -1,6 +1,5 @@
-# Author: Suman Somaiah B A (original placeholder)
-# --- Owner: Suman | Streamlit UI, usage cap, secrets, error display ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: Streamlit UI, usage cap, secrets, error display ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from html import escape
 from pathlib import Path
 
@@ -24,6 +23,8 @@ SAMPLES_DIR = Path(__file__).parent / "samples"
 SAMPLES = {
     "Apartment: common problems": ("sample_lease.docx", "Sample - Boston apartment (fictional).docx"),
     "Shared house: harsher terms": ("sample_shared_house.docx", "Sample - shared house (fictional).docx"),
+    "Agent-listed: fee problems": ("sample_agent_fees.docx", "Sample - agent-listed apartment (fictional).docx"),
+    "Form lease: unticked boxes": ("sample_checkbox_form.docx", "Sample - form lease with unticked boxes (fictional).docx"),
     "Fair lease: few issues": ("sample_fair_lease.docx", "Sample - fair lease (fictional).docx"),
 }
 DEV_MODE = st.query_params.get("dev") == "1"  # developer options only appear at <app-url>/?dev=1
@@ -275,6 +276,7 @@ with tab_overview:
             problems, review = check["problems_found"], check["needs_checking"]
             badges = (pill("danger", f"{problems} not allowed") if problems else pill("success", "Within the limits")) \
                 + (pill("warning", f"{review} to check") if review else "")
+            # --- Janice: the per-charge limit note on the move-in card ---
             # AI-assisted (Claude, Oct 15 2026): explain the per-charge limits instead of one "legal maximum"
             # for the total, which looked fine even when a single charge (e.g. the deposit) was over its cap.
             html(f'<div class="blc-card"><div class="blc-muted">Total requested before move-in</div>'

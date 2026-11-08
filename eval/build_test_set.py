@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | builds the synthetic test leases and their expected results ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: builds the synthetic test leases and their expected results ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Write eval/test_set/: 20 synthetic leases (DOCX and PDF) plus awkward inputs, and gold.json with the
 expected result for every input. Deterministic (fixed seed): re-running gives the same leases and labels.
 

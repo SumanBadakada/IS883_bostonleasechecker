@@ -7,7 +7,7 @@ Amber boxes call Gemini; blue boxes are plain Python; dashed red arrows are fail
 
 ```mermaid
 flowchart TD
-    U["User uploads a PDF or Word lease (max 5 MB)<br/>or picks one of 3 fictional samples"] --> CAP{"Lease checks left this session?<br/>3 per session, st.session_state"}
+    U["User uploads a PDF or Word lease (max 5 MB)<br/>or picks one of 5 fictional samples"] --> CAP{"Lease checks left this session?<br/>3 per session, st.session_state"}
     CAP -- no --> CAPMSG["Message: no checks left"]
     CAP -- yes --> X
 

@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | a fake model for offline tests ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: a fake model for offline tests ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 """Stands in for GeminiLLM so tests run without an API key or network."""
 from __future__ import annotations
 

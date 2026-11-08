@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for the decorative illustrations ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: tests for the decorative illustrations ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 from leasecheck.art import ART_CSS, compact_skyline_svg, hero_skyline_svg, scanning_house_html
 
 

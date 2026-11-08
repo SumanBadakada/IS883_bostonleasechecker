@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | tests for Word auto-numbering and ALL-CAPS lead-in clauses ---
+# --- Janice: tests for Word auto-numbering and ALL-CAPS lead-in clauses ---
 # AI-assisted: drafted with Claude (Oct 15 2026). The owner must review it and be able to explain it (IS883 §9).
 """Regression tests for the bug where a lease using Word's automatic numbering came back as one clause.
 

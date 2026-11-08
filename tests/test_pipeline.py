@@ -1,5 +1,5 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | offline tests: parsing, tool, schema, retrieval, pipeline, metrics ---
-# AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
+# --- Suman: offline tests: parsing, tool, schema, retrieval, pipeline, metrics ---
+# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
 import io
 import json
 
@@ -86,6 +86,7 @@ def test_charges_broker_and_lock_need_checking():
     assert r["problems_found"] == 0 and r["needs_checking"] == 2
 
 
+# --- Munkhzaya: prorated first month and utility-fee tests ---
 def test_charges_prorated_first_month_is_not_flagged():
     # Tenancy starts mid-month, so first month is prorated to less than a full month's rent. This must
     # not be treated as "too low" or otherwise suspicious -- only amounts *above* the cap are flagged.
@@ -107,6 +108,7 @@ def test_charges_utility_fee_is_checked_not_flagged_unlawful():
     assert r["problems_found"] == 0 and r["needs_checking"] == 1
 
 
+# --- Suman ---
 def test_charges_bad_rent():
     assert "error" in check_move_in_charges(0)
 
