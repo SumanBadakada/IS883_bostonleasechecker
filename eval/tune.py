@@ -128,6 +128,9 @@ VARIANTS: dict[str, dict] = {
     "top_k_10": {"top_k": 10},
     **{f"no_{e}": {"prompt": f"tune-no-{e}", **({"retrieval": False} if e == "data" else {})} for e in ELEMENTS},
     "no_schema": {"schema": "none"},
+    # No passages, and the prompt run_v2 uses for the comparison: v2 with "the passages" replaced by
+    # "Massachusetts law as you know it" (no_data keeps v2, which forbids flagging without a passage).
+    "own_knowledge": {"prompt": "v2-memory", "retrieval": False},
 }
 # zero-shot is "no_exemplar"; few-shot (three examples) is the baseline.
 
@@ -216,10 +219,11 @@ def run(llm: TuneLLM, index: SourceIndex, seeds: range, only: Optional[list[str]
 
 
 def _reuse_compare(name: str, seed: int) -> dict:
-    """The baseline is the same configuration as the 'retrieval' runs of the comparison, so real_01 and real_02
-    from those runs (same seed) are reused rather than spending quota on them again."""
-    path = OUT / "compare" / f"retrieval_seed{seed:02d}.json"
-    if name != "baseline" or not path.exists():
+    """The baseline and own_knowledge are the same configurations as the comparison's 'retrieval' and 'memory'
+    runs, so real_01 and real_02 from those runs (same seed) are reused rather than spending quota on them again."""
+    version = {"baseline": "retrieval", "own_knowledge": "memory"}.get(name)
+    path = TUNE.parent / "compare" / f"{version}_seed{seed:02d}.json"
+    if version is None or not path.exists():
         return {}
     out = {}
     for r in json.loads(path.read_text())["inputs"]:
@@ -300,12 +304,16 @@ def main() -> None:
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--wait-for-quota", action="store_true",
                     help="when the daily quota runs out, sleep until it resets (midnight Pacific) and go on")
+    ap.add_argument("--model", default=config.MODEL,
+                    help="another Gemini model, e.g. gemini-3.1-flash-lite; its runs go to results/v2/<model>/tune/")
     args = ap.parse_args()
+    global TUNE
+    TUNE = OUT.parent / args.model / "tune"
     if args.what == "run":
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise SystemExit("Set GEMINI_API_KEY in your environment first.")
-        llm = TuneLLM(api_key)
+        llm = TuneLLM(api_key, model=args.model)
         index = SourceIndex.build(llm)
         while True:
             try:
@@ -318,8 +326,8 @@ def main() -> None:
                 wait = _seconds_to_quota_reset()
                 print(f"Daily quota used up; sleeping {wait / 3600:.1f} h until it resets.", flush=True)
                 time.sleep(wait)
-    (OUT / "tune_summary.json").write_text(json.dumps(summary(), indent=1))
-    print(f"Wrote {OUT / 'tune_summary.json'}")
+    (TUNE.parent / "tune_summary.json").write_text(json.dumps(summary(), indent=1))
+    print(f"Wrote {TUNE.parent / 'tune_summary.json'}")
 
 
 def _seconds_to_quota_reset() -> float:

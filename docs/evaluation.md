@@ -9,7 +9,9 @@ and the chat prompt) with prompt `v2`, temperature 0.1, 3 passages per clause an
   together give a second repeated comparison (one model vs another) for free.
 
 - **Added on 2026-11-06:** two more real leases (§2, §3), and §5, a one-change-at-a-time tuning of 16
-  versions on all five real leases, 5 runs each. A Word version of this report is
+  versions on all five real leases, 5 runs each.
+- **Rerun on 2026-11-08:** §4 now compares retrieval with own knowledge on all five real leases, 10 runs per
+  version on both models. A Word version of this report is
   `docs/Evaluation_Report.docx`.
 
 Redacted results (no lease text) are in `eval/results/v2/<model>/main_summary.json`,
@@ -167,67 +169,77 @@ Costs use the prices in `leasecheck/config.py` ($0.10 / $0.40 per million input 
 classification: it sends every clause that mentions money, and in the June Homes lease such a "clause" is a
 30,000-character block.
 
-## 4. Comparison: retrieval vs the model's own knowledge (10 runs per version)
+## 4. Comparison: retrieval vs the model's own knowledge (five real leases, 10 runs per version)
 
 **What changes.** *Retrieval* is the app as shipped: each batch of clauses goes to the model with the top 3
 source passages per clause. *Own knowledge* sends the same clauses with no passages and a prompt that is v2
 with every reference to the passages replaced by "Massachusetts law as you know it"
 (`eval/run_v2.py: memory_prompt`). Sending v2 without passages would not be a fair test: v2 tells the model
-never to flag a clause without a passage. Everything else is identical.
+never to flag a clause without a passage (that is §5's "− Data" version, 2% recall). Everything else is
+identical.
 
-**Which inputs, and why.** Six leases where the difference can show:
-- the two real leases with the most possibly-unlawful clauses (the room-rental addendum and the standard
-  form, 108 clauses);
-- the four altered known examples (late fee after 31 vs 5 days, a 1.5-month deposit, a broker hired by the
-  tenant), built to tell reasoning from recall.
+**Which inputs.** All five real leases, the same 236 clauses and 33 possibly-unlawful targets as §3 and §5,
+so the numbers here can be read next to theirs. The retrieval version is §5's baseline: its seeds 1–5 are
+the runs behind §5's 67.3%, and seeds 6–10 were added for this section. Both versions run in
+`eval/tune.py` (`baseline` and `own_knowledge`; `--model` picks the model). The move-in charge step is the
+same in both and was skipped.
 
-They hold 13 clauses labelled possibly unlawful. The June Homes lease was left out: its 30,000-character
-clauses make one label cover dozens of terms, so a difference could not be traced to a clause.
+**Repeats.** Seeds 1–10 for each version on each model, paid tier, 2026-11-08; all 80 runs completed, none
+lost to an API error. For the room-rental addendum and the standard-form lease, seeds 1–10 of an earlier
+comparison run with the same settings were reused rather than called again. Before the added runs, the
+current parser was checked to split all five leases into exactly the clauses that were labelled (236 of 236
+identical), so the new seeds are comparable with the old.
 
-**Repeats.** Each input ran 10 times per version, with seed = 1, 2, ..., 10. (The app's fixed seed 883
-would make every repeat identical.) On 3.5, run 10 of the own-knowledge version hit the free tier's daily
-quota twice, so that version has **9 runs**. The charge step was skipped in both versions, since it does
-not change.
+| Model | Version | Recall: mean (min–max), SD | Precision: mean (min–max) | Flags per run | Input tokens per lease | Output tokens per lease | Cost per 1,000 leases |
+|---|---|---|---|---|---|---|---|
+| **3.5 (app)** | **Retrieval** | **69.1%** (60.6–78.8), SD 5.2 | **53.3%** (47.7–58.5) | 42.8 | 18,938 | 3,989 | $3.49 |
+| 3.5 (app) | Own knowledge | 34.8% (27.3–45.5), SD 4.9 | 41.4% (36.7–52.0) | 27.8 | 15,241 | 4,117 | $3.17 |
+| 3.1 | Retrieval | 67.3% (60.6–72.7), SD 3.3 | 40.2% (37.5–43.4) | 55.3 | 18,938 | 4,189 | $3.57 |
+| 3.1 | Own knowledge | 50.9% (45.5–54.5), SD 2.6 | 36.7% (34.0–39.1) | 45.8 | 14,419 | 3,586 | $2.88 |
 
-| Model | Version | Recall: mean (min–max), SD | Precision: mean (min–max) | Input tokens per lease | Output tokens per lease | Cost per 1,000 leases |
-|---|---|---|---|---|---|---|
-| **3.5 (app)** | **Retrieval** | **66.9%** (61.5–69.2), SD 3.5 | **32.4%** (26.7–36.0) | 17,241 | 4,332 | $3.46 |
-| 3.5 (app) | Own knowledge (9 runs) | 47.0% (38.5–53.8), SD 5.7 | 32.4% (27.3–37.5) | 11,808 | 3,491 | $2.58 |
-| 3.1 | Retrieval | 66.9% (61.5–69.2), SD 3.5 | 26.5% (22.2–29.0) | 17,241 | 4,560 | $3.55 |
-| 3.1 | Own knowledge | 55.4% (46.2–61.5), SD 5.8 | 23.7% (19.4–26.7) | 11,808 | 3,800 | $2.70 |
+The 3.5 retrieval row is §5's baseline over ten seeds: 67.3% on seeds 1–5 (as in §5) and 70.9% on seeds
+6–10. Ten runs give the better estimate, and the gap between the two halves is the run-to-run spread the
+SD describes. Own knowledge has no citation accuracy: with no passages, it has no source IDs to cite.
 
-With the indexing slips fixed, retrieval's recall is 74.6% on both models. Own knowledge stays at 47.0% on
-3.5 and rises to 63.1% on 3.1.
+**Is the gain worth the cost?** On the app's model, retrieval adds **34.2 points of recall**, and is higher on
+**all 10 seeds** (paired by seed, SD of the difference 6.2 points). Its worst run (60.6%) beats own
+knowledge's best (45.5%). Precision is also 11.9 points higher. The price is 3,700 more input tokens per lease
+(+24%), about $0.32 per 1,000 leases, or $0.0003 per lease. Yes: retrieval roughly doubles the share of
+unlawful clauses found, for a few hundredths of a cent per lease.
 
-**Is the gain worth the cost?** On the app's model, retrieval adds **19.9 points of recall** at the same
-precision. Its worst run (61.5%) beats own knowledge's best (53.8%). It costs 5,400 more input tokens per
-lease (+46%), about $0.0009 per lease. Yes: catching about one in five more unlawful clauses for under a
-tenth of a cent is worth it.
+**Where the gap comes from** (3.5, runs out of 10 in which the clause was flagged possibly unlawful):
 
-**Why retrieval won: reasoning or training data?** The clause-by-clause rates show where the gap comes from
-(3.5, runs where the clause was flagged possibly unlawful):
+| Clause | Retrieval | Own knowledge |
+|---|---|---|
+| "Tenants pay for heat ... hot water ... all other utilities" in a shared house (room-rental addendum) | 10 | **0** |
+| BU license: the University not liable for personal injury or loss of property | 10 | **0** |
+| BU license: late fee "per the published schedule" and a $500 non-refundable fee | 10 | **0** |
+| June Homes: tenant pays all utilities, accepts the apartment "as is", landlord liable only for gross negligence | 10 | **0** |
+| Apartment "considered in perfect condition" if the tenant misses a 14-day deadline | 10 | **2** |
+| BU license: revocation on 7 days' notice, trespass charges | 10 | 1 |
+| Landlord may enter "at Any Time" (room-rental addendum) | 10 | 10 |
+| Deposit kept for "any and all deductions", from any deposit (room-rental addendum) | 10 | 10 |
+| June Homes: utilities split with no submeter and taken from the deposit | 4 | **10** |
 
-| Clause | Expected | Retrieval (10 runs) | Own knowledge (9 runs) |
-|---|---|---|---|
-| Deposit of 1.5 months' rent (altered) | possibly unlawful | 10 | **4** |
-| "Tenants pay for heat ... hot water ... all other utilities" in a shared house | possibly unlawful | 10 | **0** |
-| Apartment "considered in perfect condition" if the tenant misses a 14-day deadline | possibly unlawful | 10 | **2** |
-| Owner may change the locks at any time | possibly unlawful | 10 | 7 |
-| Late fee only after 31 days (altered) | lawful | 10 lawful | 9 lawful |
-| Late fee after 5 days (altered) | possibly unlawful | 10 | 9 |
-| Broker hired by the tenant (altered) | lawful | 10 lawful | 9 lawful |
+Own knowledge still catches the clauses any reader would call one-sided (entry at any time, open-ended
+deposit deductions). What it misses are the **narrow Massachusetts rules**: who pays for heat and hot
+water, that a landlord cannot contract out of liability for its own negligence, the 30-day wait before a
+late fee, the statement-of-condition procedure. With the passage in front of it, the model applies these
+almost every time; without it, rarely. It also flags far less (27.8 clauses per run against 42.8), so the
+loss is in recall more than in precision. The one clause own knowledge catches more often is the June Homes
+utility addendum, which retrieval matches to the deposit rules rather than the heat-and-utilities passage.
 
-Both versions got the altered examples that flip a familiar pattern right every time: a late fee that is
-lawful because it starts after 30 days, and a broker fee the tenant may pay because the tenant hired the
-broker. So the model is not reciting "late-fee clauses are bad" from training; it reads the facts and
-applies a rule. What it lacks are the **narrow Massachusetts rules**: the one-month cap on a security
-deposit, who pays for heat and hot water, and the statement-of-condition procedure. With the passage in
-front of it, the model applies these every time; without it, rarely. Retrieval wins by supplying knowledge
-the model does not have, not by making it reason better, which is what retrieval is for.
+An earlier run of this comparison (2026-11-05, two real leases and four altered examples, 13 targets) found
+the same direction, a 19.9-point gap, and showed that the model is not just reciting patterns: both
+versions labelled a late fee that starts after 31 days and a broker fee the tenant agreed to as lawful,
+every time. That run is superseded by this one, which uses all five leases and the same targets as the
+rest of the report.
 
-**One model vs another (same 10 seeds, with retrieval).** 3.5 and 3.1 have identical recall (66.9%), and 3.5
-has 5.9 points more precision for 5% fewer output tokens. The switch in PR #32 is supported on precision,
-with no recall cost.
+**One model vs another (same 10 seeds).** With retrieval, 3.5 and 3.1 have nearly the same recall (69.1% vs
+67.3%), and 3.5 has **13.1 points more precision**: 3.1 flags 55 clauses per run against 43, and leaves 1.1
+clauses per run "not checked" (3.5: none). The switch in PR #32 is supported on precision, with no recall
+cost. Without passages, 3.1 recalls more (50.9% vs 34.8%): it knows more Massachusetts law from training.
+Retrieval closes that gap, which is one more reason the app should not rely on the model's memory.
 
 ## 5. Tuning: one change at a time on the five real leases (5 runs per version)
 
@@ -237,7 +249,9 @@ top-k 3, the response schema, three examples, no written reasoning. Every other 
 of those. Each version ran with seeds 1–5 on `gemini-3.5-flash-lite` (paid tier, 2026-11-06); the move-in
 charge step is the same in every version and was skipped. Because every version used the same five seeds,
 each is also compared with the baseline **seed by seed** ("lower in 5/5 runs" means it was worse on every
-seed, which a 5-run mean alone cannot show).
+seed, which a 5-run mean alone cannot show). The baseline was later run on seeds 6–10 as well, for §4, so
+`tune_summary.json` reports it over ten runs (69.1%); every comparison in this section uses seeds 1–5, where
+the baseline is 67.3%.
 
 **The eight prompt elements** are cut from prompt v2 itself; joined back, the pieces give v2 exactly (a test
 checks this), so removing one removes only its words:

@@ -1,0 +1,536 @@
+{
+ "baseline": {
+  "settings": {},
+  "runs": 10,
+  "recall": {
+   "mean": 0.6727272727272727,
+   "min": 0.6060606060606061,
+   "max": 0.7272727272727273,
+   "sd": 0.032637362467481855,
+   "n": 10
+  },
+  "precision": {
+   "mean": 0.4017893116185244,
+   "min": 0.375,
+   "max": 0.4339622641509434,
+   "sd": 0.0195650526535697,
+   "n": 10
+  },
+  "agreement": {
+   "mean": 0.6546610169491526,
+   "min": 0.6271186440677966,
+   "max": 0.6694915254237288,
+   "sd": 0.013162902175431417,
+   "n": 10
+  },
+  "correct_citation": {
+   "mean": 0.8434537925842274,
+   "min": 0.7727272727272727,
+   "max": 0.9047619047619048,
+   "sd": 0.037972343253521466,
+   "n": 10
+  },
+  "flagged_per_run": 55.3,
+  "not_checked_per_run": 1.1,
+  "answers_parsed": 140,
+  "answers": 140,
+  "input_tokens_per_lease": 18937.6,
+  "output_tokens_per_lease": 4188.9,
+  "cost_per_1000_leases_usd": 3.56932,
+  "mean_passages_per_batch": 13.75,
+  "per_seed": [
+   {
+    "seed": 1,
+    "recall": 0.696969696969697,
+    "precision": 0.4339622641509434,
+    "agreement": 0.6610169491525424,
+    "correct_citation": 0.8260869565217391,
+    "flagged": 53,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 20675,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 1.0,
+     "real_04": 0.6666666666666666,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 2,
+    "recall": 0.6363636363636364,
+    "precision": 0.375,
+    "agreement": 0.6652542372881356,
+    "correct_citation": 0.9047619047619048,
+    "flagged": 56,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 20915,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.6666666666666666,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 3,
+    "recall": 0.6666666666666666,
+    "precision": 0.3793103448275862,
+    "agreement": 0.652542372881356,
+    "correct_citation": 0.8636363636363636,
+    "flagged": 58,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 21446,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 1.0,
+     "real_04": 0.6666666666666666,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 4,
+    "recall": 0.6666666666666666,
+    "precision": 0.39285714285714285,
+    "agreement": 0.652542372881356,
+    "correct_citation": 0.7727272727272727,
+    "flagged": 56,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 21972,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 1.0,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 5,
+    "recall": 0.696969696969697,
+    "precision": 0.39655172413793105,
+    "agreement": 0.6652542372881356,
+    "correct_citation": 0.8260869565217391,
+    "flagged": 58,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 20625,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.7777777777777778,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 6,
+    "recall": 0.6060606060606061,
+    "precision": 0.4,
+    "agreement": 0.6271186440677966,
+    "correct_citation": 0.9,
+    "flagged": 50,
+    "not_checked": 11,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 19692,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.4444444444444444,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 7,
+    "recall": 0.7272727272727273,
+    "precision": 0.42857142857142855,
+    "agreement": 0.6652542372881356,
+    "correct_citation": 0.8333333333333334,
+    "flagged": 56,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 20627,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 1.0,
+     "real_04": 0.7777777777777778,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 8,
+    "recall": 0.6666666666666666,
+    "precision": 0.39285714285714285,
+    "agreement": 0.635593220338983,
+    "correct_citation": 0.8181818181818182,
+    "flagged": 56,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 21334,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.6666666666666666,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 9,
+    "recall": 0.696969696969697,
+    "precision": 0.42592592592592593,
+    "agreement": 0.6694915254237288,
+    "correct_citation": 0.8260869565217391,
+    "flagged": 54,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 20650,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.7,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.7777777777777778,
+     "real_05": 0.5714285714285714
+    }
+   },
+   {
+    "seed": 10,
+    "recall": 0.6666666666666666,
+    "precision": 0.39285714285714285,
+    "agreement": 0.652542372881356,
+    "correct_citation": 0.8636363636363636,
+    "flagged": 56,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 94688,
+    "output_tokens": 21509,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.7777777777777778,
+     "real_05": 0.5714285714285714
+    }
+   }
+  ]
+ },
+ "own_knowledge": {
+  "settings": {
+   "prompt": "v2-memory",
+   "retrieval": false
+  },
+  "runs": 10,
+  "recall": {
+   "mean": 0.509090909090909,
+   "min": 0.45454545454545453,
+   "max": 0.5454545454545454,
+   "sd": 0.026417569354791948,
+   "n": 10
+  },
+  "precision": {
+   "mean": 0.36694552736296493,
+   "min": 0.3404255319148936,
+   "max": 0.391304347826087,
+   "sd": 0.017609988812511624,
+   "n": 10
+  },
+  "agreement": {
+   "mean": 0.6419491525423728,
+   "min": 0.6228813559322034,
+   "max": 0.6652542372881356,
+   "sd": 0.015539932899061235,
+   "n": 10
+  },
+  "correct_citation": {
+   "mean": 0.0,
+   "min": 0.0,
+   "max": 0.0,
+   "sd": 0.0,
+   "n": 10
+  },
+  "flagged_per_run": 45.8,
+  "not_checked_per_run": 0,
+  "answers_parsed": 140,
+  "answers": 140,
+  "input_tokens_per_lease": 14419.0,
+  "output_tokens_per_lease": 3585.72,
+  "cost_per_1000_leases_usd": 2.876188,
+  "mean_passages_per_batch": 0,
+  "per_seed": [
+   {
+    "seed": 1,
+    "recall": 0.5151515151515151,
+    "precision": 0.3695652173913043,
+    "agreement": 0.6313559322033898,
+    "correct_citation": 0.0,
+    "flagged": 46,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17953,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.6666666666666666,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 2,
+    "recall": 0.5151515151515151,
+    "precision": 0.37777777777777777,
+    "agreement": 0.6440677966101694,
+    "correct_citation": 0.0,
+    "flagged": 45,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17859,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.6666666666666666,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 3,
+    "recall": 0.48484848484848486,
+    "precision": 0.3404255319148936,
+    "agreement": 0.6652542372881356,
+    "correct_citation": 0.0,
+    "flagged": 47,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17854,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 4,
+    "recall": 0.5151515151515151,
+    "precision": 0.3695652173913043,
+    "agreement": 0.6313559322033898,
+    "correct_citation": 0.0,
+    "flagged": 46,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 18001,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 5,
+    "recall": 0.5151515151515151,
+    "precision": 0.3541666666666667,
+    "agreement": 0.6228813559322034,
+    "correct_citation": 0.0,
+    "flagged": 48,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 18166,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 6,
+    "recall": 0.45454545454545453,
+    "precision": 0.35714285714285715,
+    "agreement": 0.6567796610169492,
+    "correct_citation": 0.0,
+    "flagged": 42,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17301,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.4444444444444444,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 7,
+    "recall": 0.5454545454545454,
+    "precision": 0.391304347826087,
+    "agreement": 0.6483050847457628,
+    "correct_citation": 0.0,
+    "flagged": 46,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 18511,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.8333333333333334,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 8,
+    "recall": 0.5151515151515151,
+    "precision": 0.37777777777777777,
+    "agreement": 0.6228813559322034,
+    "correct_citation": 0.0,
+    "flagged": 45,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17420,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 9,
+    "recall": 0.48484848484848486,
+    "precision": 0.3404255319148936,
+    "agreement": 0.6313559322033898,
+    "correct_citation": 0.0,
+    "flagged": 47,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 18333,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.5,
+     "real_02": 0.0,
+     "real_03": 0.5,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   },
+   {
+    "seed": 10,
+    "recall": 0.5454545454545454,
+    "precision": 0.391304347826087,
+    "agreement": 0.6652542372881356,
+    "correct_citation": 0.0,
+    "flagged": 46,
+    "not_checked": 0,
+    "requests": 14,
+    "answers_parsed": 14,
+    "answers": 14,
+    "input_tokens": 72095,
+    "output_tokens": 17888,
+    "leases": 5,
+    "per_lease_recall": {
+     "real_01": 0.6,
+     "real_02": 0.0,
+     "real_03": 0.6666666666666666,
+     "real_04": 0.5555555555555556,
+     "real_05": 0.42857142857142855
+    }
+   }
+  ],
+  "recall_vs_baseline": {
+   "mean_diff": -0.16363636363636366,
+   "sd_diff": 0.027773186030035407,
+   "lower_in": 10,
+   "higher_in": 0,
+   "runs": 10
+  }
+ }
+}
