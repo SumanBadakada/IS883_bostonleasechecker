@@ -31,7 +31,9 @@ MAX_CHUNKS_PER_BATCH = 16
 
 # Input limits (public app, free tier).
 MAX_FILE_MB = 5
-MAX_CLAUSES = 80
+# Real leases with riders and addenda run long (one reached 86 clauses), so 80 rejected real uploads.
+# 150 clauses = 8 review requests; the per-session cap below still bounds the total cost.
+MAX_CLAUSES = 150
 
 # Per-session usage cap (IS883 §3.2), held in st.session_state by app.py.
 MAX_ANALYSES_PER_SESSION = 3

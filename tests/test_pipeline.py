@@ -175,3 +175,23 @@ def test_metrics():
                       [{"name": "check_move_in_charges", "args": {"monthly_rent": 2000, "security_deposit": 2000},
                         "result": {"problems_found": 0}}])
     assert all(c.values())
+
+
+# ---------- clause limit ----------
+
+def _numbered_lease(n):
+    lines = ["RESIDENTIAL LEASE", "This lease is between Landlord and Tenant for the premises at 1 Main St, Boston."]
+    lines += [f"{i}. TERM {i}. Tenant shall keep the apartment clean and pay rent on time, item {i}." for i in range(1, n + 1)]
+    return "\n".join(lines)
+
+
+def test_long_real_lease_is_accepted():
+    # A real lease with riders split into 86 clauses and was rejected under the old limit of 80.
+    assert len(split_clauses(_numbered_lease(95))) == 96  # preamble + 95
+
+
+def test_clause_limit_still_rejects_huge_documents():
+    paragraphs = [f"Paragraph {i}: Tenant shall keep the apartment clean and pay rent on time." for i in range(160)]
+    with pytest.raises(InputRejected) as exc:
+        split_clauses("\n\n".join(paragraphs))
+    assert exc.value.reason == "too_long"
