@@ -18,7 +18,14 @@ from leasecheck.retrieval import SourceIndex, format_passages
 st.set_page_config(page_title="Boston Lease Checker", page_icon="🏠", layout="wide",
                    initial_sidebar_state="auto")
 
-SAMPLE_LEASE = Path(__file__).parent / "samples" / "sample_lease.docx"
+# Ready-made fictional leases a visitor can check with one click (§5.4). Built by scripts/make_sample_lease.py;
+# the docstring there lists what each one should show. Label -> (file in samples/, name shown in the results).
+SAMPLES_DIR = Path(__file__).parent / "samples"
+SAMPLES = {
+    "Apartment: common problems": ("sample_lease.docx", "Sample - Boston apartment (fictional).docx"),
+    "Shared house: harsher terms": ("sample_shared_house.docx", "Sample - shared house (fictional).docx"),
+    "Fair lease: few issues": ("sample_fair_lease.docx", "Sample - fair lease (fictional).docx"),
+}
 DEV_MODE = st.query_params.get("dev") == "1"  # developer options only appear at <app-url>/?dev=1
 
 SUGGESTED_QUESTIONS = [
@@ -178,10 +185,13 @@ if st.session_state.result is None:
             uploaded = st.file_uploader("Upload your lease as a text-based PDF or a Word (.docx) file",
                                         type=["pdf", "docx"], help=f"Up to {config.MAX_FILE_MB} MB. Scanned "
                                         "PDFs (photos of pages) can't be read.")
-            b1, b2 = st.columns(2)
-            run = b1.button("Check my lease", type="primary", disabled=uploaded is None, use_container_width=True)
-            sample = b2.button("Try a sample lease", use_container_width=True,
-                               disabled=not SAMPLE_LEASE.exists())
+            run = st.button("Check my lease", type="primary", disabled=uploaded is None, use_container_width=True)
+            st.markdown("**No lease to hand?** Try one of our fictional sample leases:")
+            s1, s2 = st.columns([3, 2], vertical_alignment="bottom")
+            sample_label = s1.selectbox("Sample lease", list(SAMPLES), label_visibility="collapsed")
+            sample_file, sample_name = SAMPLES[sample_label]
+            sample = s2.button("Try this sample", use_container_width=True,
+                               disabled=not (SAMPLES_DIR / sample_file).exists())
             html('<div class="blc-muted">Tip: remove your name, address and other personal details first. '
                  'The text is sent to Google\'s Gemini API for analysis.</div>')
         if run and uploaded is not None:
@@ -189,7 +199,7 @@ if st.session_state.result is None:
             if st.session_state.result is not None:
                 st.rerun()
         if sample:
-            run_check(SAMPLE_LEASE.read_bytes(), "Sample lease (fictional).docx")
+            run_check((SAMPLES_DIR / sample_file).read_bytes(), sample_name)
             if st.session_state.result is not None:
                 st.rerun()
     with right:
