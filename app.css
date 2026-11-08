@@ -1,0 +1,82 @@
+/* Styles for app.py (Streamlit), read on every page run. art.py adds the drawings' CSS. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+html, body, [class*="css"], .stMarkdown, .stButton button, .stTabs button { font-family: 'Inter', sans-serif; }
+.block-container { padding-top: 2rem; padding-bottom: 4rem; max-width: 1200px; }
+footer { visibility: hidden; }
+
+.blc-hero { background: linear-gradient(135deg, #0B2545 0%, #1F4E79 60%, #2E6DA4 100%); color: #FFFFFF;
+            border-radius: 18px; padding: 34px 38px; margin-bottom: 22px; box-shadow: 0 10px 30px rgba(11,37,69,.18); }
+.blc-hero h1 { color: #FFFFFF; font-size: 2.1rem; font-weight: 700; margin: 0 0 6px 0; padding: 0; letter-spacing: -0.02em; }
+.blc-hero.compact { padding: 18px 26px; margin-bottom: 18px; }
+.blc-hero.compact h1 { font-size: 1.35rem; margin: 0; }
+.blc-hero.compact p { font-size: .9rem; }
+.blc-hero p { color: #D6E4F5; font-size: 1.05rem; margin: 0; max-width: 760px; }
+.blc-badges { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.blc-badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); color: #FFFFFF;
+             border-radius: 999px; padding: 4px 12px; font-size: .82rem; font-weight: 500; }
+
+.blc-card { background: #FFFFFF; color: #101828; border: 1px solid #EAECF0; border-radius: 14px; padding: 20px 22px;
+            box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.blc-card h4 { margin: 0 0 12px 0; font-size: 1rem; font-weight: 600; color: #101828; }
+.blc-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; color: #344054; font-size: .93rem; }
+.blc-step-n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #E8F0F9; color: #1F4E79; font-weight: 700;
+              display: flex; align-items: center; justify-content: center; font-size: .85rem; }
+.blc-note { background: #FFFAEB; border: 1px solid #FEDF89; color: #7A2E0E; border-radius: 12px;
+            padding: 12px 16px; font-size: .9rem; margin: 6px 0 18px 0; }
+.blc-muted { color: #667085; font-size: .85rem; }
+
+.blc-verdict { border-radius: 14px; padding: 18px 22px; margin: 6px 0 18px 0; border: 1px solid; }
+.blc-verdict b { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+.blc-verdict.danger  { background: #FEF3F2; border-color: #FECDCA; color: #912018; }
+.blc-verdict.warning { background: #FFFAEB; border-color: #FEDF89; color: #93370D; }
+.blc-verdict.success { background: #ECFDF3; border-color: #ABEFC6; color: #085D3A; }
+
+.blc-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+@media (max-width: 800px) { .blc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.blc-stat { background: #FFFFFF; border: 1px solid #EAECF0; border-radius: 14px; padding: 14px 18px; }
+.blc-stat .n { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+.blc-stat .l { color: #475467; font-size: .85rem; font-weight: 500; }
+.blc-stat.danger .n { color: #B42318; } .blc-stat.warning .n { color: #B54708; }
+.blc-stat.success .n { color: #067647; } .blc-stat.neutral .n { color: #475467; }
+
+.blc-pill { display: inline-block; white-space: nowrap; font-size: .75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+            margin-right: 8px; vertical-align: middle; }
+.blc-pill.danger { background: #FEE4E2; color: #B42318; } .blc-pill.warning { background: #FEF0C7; color: #B54708; }
+.blc-pill.success { background: #DCFAE6; color: #067647; } .blc-pill.neutral { background: #EAECF0; color: #475467; }
+.blc-clause-title { font-weight: 600; color: #101828; font-size: 1rem; vertical-align: middle; }
+.blc-quote { border-left: 3px solid #D0D5DD; padding: 4px 0 4px 14px; margin: 12px 0; color: #344054; font-size: .92rem; }
+.blc-cite { color: #1F4E79; font-weight: 600; font-size: .85rem; }
+
+.blc-step-item { border: 1px solid #EAECF0; border-left: 4px solid; border-radius: 10px; padding: 12px 16px;
+                 margin-bottom: 10px; background: #FFFFFF; color: #101828; }
+.blc-step-item.high { border-left-color: #D92D20; } .blc-step-item.medium { border-left-color: #F79009; }
+.blc-step-item .t { font-weight: 600; } .blc-step-item .d { color: #475467; font-size: .9rem; margin-top: 2px; }
+
+.blc-lease { background: #FFFFFF; border: 1px solid #EAECF0; border-radius: 14px; padding: 26px 30px;
+             font-family: Georgia, 'Times New Roman', serif; color: #1D2939; line-height: 1.65; }
+.blc-lease .c { padding: 6px 12px; margin: 6px -12px; border-radius: 8px; border-left: 4px solid transparent; }
+.blc-lease .c.danger { background: #FEF3F2; border-left-color: #D92D20; }
+.blc-lease .c.warning { background: #FFFAEB; border-left-color: #F79009; }
+.blc-lease .c.neutral { background: #F2F4F7; border-left-color: #98A2B3; }
+.blc-lease .tag { font-family: 'Inter', sans-serif; font-size: .72rem; font-weight: 600; margin-left: 6px; }
+.blc-lease .c.danger .tag { color: #B42318; } .blc-lease .c.warning .tag { color: #B54708; }
+
+.blc-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #FFFFFF; border: 1px solid #EAECF0;
+             border-radius: 14px; overflow: hidden; font-size: .92rem; color: #101828; }
+.blc-table th { background: #F9FAFB; color: #475467; font-weight: 600; text-align: left; padding: 12px 14px;
+                border-bottom: 1px solid #EAECF0; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+.blc-table td { padding: 12px 14px; border-bottom: 1px solid #F2F4F7; vertical-align: top; }
+.blc-table tr:last-child td { border-bottom: none; }
+
+[data-testid="stSidebar"] { background: linear-gradient(160deg, #0B2545 0%, #1F4E79 60%, #2E6DA4 100%);
+                            border-right: none; }
+[data-testid="stSidebar"] h3, [data-testid="stSidebar"] h5, [data-testid="stSidebar"] p,
+[data-testid="stSidebar"] li, [data-testid="stSidebar"] label { color: #FFFFFF; }
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"], [data-testid="stSidebar"] .blc-muted { color: #D6E4F5; }
+[data-testid="stSidebar"] a, [data-testid="stSidebar"] a p { color: #FFFFFF; text-decoration: underline; }
+[data-testid="stSidebar"] code { background: rgba(255,255,255,.12); color: #FFFFFF; }
+[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,.22); }
+[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"] svg { color: #FFFFFF; fill: #FFFFFF; }
+.stTabs [data-baseweb="tab-list"] { gap: 6px; }
+.stTabs [data-baseweb="tab"] { font-weight: 600; }

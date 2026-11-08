@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | Gemini client: retries, token counting, tool loop ---
+# --- Owner: Munkhzaya | Gemini client: retries, token counting, tool loop ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 """Every call to Gemini goes through this file.
 
@@ -15,8 +15,21 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 import numpy as np
+from google import genai
+from google.genai import errors, types
 
 from . import config
+
+# The HTTP library under google-genai raises its own timeout error: httpx in google-genai 2.x, httpx2 in 3.x.
+# Collect whichever is installed, so a library upgrade cannot crash every call (as 3.0.0 did when this file
+# imported httpx directly). requirements.txt still pins google-genai below 3 until 3.x has been tested.
+_TIMEOUT_ERRORS: list[type[BaseException]] = [TimeoutError]
+for _module_name in ("httpx", "httpx2"):
+    try:
+        _TIMEOUT_ERRORS.append(__import__(_module_name).TimeoutException)
+    except (ImportError, AttributeError):
+        pass
+TIMEOUT_ERRORS = tuple(_TIMEOUT_ERRORS)
 
 
 class LLMError(Exception):
@@ -55,11 +68,6 @@ class Usage:
                 getattr(meta, "thoughts_token_count", 0) or 0
             )
 
-    def merge(self, other: "Usage") -> None:
-        self.calls += other.calls
-        self.input_tokens += other.input_tokens
-        self.output_tokens += other.output_tokens
-
     @property
     def cost_usd(self) -> float:
         return (self.input_tokens * config.PRICE_INPUT_PER_M + self.output_tokens * config.PRICE_OUTPUT_PER_M) / 1e6
@@ -81,9 +89,6 @@ class ToolRunResult:
 class GeminiLLM:
     def __init__(self, api_key: str, model: str = config.MODEL, embed_model: str = config.EMBED_MODEL,
                  fallback_models: tuple[str, ...] = config.FALLBACK_MODELS):
-        from google import genai
-        from google.genai import types
-
         self.client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
         self.model = model
         self.embed_model = embed_model
@@ -98,8 +103,6 @@ class GeminiLLM:
     # ---------- shared plumbing ----------
 
     def _config(self, model: str, system: str | None, **extra):
-        from google.genai import types
-
         # Gemini 3 models take a thinking level; Gemini 2.x (the fallbacks) take a thinking budget instead
         # and reject thinking_level.
         if model.startswith("gemini-2"):
@@ -119,12 +122,9 @@ class GeminiLLM:
         """Call fn(model), retrying rate limits, overloads and timeouts; turn anything else into LLMError.
 
         Overload (5xx) is Google's side, not ours, and often lasts minutes on one model while others are
-        fine. So we retry the main model twice with growing, jittered waits, then move on to each fallback
-        model in turn. A fallback this API key cannot use (404) is skipped.
+        fine. So we try the main model OVERLOAD_TRIES_PER_MODEL (3) times with growing, jittered waits, then
+        move on to each fallback model in turn. A fallback this API key cannot use (404) is skipped.
         """
-        import httpx
-        from google.genai import errors
-
         models = models if models is not None else (self.model, *self.fallback_models)
         overloaded_tries, rate_limited_tries, timeouts = 0, 0, 0
         delay = 4.0
@@ -161,7 +161,7 @@ class GeminiLLM:
                     continue
                 wait = delay + random.uniform(0, delay / 2)  # jitter, so many users do not retry in lockstep
                 self.on_wait(f"Gemini is overloaded, retrying in {wait:.0f} seconds...")
-            except httpx.TimeoutException as exc:
+            except TIMEOUT_ERRORS as exc:
                 timeouts += 1
                 if timeouts > 1:
                     raise LLMError("The model took too long to respond. Please try again.") from exc
@@ -192,8 +192,6 @@ class GeminiLLM:
         The model decides whether to call a tool. If it does, we run our Python function and send the
         result back, and the model writes its answer using that result.
         """
-        from google.genai import types
-
         def cfg(model: str):
             return self._config(
                 model, system,
@@ -228,8 +226,6 @@ class GeminiLLM:
 
     def chat(self, system: str, history: list[dict], message: str) -> str:
         """One conversational turn. `history` is [{"role": "user"|"assistant", "content": str}, ...]."""
-        from google.genai import types
-
         contents = [
             types.Content(role="model" if h["role"] == "assistant" else "user",
                           parts=[types.Part.from_text(text=h["content"])])
@@ -245,8 +241,6 @@ class GeminiLLM:
 
     def embed(self, texts: list[str], task_type: str) -> np.ndarray:
         """Embeddings, L2-normalised so a dot product is cosine similarity."""
-        from google.genai import types
-
         vectors = []
         for start in range(0, len(texts), 100):  # API batch limit
             batch = texts[start:start + 100]

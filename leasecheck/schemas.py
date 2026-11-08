@@ -1,4 +1,4 @@
-# --- Owner: (assign, see docs/TEAM_SPLIT.md) | structured output schemas (capability 4) ---
+# --- Owner: Janice | structured output schemas (capability 4) ---
 # AI-assisted: drafted with Claude Code. The owner must review it and be able to explain it (IS883 §9).
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field, ValidationError
 
 Label = Literal["lawful", "unusual", "possibly_unlawful"]
-LABELS = ("lawful", "unusual", "possibly_unlawful")
 
 
 class ClauseFinding(BaseModel):
