@@ -12,9 +12,9 @@ from eval.metrics import align
 WARNING_PHRASES = {
     "other_state": "checks against Massachusetts law only",
     "unticked_boxes": "boxes in this lease are not ticked",
-    "term": None,
-    "dates": None,
-    "not_residential": None,
+    "term": "term looks unusually long",
+    "dates": "end before it begins",
+    "not_residential": "not a residential one",
 }
 
 

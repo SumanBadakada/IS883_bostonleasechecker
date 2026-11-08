@@ -32,8 +32,9 @@ See [`docs/architecture.md`](docs/architecture.md) for the diagram.
 
 **Interface:** an Overview tab with "questions to ask your landlord", a clause review that shows the cited
 law, the full lease with problem clauses highlighted, a move-in cost table, a follow-up chat, a
-downloadable printable report (`leasecheck/report.py`), and a one-click sample lease
-(`samples/sample_lease.docx`, rebuilt by `python scripts/make_sample_lease.py`). Developer options
+downloadable printable report (`leasecheck/report.py`), and three one-click fictional
+sample leases (`samples/`: common problems, a shared house with harsher terms, a fair lease; rebuilt by
+`python scripts/make_sample_lease.py`, whose docstring lists what each should show). Developer options
 (prompt version, retrieval on/off, token counts) appear only at `<app-url>/?dev=1`.
 
 Other required behaviour: per-session cap (`config.MAX_ANALYSES_PER_SESSION`, `MAX_CHAT_MESSAGES_PER_SESSION`)
@@ -49,7 +50,7 @@ middle of a sentence never starts a new clause, and a lease naming another state
 
 ```
 app.py                     Streamlit UI (theme in .streamlit/config.toml)
-samples/                   fictional sample lease for the "Try a sample lease" button
+samples/                   three fictional sample leases offered under "Try this sample"
 leasecheck/                parsing, retrieval, prompts, schemas, charges tool, Gemini client, pipeline
 sources/                   legal source notes (see sources/README.md: must be verified)
 scripts/fetch_sources.py   downloads the official texts to check the notes against

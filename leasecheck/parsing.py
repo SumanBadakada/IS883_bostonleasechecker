@@ -10,6 +10,7 @@ from __future__ import annotations
 import io
 import re
 from dataclasses import dataclass, field
+from datetime import date
 
 from . import config
 from .checkboxes import clause_notes, resolve_boxes
@@ -524,6 +525,72 @@ def state_warning(text: str) -> str | None:
             "The results below may not apply to your lease. Check with a tenant-rights resource in that state.")
 
 
+# AI-assisted (Claude Code): warnings for inputs the evaluation found the app accepted silently (§5.5):
+# commercial and parking leases, which Massachusetts tenant law does not cover, and impossible or
+# implausible terms (a 99-year lease, a lease that ends before it begins). Warnings, not rejections:
+# the user may still want the clause check, and our pattern matching can be wrong.
+_TITLE_CHARS = 500  # the document type is stated in the title and opening lines
+_NOT_RESIDENTIAL_TITLE = re.compile(
+    r"\bcommercial\s+lease\b|\bparking\s+(?:space|spot)\s+(?:lease|rental|agreement)\b|\blease\s+of\s+a\s+parking\b"
+    r"|\b(?:retail|office|warehouse|industrial)\s+(?:lease|space\s+lease)\b",
+    re.IGNORECASE,
+)
+_NOT_RESIDENTIAL_ANYWHERE = re.compile(r"\bfor\s+no\s+residential\s+purpose\b|\bnot\s+for\s+residential\s+use\b",
+                                       re.IGNORECASE)
+
+_MONTHS = {m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june", "july", "august",
+                                       "september", "october", "november", "december"], start=1)}
+_DATE = (r"(?:(?P<{p}month>January|February|March|April|May|June|July|August|September|October|November|December)"
+         r"\s+(?P<{p}day>\d{{1,2}})(?:st|nd|rd|th)?,?\s+(?P<{p}year>\d{{4}})"
+         r"|(?P<{p}m>\d{{1,2}})/(?P<{p}d>\d{{1,2}})/(?P<{p}y>\d{{4}}))")
+# "beginning August 1, 2026 and ending July 31, 2027", "from 9/1/2026 through 8/31/2027", ...
+_TERM_DATES = re.compile(
+    r"\b(?:begin\w*|commenc\w*|start\w*|from)\s+(?:on\s+)?" + _DATE.format(p="a")
+    + r"[^.]{0,80}?\b(?:end\w*|terminat\w*|expir\w*|through|until|to)\s+(?:on\s+)?" + _DATE.format(p="b"),
+    re.IGNORECASE,
+)
+_TERM_YEARS = re.compile(r"\bterm\b[^.]{0,80}?\(?\b(\d{1,3})\)?\s+years?\b", re.IGNORECASE)
+MAX_PLAUSIBLE_TERM_YEARS = 5
+
+
+def _date(match: re.Match, p: str) -> date | None:
+    try:
+        if match.group(f"{p}month"):
+            return date(int(match.group(f"{p}year")), _MONTHS[match.group(f"{p}month").lower()],
+                        int(match.group(f"{p}day")))
+        return date(int(match.group(f"{p}y")), int(match.group(f"{p}m")), int(match.group(f"{p}d")))
+    except ValueError:  # e.g. February 30
+        return None
+
+
+def residential_warning(text: str) -> str | None:
+    """A warning when the document says it is a commercial, office or parking lease."""
+    if _NOT_RESIDENTIAL_TITLE.search(text[:_TITLE_CHARS]) or _NOT_RESIDENTIAL_ANYWHERE.search(text):
+        return ("This looks like a commercial or parking lease, not a residential one. This app checks the "
+                "Massachusetts rules for renting a home, so most of the results below may not apply.")
+    return None
+
+
+def term_warnings(text: str) -> list[str]:
+    """Warnings for a lease that ends before it begins, or whose term is implausibly long."""
+    backwards, too_long = False, False
+    for m in _TERM_DATES.finditer(text):
+        start, end = _date(m, "a"), _date(m, "b")
+        if start and end:
+            backwards |= end < start
+            too_long |= (end - start).days > MAX_PLAUSIBLE_TERM_YEARS * 366
+    too_long |= any(int(m.group(1)) > MAX_PLAUSIBLE_TERM_YEARS for m in _TERM_YEARS.finditer(text))
+    warnings = []
+    if backwards:
+        warnings.append("This lease seems to end before it begins: an end date is earlier than its start date. "
+                        "It is probably a typo, but the dates decide your notice and renewal rights, so have them "
+                        "corrected before you sign.")
+    if too_long:
+        warnings.append(f"This lease's term looks unusually long (more than {MAX_PLAUSIBLE_TERM_YEARS} years). "
+                        "A residential lease that long is rare and may be a typo: check the dates before you sign.")
+    return warnings
+
+
 def load_document(data: bytes, filename: str) -> ParsedDocument:
     """The full deterministic front end: extract, check it is a lease, split, collect warnings."""
     text = extract_text(data, filename)
@@ -532,9 +599,10 @@ def load_document(data: bytes, filename: str) -> ParsedDocument:
     if not clauses:
         raise InputRejected("empty", "We could not find any clauses in this document.")
     warnings = []
-    other_state = state_warning(text)
-    if other_state:
-        warnings.append(other_state)
+    for warning in (residential_warning(text), state_warning(text)):
+        if warning:
+            warnings.append(warning)
+    warnings += term_warnings(text)
     unticked = [c.display_name for c in clauses if c.notes]
     if unticked:
         warnings.append(f"Some “check one” boxes in this lease are not ticked ({', '.join(unticked)}). "
