@@ -86,6 +86,7 @@ def test_charges_broker_and_lock_need_checking():
     assert r["problems_found"] == 0 and r["needs_checking"] == 2
 
 
+# Munkhzaya (PR #31): a prorated first month below the monthly rent must pass as "ok".
 def test_charges_prorated_first_month_is_not_flagged():
     # Tenancy starts mid-month, so first month is prorated to less than a full month's rent. This must
     # not be treated as "too low" or otherwise suspicious -- only amounts *above* the cap are flagged.
@@ -95,6 +96,7 @@ def test_charges_prorated_first_month_is_not_flagged():
     assert statuses["First month's rent"] == "ok"
 
 
+# Munkhzaya (PR #30): a utility fee is sent to "check" with the 105 CMR 410 citation, never "not_allowed".
 def test_charges_utility_fee_is_checked_not_flagged_unlawful():
     # A utility hookup fee isn't one of the four §15B(1)(b) charges, but it's also not automatically
     # illegal (unlike an application or cleaning fee) -- it's governed by a different rule (105 CMR 410),

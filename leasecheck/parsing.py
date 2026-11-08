@@ -25,13 +25,21 @@ class InputRejected(Exception):
         self.message = message
 
 
+# --- Munkhzaya (PR #5): reading the lease's own clause number, including "3.Rent" from PDFs ---
 # The lease's own clause number at the start of a clause: "3. Rent", "3) Rent", "Section 3 - Rent",
 # and also "3.Rent" with no space (common in PDFs), but only when a capital letter follows, so that
 # "2-bedroom" or "2.5 months" is not read as a clause number.
+# How the pattern reads, left to right:
+#   (?:section|article|clause|§)?   an optional word before the number
+#   (\d{1,2}(?:\.\d{1,2})*)          the number itself, e.g. "3" or "3.1" (group 1, shown as "Clause 3.1")
+#   [.):\-]\s                        either the usual ". " / ") " / ": " / "- " after it,
+#   | [.)](?=["“(]?[A-Z])            or "." / ")" glued straight to a capital letter (the PDF case).
+# Before PR #5 only the first form matched, so PDF clauses like "3.Rent" were shown as "Part 3".
 _LEADING_NUMBER = re.compile(
     r"\s*(?:section|article|clause|§)?\s*(\d{1,2}(?:\.\d{1,2})*)\s*(?:[.):\-]\s|[.)](?=[\"“(]?[A-Z]))",
     re.IGNORECASE,
 )
+# --- end Munkhzaya (PR #5) ---
 
 
 @dataclass
@@ -62,6 +70,7 @@ class ParsedDocument:
 # A PDF averaging fewer extractable characters per page than this is treated as scanned.
 MIN_CHARS_PER_PAGE = 80
 
+# Munkhzaya (PR #5): the lost-spaces threshold, used by _check_spacing below.
 # Normal English averages about 5 letters per word. Far above that means the extractor lost the spaces
 # ("Nopetsofanykindareallowed..."), and the model would be checking garbled text.
 MAX_AVG_WORD_LEN = 10
@@ -168,6 +177,10 @@ def _strip_page_furniture(pages: list[str]) -> list[str]:
     return cleaned
 
 
+# Munkhzaya (PR #5): PDFs are read with PyMuPDF instead of pypdf. pypdf guesses spaces from the text
+# stream and often drops them ("Nopetsofanykind..."); PyMuPDF places a space wherever the gap between two
+# glyphs is wide enough, so words come out separated. Damaged and password-protected files are turned into
+# InputRejected so the app shows a plain message instead of a stack trace.
 def _pdf_pages_pymupdf(data: bytes) -> list[str]:
     try:
         import pymupdf as fitz  # PyMuPDF 1.24+; "fitz" is the deprecated old name
@@ -231,8 +244,11 @@ def _pymupdf_page_text(page, fitz) -> str:
     return "\n".join(out)
 
 
+# Munkhzaya (PR #5): a safety net for PDFs whose spacing even PyMuPDF cannot recover.
 def _check_spacing(text: str) -> None:
     """Refuse text whose spaces were lost in extraction, before spending model calls on it."""
+    # Count only runs of letters (numbers and punctuation would skew the average). Fewer than 50 words is
+    # too little text to judge, so short documents are let through and left to the other input checks.
     words = re.findall(r"[A-Za-z]+", text)
     if len(words) >= 50 and sum(map(len, words)) / len(words) > MAX_AVG_WORD_LEN:
         raise InputRejected(
@@ -352,6 +368,8 @@ class _WordNumbering:
 
 
 def _normalise(text: str) -> str:
+    # Munkhzaya (PR #5): the non-breaking space is written as "\u00a0" so it is visible in the source. It used
+    # to be a literal NBSP character, which looked identical to a normal space and was easy to break by accident.
     text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\u00a0", " ")
     text = re.sub(r"[ \t]+", " ", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
@@ -369,9 +387,12 @@ def check_is_lease(text: str) -> None:
         )
 
 
+# --- Munkhzaya (PR #5): where a clause starts, and clause numbers in the middle of a line ---
 # A line that starts a new clause: "1.", "12)", "3.1", "4.No pets" (no space, capital next),
 # "Section 4", "ARTICLE V", or a short ALL-CAPS heading such as "SECURITY DEPOSIT".
 # "(a)" is NOT a new clause (sub-item). Roman numerals still need a space, so "i.e." is not a clause.
+# Same idea as _LEADING_NUMBER: the second alternative on the digit line accepts "4.No" with no space, but
+# only before a capital letter, so "2.5 months" or "2-bedroom" at the start of a line does not start a clause.
 _NUMBERED = re.compile(
     r"^\s*(?:section|article|clause|§)?\s*"
     r"(?:\d{1,2}(?:\.\d{1,2})*\s*(?:[.):\-]\s+\S|[.)](?=[\"“(]?[A-Z]))"
@@ -385,6 +406,13 @@ _LEAD_IN = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/()\-]{2,60}\.\s+\S")
 
 # A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
 # The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
+# Pieces of the pattern:
+#   (?<![\w$,/])   not glued to a word, "$", "," or "/" (rejects "Unit12.", "$50.", "1,000.", "3/4.")
+#   (?<!\d\.)      not the second half of "5.2."
+#   (\d{1,2})\.     the clause number and its period
+#   (?!\d)         not a decimal such as "2.5"
+#   (?=["“(]?[A-Z]) followed by a capital letter (optionally after a quote or bracket), i.e. a new sentence.
+# PDFs often run several clauses together on one line, which the line-based splitter could not see.
 _INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,2})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
 _REFERENCE_WORDS = ("section", "article", "clause", "paragraph", "§")
 
@@ -395,6 +423,8 @@ def _break_inline_numbers(text: str) -> str:
     Only numbers that continue the sequence (1, 2, 3, ...) count, which filters out page numbers,
     amounts and stray "5." matches. A return to 1 after a few clauses is allowed, since an addendum
     often restarts its numbering."""
+    # `expected` is the next clause number we accept. A match that skips ahead (e.g. "30." when we expect 4)
+    # is most likely a day of the month or an amount, so it is ignored.
     cuts, expected = [], 1
     for m in _INLINE_NUMBER.finditer(text):
         before = text[max(0, m.start() - 12):m.start()].lower().rstrip()
@@ -407,17 +437,20 @@ def _break_inline_numbers(text: str) -> str:
     if len(cuts) < 3:  # too few to trust; leave the text alone
         return text
 
+    # Cut the text just before each accepted number and join the pieces with newlines, so each clause
+    # number starts its own line and _NUMBERED picks it up in split_clauses.
     pieces, prev = [], 0
     for cut in cuts:
         pieces.append(text[prev:cut].rstrip(" "))
         prev = cut
     pieces.append(text[prev:])
     return "\n".join(pieces)
+# --- end Munkhzaya (PR #5) ---
 
 
 def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
-    text = _break_inline_numbers(text)
+    text = _break_inline_numbers(text)  # Munkhzaya (PR #5): split run-together PDF clauses first
     lines = [line.rstrip() for line in text.split("\n")]
     lines = [line for i, line in enumerate(lines) if not _stray_page_mark(lines, i)]
     starts = [i for i, line in enumerate(lines)

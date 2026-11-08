@@ -20,6 +20,10 @@ from typing import Any
 from google.genai import types
 
 CITE_15B_1B = "M.G.L. c. 186 §15B(1)(b)"
+
+# --- Munkhzaya (PR #30): broker-fee citation and the utility-fee rule ---
+# Before PR #30 the broker fee cited only "the AG's FAQ", because the General Laws section had not been
+# confirmed yet. The citation below replaces that placeholder with the codified section.
 # Confirmed against the Board of Registration of Real Estate Brokers and Salespersons' broker-fee advisory
 # (mass.gov/doc/broker-fee-advisory/download) and its follow-up guidance (mass.gov/doc/recent-brokertenant-fee-law-guidance-2025/download):
 # the rule is codified at M.G.L. c. 112 §87DDD½ (the Broker Licensing Law), which also amended c. 186 §15B to
@@ -31,7 +35,11 @@ CITE_BROKER = "M.G.L. c. 112 §87DDD½ (effective Aug. 1, 2025); amends M.G.L. c
 # question answered by 105 CMR 410 (heat/hot water/electricity are the landlord's cost unless the unit
 # has its own meter and the lease says in writing the tenant pays; water needs a submeter too).
 CITE_UTILITIES = "105 CMR 410 (AG Guide: Heat and utilities)"
+# Words that mark a fee as a utility charge. Matched as substrings of the lowercased fee name, so
+# "Electricity setup" and "Gas hookup fee" both match. A false match (e.g. "Waterbed fee") only turns a
+# "not_allowed" into a "check", which is the safer mistake for a tenant-facing tool.
 UTILITY_WORDS = ("utility", "utilities", "heat", "gas", "electric", "water")
+# --- end Munkhzaya (PR #30) ---
 
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 
@@ -50,7 +58,7 @@ def check_move_in_charges(
 ) -> dict[str, Any]:
     """Return one verdict per charge, plus totals. All amounts are in US dollars.
 
-    A prorated first month (tenancy starts mid-month, so first_month_rent < monthly_rent) needs no
+    (Munkhzaya, PR #31) A prorated first month (tenancy starts mid-month, so first_month_rent < monthly_rent) needs no
     special handling here: every check below only catches an amount that's *too high*, never one that's
     lower than monthly_rent, so a correctly extracted prorated amount already passes as OK. The real risk
     is upstream, in extraction -- the model mixing up the prorated figure with the real monthly_rent --
@@ -111,11 +119,16 @@ def check_move_in_charges(
         lower = name.lower()
         if "deposit" in lower:
             continue  # already counted in the deposit cap above
+        # Order matters: broker fees are tested first, then utility fees (PR #30), and only a fee that
+        # matches neither falls through to "not_allowed". Before PR #30 a utility hookup fee landed in
+        # that last branch and was wrongly reported as unlawful under §15B(1)(b).
         if "broker" in lower or "finder" in lower or "agent" in lower:
             add(name, amount, CHECK,
                 "Since Aug. 1, 2025 you pay a broker only if you hired the broker yourself. "
                 "If the landlord hired them, the landlord pays.", CITE_BROKER)
         elif any(word in lower for word in UTILITY_WORDS):
+            # Munkhzaya (PR #30): a utility fee is outside the four §15B(1)(b) charges but is not
+            # automatically illegal either, so the tenant is asked to check it against 105 CMR 410.
             add(name, amount, CHECK,
                 "Not one of the four move-in charges, so this law doesn't cover it. Separately, the "
                 "landlord must pay for heat, hot water and electricity unless the unit has its own "
@@ -148,6 +161,11 @@ CHECK_MOVE_IN_CHARGES_DECLARATION = types.FunctionDeclaration(
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
+            # --- Munkhzaya (PR #31): full monthly rent vs a prorated first month ---
+            # These two descriptions are what the model reads when it fills in the call. If a lease says
+            # "$3,000/month, $1,600 due for the partial first month", the model must send monthly_rent=3000
+            # and first_month_rent=1600. Sending 1600 as monthly_rent would shrink every cap below
+            # (deposit, last month) and flag lawful charges as "not_allowed".
             "monthly_rent": types.Schema(type=types.Type.NUMBER, description=(
                 "The lease's regular, full monthly rent rate (e.g. from a 'Rent' or 'Monthly Rent' clause). "
                 "Use the full rate even if the lease also states a smaller, prorated amount due for a partial "
@@ -155,9 +173,12 @@ CHECK_MOVE_IN_CHARGES_DECLARATION = types.FunctionDeclaration(
             "first_month_rent": types.Schema(type=types.Type.NUMBER, description=(
                 "The amount actually due at signing for the first month, which may be less than monthly_rent "
                 "if the lease prorates it for a partial month (e.g. the tenancy starts mid-month). 0 if not stated.")),
+            # --- end Munkhzaya (PR #31) ---
             "last_month_rent": types.Schema(type=types.Type.NUMBER, description="Last month's rent collected in advance. 0 if not stated."),
             "security_deposit": types.Schema(type=types.Type.NUMBER, description="The security deposit. 0 if none."),
             "lock_and_key_fee": types.Schema(type=types.Type.NUMBER, description="Fee for a lock and key. 0 if none."),
+            # Munkhzaya (PR #30): the description now lists utility fees and asks for the charge's own
+            # name, because the utility branch in check_move_in_charges decides by the words in that name.
             "other_fees": types.Schema(
                 type=types.Type.ARRAY,
                 description="Every other fee or deposit due at or before move-in (pet fee, application fee, broker fee, cleaning fee, pet deposit, utility hookup/activation fee...). Use the charge's own name, e.g. 'Utility activation fee', so it can be told apart from a plain move-in fee.",
