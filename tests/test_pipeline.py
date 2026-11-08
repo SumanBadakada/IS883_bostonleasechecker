@@ -1,5 +1,5 @@
-# --- Suman: offline tests: parsing, tool, schema, retrieval, pipeline, metrics ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Offline tests: parsing, tool, schema, retrieval, pipeline, metrics ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 import io
 import json
 
@@ -108,7 +108,7 @@ def test_charges_utility_fee_is_checked_not_flagged_unlawful():
     assert r["problems_found"] == 0 and r["needs_checking"] == 1
 
 
-# --- Suman ---
+# --- other move-in tool tests ---
 def test_charges_bad_rent():
     assert "error" in check_move_in_charges(0)
 

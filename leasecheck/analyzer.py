@@ -1,6 +1,5 @@
-# --- Suman: the pipeline: clauses -> retrieval -> classify -> charges ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
-# Owner (docs/TEAM_SPLIT.md): Janice, who reviews and improves this file and explains it in Q&A.
+# --- The pipeline: clauses -> retrieval -> classify -> charges ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 """Runs one lease through the whole app. Used by both app.py and eval/run_eval.py, so the eval measures
 exactly what users get.
 

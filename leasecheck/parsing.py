@@ -1,5 +1,5 @@
-# --- Suman: reading the upload and splitting it into clauses ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Reading the upload and splitting it into clauses ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 """Turn an uploaded PDF or DOCX into a list of clauses.
 
 No model is used here: text extraction, scanned-PDF detection, the lease check and clause splitting
@@ -35,7 +35,7 @@ _LEADING_NUMBER = re.compile(
 )
 
 
-# --- Suman: clauses, the parsed document, and the input-check thresholds ---
+# --- Clauses, the parsed document, and the input-check thresholds ---
 @dataclass
 class Clause:
     clause_id: int  # our own position counter, used to match the model's answers to clauses
@@ -78,7 +78,7 @@ LEASE_TERMS = (
 MIN_LEASE_TERMS = 4
 
 
-# --- Suman: reading the file: PDF and Word text, scanned PDFs, page headers and footers ---
+# --- Reading the file: PDF and Word text, scanned PDFs, page headers and footers ---
 def extract_text(data: bytes, filename: str) -> str:
     """Extract plain text. Raises InputRejected for empty, unsupported, oversized or scanned files."""
     if not data:
@@ -188,7 +188,7 @@ def _pdf_pages_pymupdf(data: bytes) -> list[str]:
         raise InputRejected("unreadable", "This PDF could not be read. It may be damaged or password-protected.") from exc
 
 
-# --- Suman: tick boxes in fillable PDF forms ---
+# --- Tick boxes in fillable PDF forms ---
 # AI-assisted (Claude Code): fillable PDF forms keep their tick boxes as form fields, which get_text() does
 # not include, so "☐ Tenant ☐ Landlord" would read as "Tenant Landlord". We put a box character back where
 # each field sits, ticked or not, and checkboxes.resolve_boxes turns it into a marker the model understands.
@@ -249,7 +249,7 @@ def _check_spacing(text: str) -> None:
         )
 
 
-# --- Suman: reading Word files and their checkboxes ---
+# --- Reading Word files and their checkboxes ---
 def _docx_text(data: bytes) -> str:
     import docx
     from docx.opc.exceptions import PackageNotFoundError
@@ -360,7 +360,7 @@ class _WordNumbering:
         return f"({chr(ord('a') + (n - 1) % 26)}) "
 
 
-# --- Suman: tidying whitespace, and check_is_lease ---
+# --- Tidying whitespace, and check_is_lease ---
 def _normalise(text: str) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n").replace("\u00a0", " ")
     text = re.sub(r"[ \t]+", " ", text)
@@ -428,7 +428,7 @@ def _break_inline_numbers(text: str) -> str:
     return "\n".join(pieces)
 
 
-# --- Suman: splitting into clauses, page-break guards, state detection and the document warnings ---
+# --- Splitting into clauses, page-break guards, state detection and the document warnings ---
 def split_clauses(text: str) -> list[Clause]:
     """Split lease text into clauses using numbering and headings, falling back to paragraphs."""
     text = _break_inline_numbers(text)

@@ -1,5 +1,5 @@
-# --- Suman: Streamlit UI, usage cap, secrets, error display ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Streamlit UI, usage cap, secrets, error display ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 from html import escape
 from pathlib import Path
 

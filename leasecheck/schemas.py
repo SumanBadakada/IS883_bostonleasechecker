@@ -1,6 +1,5 @@
-# --- Suman: structured output schemas (capability 4) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
-# Owner (docs/TEAM_SPLIT.md): Janice, who reviews and improves this file and explains it in Q&A.
+# --- Structured output schemas (capability 4) ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 from __future__ import annotations
 
 import json

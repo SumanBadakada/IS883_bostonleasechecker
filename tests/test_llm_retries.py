@@ -1,5 +1,5 @@
-# --- Suman: tests for rate-limit, quota, overload and timeout handling ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Tests for rate-limit, quota, overload and timeout handling ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 import httpx
 import pytest
 from google.genai import errors

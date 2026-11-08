@@ -1,5 +1,5 @@
-# --- Suman: tests for next steps, verdicts and the downloadable report ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Tests for next steps, verdicts and the downloadable report ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 from leasecheck.analyzer import analyze
 from leasecheck.parsing import Clause
 from leasecheck.report import html_report, next_steps, overall_verdict

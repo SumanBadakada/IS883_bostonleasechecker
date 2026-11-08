@@ -1,6 +1,5 @@
-# --- Suman: move-in charge check, the tool the model calls (capability 2) ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
-# Owner (docs/TEAM_SPLIT.md): Munkhzaya, who reviews and improves this file and explains it in Q&A.
+# --- Move-in charge check, the tool the model calls (capability 2) ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 """Check move-in charges against M.G.L. c. 186 §15B(1)(b).
 
 At or before the start of a tenancy a Massachusetts landlord may collect only:
@@ -35,7 +34,7 @@ CITE_BROKER = "M.G.L. c. 112 §87DDD½ (effective Aug. 1, 2025); amends M.G.L. c
 CITE_UTILITIES = "105 CMR 410 (AG Guide: Heat and utilities)"
 UTILITY_WORDS = ("utility", "utilities", "heat", "gas", "electric", "water")
 
-# --- Suman: the move-in calculator ---
+# --- The move-in calculator ---
 OK, CHECK, NOT_ALLOWED = "ok", "check", "not_allowed"
 
 # Which clauses go to the move-in check (analyzer.check_charges) and can be matched to a charge (report.py):

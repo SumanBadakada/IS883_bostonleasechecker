@@ -1,5 +1,5 @@
-# --- Suman: next steps and the downloadable report ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Next steps and the downloadable report ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 """Turn an AnalysisResult into things a tenant can act on. Plain code, no model calls: the wording is
 templated from the findings, so it costs nothing and cannot invent a new claim."""
 from __future__ import annotations
@@ -54,7 +54,7 @@ def per_charge_limit_note(monthly_rent: float) -> str:
             "deposit. No other fees except a new lock.")
 
 
-# --- Suman: landlord questions, the verdict and the downloadable report ---
+# --- Landlord questions, the verdict and the downloadable report ---
 @dataclass
 class NextStep:
     severity: str  # "high" | "medium"

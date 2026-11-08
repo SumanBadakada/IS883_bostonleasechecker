@@ -1,5 +1,5 @@
-# --- Suman: scoring: success metric and deterministic checks ---
-# AI-assisted: written with Claude Code in Suman's sessions (IS883 §9); sections by teammates are marked with their names.
+# --- Scoring: success metric and deterministic checks ---
+# AI-assisted: written with Claude Code (IS883 §9). Sections written by teammates are marked with their names.
 """Pure scoring functions (no API calls), so they can be unit-tested.
 
 Headline metric: recall on clauses labelled possibly_unlawful = of the clauses we labelled possibly
