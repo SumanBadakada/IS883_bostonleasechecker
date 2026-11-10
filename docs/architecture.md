@@ -22,7 +22,7 @@ flowchart TD
     WARN --> EMB
     subgraph RAG ["Capability 3, retrieval: leasecheck/retrieval.py"]
       LIB[("sources/*.md: 33 law passages<br/>c.186 §15B, 940 CMR 3.17, AG guide")] --> IDXB["CALL A: embed the library<br/>gemini-embedding-001, RETRIEVAL_DOCUMENT<br/>once per server; skipped if index.npz fingerprint matches"]
-      EMB["CALL B: embed every clause, requests of up to 100 clauses / 40,000 characters<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
+      EMB["CALL B: embed every clause not embedded before (server-wide cache),<br/>requests of up to 100 clauses / 40,000 characters<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
       IDXB --> SIM
     end
 
@@ -97,7 +97,7 @@ never switch models, because vectors from different models cannot be compared.
 | Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
 | Another state, commercial or parking lease, term over 5 years, end before start, unticked "check one" boxes | `parsing.load_document` warnings | A warning above the results; the analysis still runs |
 | Gemini's answer is not valid JSON | `analyzer._classify_with_retry` | One retry; then those clauses show "Could not be checked" |
-| Rate limit, overload, timeout, daily quota, bad key | `llm.GeminiLLM._with_retries` | "Waiting…" / "switching to…" notices; then an error if it still fails |
+| Rate limit, overload, timeout, daily quota, bad key | `llm.GeminiLLM._with_retries` | "Waiting…" / "switching to…" notices; then an error if it still fails, naming Google's limit (also logged) |
 | Gemini fails after some clauses were checked | `analyzer.analyze` | The checked clauses, plus which ones were missed |
 | The money step fails | `analyzer.analyze` | The clause review, with a note that money could not be checked |
 | The chat fails | `app.answer_question` | "Sorry, I could not answer that…" in the chat |
