@@ -66,7 +66,25 @@ def test_daily_quota_fails_fast(llm):
 
 def test_gives_up_after_repeated_rate_limits(llm):
     with pytest.raises(LLMError, match="rate limit"):
-        llm._with_retries(flaky(*[rate_limited("1s")] * 4))
+        llm._with_retries(flaky(*[rate_limited("1s")] * (llm_module.RATE_LIMIT_TRIES + 1)))
+
+
+def test_rate_limit_waits_outlast_a_one_minute_window(llm):
+    # Google often asks for only a few seconds; the per-minute limit needs longer, so we wait at least our own
+    # growing delay, and the waits before giving up add up to well over a minute.
+    assert llm._with_retries(flaky(*[rate_limited("2s")] * llm_module.RATE_LIMIT_TRIES)) == "ok"
+    assert llm.sleeps == [15.0, 30.0, 60.0, 60.0, 60.0]
+    assert sum(llm.sleeps) > 120
+
+
+def test_a_400_clause_lease_is_embedded_in_small_requests():
+    texts = ["x" * 600] * 400  # 400 clauses of about 150 tokens each
+    batches = llm_module.embed_batches(texts)
+    assert sum(len(b) for b in batches) == 400
+    assert all(sum(len(t) for t in b) <= llm_module.EMBED_MAX_CHARS for b in batches)
+    assert all(len(b) <= llm_module.EMBED_MAX_TEXTS for b in batches)
+    assert llm_module.embed_batches(["short"] * 250) == [["short"] * 100, ["short"] * 100, ["short"] * 50]
+    assert llm_module.embed_batches(["y" * 50_000]) == [["y" * 50_000]]  # one huge text still goes alone
 
 
 def test_timeout_retried_once_then_reported(llm):

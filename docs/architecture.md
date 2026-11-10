@@ -22,7 +22,7 @@ flowchart TD
     WARN --> EMB
     subgraph RAG ["Capability 3, retrieval: leasecheck/retrieval.py"]
       LIB[("sources/*.md: 33 law passages<br/>c.186 §15B, 940 CMR 3.17, AG guide")] --> IDXB["CALL A: embed the library<br/>gemini-embedding-001, RETRIEVAL_DOCUMENT<br/>once per server; skipped if index.npz fingerprint matches"]
-      EMB["CALL B: embed every clause, one request<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
+      EMB["CALL B: embed every clause, requests of up to 100 clauses / 40,000 characters<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
       IDXB --> SIM
     end
 
@@ -57,7 +57,7 @@ flowchart TD
     CHATE --> CHAT["CALL F: gemini-3.5-flash-lite<br/>prompt CHAT_SYSTEM with findings digest + passages<br/>+ last 10 messages"]
     CHAT --> UI
 
-    RETRIES[["Every call A-F goes through llm._with_retries:<br/>429 wait as told, max 60 s x3 · daily quota: stop<br/>503: 3 tries, then 3.1-flash-lite, 2.5-flash-lite, 2.5-flash<br/>timeout 90 s: 1 retry · other errors: stop"]]
+    RETRIES[["Every call A-F goes through llm._with_retries:<br/>429: wait 15, 30, 60, 60, 60 s (longer if Google asks) · daily quota: stop<br/>503: 3 tries, then 3.1-flash-lite, 2.5-flash-lite, 2.5-flash<br/>timeout 90 s: 1 retry · other errors: stop"]]
     RETRIES -. "fails on the first batch" .-> ERR["Error message: check could not finish"]
     RETRIES -. "fails on a later batch" .-> PARTIAL["Keep checked clauses, show which were missed"]
     RETRIES -. "fails on the money step" .-> CHGERR["Clause review shown; money not checked"]

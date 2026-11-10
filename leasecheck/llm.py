@@ -32,6 +32,21 @@ for _module_name in ("httpx", "httpx2"):
 TIMEOUT_ERRORS = tuple(_TIMEOUT_ERRORS)
 
 
+def embed_batches(texts: list[str]) -> list[list[str]]:
+    """[AI] Split texts into requests of at most EMBED_MAX_TEXTS texts and about EMBED_MAX_CHARS characters,
+    so a long lease (hundreds of clauses) is not sent as a few very large requests."""
+    batches, current, size = [], [], 0
+    for text in texts:
+        if current and (len(current) >= EMBED_MAX_TEXTS or size + len(text) > EMBED_MAX_CHARS):
+            batches.append(current)
+            current, size = [], 0
+        current.append(text)
+        size += len(text)
+    if current:
+        batches.append(current)
+    return batches
+
+
 class LLMError(Exception):
     """An API failure after retries. The message is safe to show to the user."""
 
@@ -39,6 +54,14 @@ class LLMError(Exception):
 REQUEST_TIMEOUT_MS = 90_000  # without a timeout a stuck request leaves the app waiting forever
 MAX_WAIT_SECONDS = 60
 OVERLOAD_TRIES_PER_MODEL = 3  # attempts on one model while Google reports it overloaded, before falling back
+# [AI] Free-tier limits are per minute, so the waits after a 429 must add up to more than a minute before we give
+# up: 15 + 30 + 60 + 60 + 60 seconds. (The old 4, 8, 16 s waits ran out after about 30 s, so a long lease failed.)
+RATE_LIMIT_TRIES = 5
+RATE_LIMIT_FIRST_WAIT = 15.0
+# [AI] One embedding request is kept small enough to fit in the free tier's per-minute token limit by itself;
+# about 4 characters per token, so 40,000 characters is roughly 10,000 tokens.
+EMBED_MAX_TEXTS = 100  # API batch limit
+EMBED_MAX_CHARS = 40_000
 
 
 def retry_delay_seconds(exc: Exception) -> float | None:
@@ -128,6 +151,7 @@ class GeminiLLM:
         models = models if models is not None else (self.model, *self.fallback_models)
         overloaded_tries, rate_limited_tries, timeouts = 0, 0, 0
         delay = 4.0
+        rate_delay = RATE_LIMIT_FIRST_WAIT
         i = 0
         while i < len(models):
             model = models[i]
@@ -145,9 +169,12 @@ class GeminiLLM:
                 if is_daily_quota(exc):
                     raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
                 rate_limited_tries += 1
-                if rate_limited_tries > 3:
+                if rate_limited_tries > RATE_LIMIT_TRIES:
                     raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again.") from exc
-                wait = min(retry_delay_seconds(exc) or delay, MAX_WAIT_SECONDS)
+                # Wait as long as Google asks, but never less than our own growing wait: Google's hint is often
+                # a few seconds, which is not enough when the per-minute limit is used up.
+                wait = min(max(retry_delay_seconds(exc) or 0, rate_delay), MAX_WAIT_SECONDS)
+                rate_delay = min(rate_delay * 2, MAX_WAIT_SECONDS)
                 self.on_wait(f"Free-tier rate limit reached, waiting {wait:.0f} seconds before continuing...")
             except errors.ServerError as exc:
                 overloaded_tries += 1
@@ -242,8 +269,7 @@ class GeminiLLM:
     def embed(self, texts: list[str], task_type: str) -> np.ndarray:
         """Embeddings, L2-normalised so a dot product is cosine similarity."""
         vectors = []
-        for start in range(0, len(texts), 100):  # API batch limit
-            batch = texts[start:start + 100]
+        for batch in embed_batches(texts):
             # Embeddings must all come from one model to be comparable, so no fallback here.
             response = self._with_retries(
                 lambda model: self.client.models.embed_content(
