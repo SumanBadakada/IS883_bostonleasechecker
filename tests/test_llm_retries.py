@@ -65,8 +65,9 @@ def test_daily_quota_fails_fast(llm):
 
 
 def test_gives_up_after_repeated_rate_limits(llm):
-    with pytest.raises(LLMError, match="rate limit"):
+    with pytest.raises(LLMError, match="rate limit") as err:
         llm._with_retries(flaky(*[rate_limited("1s")] * (llm_module.RATE_LIMIT_TRIES + 1)))
+    assert "GenerateRequestsPerMinutePerProjectPerModel-FreeTier" in str(err.value)  # which limit, for debugging
 
 
 def test_rate_limit_waits_outlast_a_one_minute_window(llm):

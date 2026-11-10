@@ -8,6 +8,7 @@ and (3) tests can swap in a fake with the same four methods.
 """
 from __future__ import annotations
 
+import logging
 import random
 import re
 import time
@@ -19,6 +20,8 @@ from google import genai
 from google.genai import errors, types
 
 from . import config
+
+log = logging.getLogger(__name__)  # shows in Streamlit Cloud under Manage app -> Logs
 
 # The HTTP library under google-genai raises its own timeout error: httpx in google-genai 2.x, httpx2 in 3.x.
 # Collect whichever is installed, so a library upgrade cannot crash every call (as 3.0.0 did when this file
@@ -68,6 +71,11 @@ def retry_delay_seconds(exc: Exception) -> float | None:
     """The wait Google asks for in a 429 response (RetryInfo retryDelay, e.g. "37s"), if any."""
     match = re.search(r"retryDelay['\"]?\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)s", str(getattr(exc, "details", "")))
     return float(match.group(1)) if match else None
+
+
+def quota_ids(exc: Exception) -> list[str]:
+    """[AI] Which Google limit a 429 hit (e.g. "EmbedContentRequestsPerMinutePerProjectPerModel-FreeTier")."""
+    return re.findall(r"quotaId['\"]?\s*[:=]\s*['\"]([\w-]+)", str(getattr(exc, "details", "")))
 
 
 def is_daily_quota(exc: Exception) -> bool:
@@ -169,8 +177,13 @@ class GeminiLLM:
                 if is_daily_quota(exc):
                     raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
                 rate_limited_tries += 1
+                limits = ", ".join(quota_ids(exc)) or "not stated"
+                # [AI] Logged so the exact limit can be read in the app's logs when a long lease fails.
+                log.warning("429 from %s, try %d, limit: %s, Google asked to wait: %s s",
+                            model, rate_limited_tries, limits, retry_delay_seconds(exc))
                 if rate_limited_tries > RATE_LIMIT_TRIES:
-                    raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again.") from exc
+                    raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again. "
+                                   f"(Google limit: {limits})") from exc
                 # Wait as long as Google asks, but never less than our own growing wait: Google's hint is often
                 # a few seconds, which is not enough when the per-minute limit is used up.
                 wait = min(max(retry_delay_seconds(exc) or 0, rate_delay), MAX_WAIT_SECONDS)
