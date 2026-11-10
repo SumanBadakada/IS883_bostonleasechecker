@@ -65,8 +65,9 @@ def test_daily_quota_fails_fast(llm):
 
 
 def test_gives_up_after_repeated_rate_limits(llm):
-    with pytest.raises(LLMError, match="rate limit"):
+    with pytest.raises(LLMError, match="rate limit") as err:
         llm._with_retries(flaky(*[rate_limited("1s")] * (llm_module.RATE_LIMIT_TRIES + 1)))
+    assert "GenerateRequestsPerMinutePerProjectPerModel-FreeTier" in str(err.value)  # which limit, for debugging
 
 
 def test_rate_limit_waits_outlast_a_one_minute_window(llm):
@@ -141,3 +142,57 @@ def test_thinking_config_matches_model_family(llm):
     assert llm._config("gemini-2.5-flash-lite", "s").thinking_config.thinking_budget == 0
     assert llm._config("gemini-3.1-flash-lite", "s").thinking_config.thinking_level is not None
     assert llm._config("gemini-3.5-flash-lite", "s").thinking_config.thinking_level is not None
+
+
+class FakeModels:
+    """Stands in for client.models: records what was embedded, or fails on a chosen request."""
+
+    def __init__(self, fail_on_call=None):
+        self.sent, self.fail_on_call = [], fail_on_call
+
+    def embed_content(self, model, contents, config):
+        self.sent.append(list(contents))
+        if len(self.sent) == self.fail_on_call:
+            raise errors.ClientError(400, {"error": {"code": 400, "status": "INVALID_ARGUMENT", "message": "x"}})
+        vec = lambda t: type("E", (), {"values": [float(len(t)), 1.0, 0.0]})()
+        return type("R", (), {"embeddings": [vec(t) for t in contents]})()
+
+
+@pytest.fixture
+def embedder(monkeypatch):
+    client = GeminiLLM("fake-key")
+    client.cache = llm_module.EmbeddingCache()
+    client.client = type("C", (), {})()
+    client.client.models = FakeModels()
+    return client
+
+
+def test_a_lease_checked_twice_is_embedded_once(embedder):
+    clauses = [f"clause {i}" for i in range(250)]
+    first = embedder.embed(clauses, "RETRIEVAL_QUERY")
+    second = embedder.embed(clauses, "RETRIEVAL_QUERY")
+    assert sum(len(b) for b in embedder.client.models.sent) == 250  # nothing re-sent the second time
+    assert (first == second).all() and first.shape == (250, 3)
+
+
+def test_repeated_clauses_are_sent_once_and_order_is_kept(embedder):
+    out = embedder.embed(["a", "bb", "a"], "RETRIEVAL_QUERY")
+    assert embedder.client.models.sent == [["a", "bb"]]
+    assert (out[0] == out[2]).all() and not (out[0] == out[1]).all()
+
+
+def test_after_a_failure_partway_the_retry_only_pays_for_the_rest(embedder):
+    clauses = [f"clause {i}" for i in range(250)]
+    embedder.client.models.fail_on_call = 2
+    with pytest.raises(LLMError):
+        embedder.embed(clauses, "RETRIEVAL_QUERY")
+    embedder.client.models = FakeModels()
+    embedder.embed(clauses, "RETRIEVAL_QUERY")
+    assert sum(len(b) for b in embedder.client.models.sent) == 150  # the first 100 were kept
+
+
+def test_the_cache_drops_its_oldest_entries():
+    cache = llm_module.EmbeddingCache(max_items=2)
+    for k in "abc":
+        cache.put(k, k)
+    assert len(cache) == 2 and cache.get("a") is None and cache.get("c") == "c"

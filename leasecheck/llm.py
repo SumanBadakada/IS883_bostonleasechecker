@@ -8,9 +8,13 @@ and (3) tests can swap in a fake with the same four methods.
 """
 from __future__ import annotations
 
+import hashlib
+import logging
+import threading
 import random
 import re
 import time
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -19,6 +23,8 @@ from google import genai
 from google.genai import errors, types
 
 from . import config
+
+log = logging.getLogger(__name__)  # shows in Streamlit Cloud under Manage app -> Logs
 
 # The HTTP library under google-genai raises its own timeout error: httpx in google-genai 2.x, httpx2 in 3.x.
 # Collect whichever is installed, so a library upgrade cannot crash every call (as 3.0.0 did when this file
@@ -47,6 +53,45 @@ def embed_batches(texts: list[str]) -> list[list[str]]:
     return batches
 
 
+class EmbeddingCache:
+    """[AI] Clause embeddings already paid for, kept for the life of the server process (shared by all sessions).
+
+    Google's free tier counts every embedded text against a daily quota, so a 400-clause lease costs about
+    400 of it. Without this, checking the same lease again (for example after a rate-limit failure partway
+    through) paid for every clause again. Keyed by model, task type and a hash of the text; the oldest
+    entries are dropped past `max_items` (3,072 floats each, so 4,000 entries is about 50 MB).
+    """
+
+    def __init__(self, max_items: int = 4000):
+        self.max_items = max_items
+        self._items: OrderedDict[str, np.ndarray] = OrderedDict()
+        self._lock = threading.Lock()  # Streamlit runs each session in its own thread
+
+    @staticmethod
+    def key(model: str, task_type: str, text: str) -> str:
+        return hashlib.sha256(f"{model}\n{task_type}\n{text}".encode()).hexdigest()
+
+    def get(self, key: str) -> np.ndarray | None:
+        with self._lock:
+            vector = self._items.get(key)
+            if vector is not None:
+                self._items.move_to_end(key)
+            return vector
+
+    def put(self, key: str, vector: np.ndarray) -> None:
+        with self._lock:
+            self._items[key] = vector
+            self._items.move_to_end(key)
+            while len(self._items) > self.max_items:
+                self._items.popitem(last=False)
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+
+EMBEDDING_CACHE = EmbeddingCache()
+
+
 class LLMError(Exception):
     """An API failure after retries. The message is safe to show to the user."""
 
@@ -68,6 +113,11 @@ def retry_delay_seconds(exc: Exception) -> float | None:
     """The wait Google asks for in a 429 response (RetryInfo retryDelay, e.g. "37s"), if any."""
     match = re.search(r"retryDelay['\"]?\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)s", str(getattr(exc, "details", "")))
     return float(match.group(1)) if match else None
+
+
+def quota_ids(exc: Exception) -> list[str]:
+    """[AI] Which Google limit a 429 hit (e.g. "EmbedContentRequestsPerMinutePerProjectPerModel-FreeTier")."""
+    return re.findall(r"quotaId['\"]?\s*[:=]\s*['\"]([\w-]+)", str(getattr(exc, "details", "")))
 
 
 def is_daily_quota(exc: Exception) -> bool:
@@ -122,6 +172,7 @@ class GeminiLLM:
         self.usage = Usage()
         # Called with a message whenever we pause before a retry, so the UI can say why it is waiting.
         self.on_wait: Callable[[str], None] = lambda message: None
+        self.cache = EMBEDDING_CACHE  # shared by every session on this server; tests give each client its own
 
     # ---------- shared plumbing ----------
 
@@ -169,8 +220,13 @@ class GeminiLLM:
                 if is_daily_quota(exc):
                     raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
                 rate_limited_tries += 1
+                limits = ", ".join(quota_ids(exc)) or "not stated"
+                # [AI] Logged so the exact limit can be read in the app's logs when a long lease fails.
+                log.warning("429 from %s, try %d, limit: %s, Google asked to wait: %s s",
+                            model, rate_limited_tries, limits, retry_delay_seconds(exc))
                 if rate_limited_tries > RATE_LIMIT_TRIES:
-                    raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again.") from exc
+                    raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again. "
+                                   f"(Google limit: {limits})") from exc
                 # Wait as long as Google asks, but never less than our own growing wait: Google's hint is often
                 # a few seconds, which is not enough when the per-minute limit is used up.
                 wait = min(max(retry_delay_seconds(exc) or 0, rate_delay), MAX_WAIT_SECONDS)
@@ -268,8 +324,14 @@ class GeminiLLM:
 
     def embed(self, texts: list[str], task_type: str) -> np.ndarray:
         """Embeddings, L2-normalised so a dot product is cosine similarity."""
-        vectors = []
-        for batch in embed_batches(texts):
+        if not texts:
+            return np.zeros((0, 0), dtype=np.float32)
+        keys = [EmbeddingCache.key(self.embed_model, task_type, t) for t in texts]
+        found = {k: v for k in set(keys) if (v := self.cache.get(k)) is not None}
+        # Only texts not embedded before are sent, each once. Each batch is cached as soon as it returns,
+        # so if a later batch fails, a second try does not pay for the earlier ones again.
+        missing = list(dict.fromkeys(t for t, k in zip(texts, keys) if k not in found))
+        for batch in embed_batches(missing):
             # Embeddings must all come from one model to be comparable, so no fallback here.
             response = self._with_retries(
                 lambda model: self.client.models.embed_content(
@@ -279,7 +341,10 @@ class GeminiLLM:
                 models=(self.embed_model,),
             )
             self.usage.calls += 1
-            vectors.extend(e.values for e in response.embeddings)
-        matrix = np.array(vectors, dtype=np.float32)
+            for text, embedding in zip(batch, response.embeddings):
+                key = EmbeddingCache.key(self.embed_model, task_type, text)
+                found[key] = np.asarray(embedding.values, dtype=np.float32)
+                self.cache.put(key, found[key])
+        matrix = np.array([found[k] for k in keys], dtype=np.float32).reshape(len(texts), -1)
         norms = np.linalg.norm(matrix, axis=1, keepdims=True)
         return matrix / np.where(norms == 0, 1, norms)
