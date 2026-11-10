@@ -36,8 +36,10 @@ CHAT_TOP_K = 4
 # Input limits (public app, free tier).
 MAX_FILE_MB = 5
 # Real leases with riders and addenda run long (one reached 86 clauses), so 80 rejected real uploads.
-# 150 clauses = 8 review requests; the per-session cap below still bounds the total cost.
-MAX_CLAUSES = 150
+# A lease of about 400 clauses has since been seen, so the limit is 500. 500 clauses = 25 review requests
+# (20 clauses each) plus 5 embedding requests, and can take several minutes on the free tier because of its
+# per-minute limits; the per-session cap below still bounds the total cost.
+MAX_CLAUSES = 500
 
 # Per-session usage cap (IS883 §3.2), held in st.session_state by app.py.
 MAX_ANALYSES_PER_SESSION = 3

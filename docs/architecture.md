@@ -13,7 +13,7 @@ flowchart TD
 
     subgraph PARSE ["Plain code, no AI: leasecheck/parsing.py + checkboxes.py"]
       X["Extract text<br/>PyMuPDF / python-docx, tick boxes put back"] --> CLEAN["Clean: tick boxes to [ticked] markers,<br/>page headers and footers removed"]
-      CLEAN --> REJ{"Empty, unsupported, damaged, scanned,<br/>spaces lost, not a lease, over 150 clauses?"}
+      CLEAN --> REJ{"Empty, unsupported, damaged, scanned,<br/>spaces lost, not a lease, over 500 clauses?"}
       REJ -- no --> SPLIT["Split into clauses<br/>numbers and ALL-CAPS headings"]
       SPLIT --> WARN["Warnings, analysis continues:<br/>other state, not residential,<br/>term over 5 years, end before start, unticked boxes"]
     end
@@ -94,7 +94,7 @@ never switch models, because vectors from different models cannot be compared.
 | What goes wrong | Where it is handled | What the user sees |
 | --- | --- | --- |
 | No checks left this session | `app.run_check` | "You have used all the lease checks for this session" |
-| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, over 150 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
+| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
 | Another state, commercial or parking lease, term over 5 years, end before start, unticked "check one" boxes | `parsing.load_document` warnings | A warning above the results; the analysis still runs |
 | Gemini's answer is not valid JSON | `analyzer._classify_with_retry` | One retry; then those clauses show "Could not be checked" |
 | Rate limit, overload, timeout, daily quota, bad key | `llm.GeminiLLM._with_retries` | "Waiting…" / "switching to…" notices; then an error if it still fails |
