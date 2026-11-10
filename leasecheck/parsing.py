@@ -30,7 +30,7 @@ class InputRejected(Exception):
 # and also "3.Rent" with no space (common in PDFs), but only when a capital letter follows, so that
 # "2-bedroom" or "2.5 months" is not read as a clause number.
 _LEADING_NUMBER = re.compile(
-    r"\s*(?:section|article|clause|§)?\s*(\d{1,2}(?:\.\d{1,2})*)\s*(?:[.):\-]\s|[.)](?=[\"“(]?[A-Z]))",
+    r"\s*(?:section|article|clause|§)?\s*(\d{1,3}(?:\.\d{1,2})*)\s*(?:[.):\-]\s|[.)](?=[\"“(]?[A-Z]))",
     re.IGNORECASE,
 )
 
@@ -385,7 +385,7 @@ def check_is_lease(text: str) -> None:
 # "(a)" is NOT a new clause (sub-item). Roman numerals still need a space, so "i.e." is not a clause.
 _NUMBERED = re.compile(
     r"^\s*(?:section|article|clause|§)?\s*"
-    r"(?:\d{1,2}(?:\.\d{1,2})*\s*(?:[.):\-]\s+\S|[.)](?=[\"“(]?[A-Z]))"
+    r"(?:\d{1,3}(?:\.\d{1,2})*\s*(?:[.):\-]\s+\S|[.)](?=[\"“(]?[A-Z]))"
     r"|[IVXL]{1,6}\s*[.):\-]\s+\S)",
     re.IGNORECASE,
 )
@@ -398,7 +398,7 @@ _LEAD_IN = re.compile(r"^\s*[A-Z][A-Z0-9 ,'&/()\-]{2,60}\.\s+\S")
 # --- Munkhzaya: finds clause numbers in the middle of a line ---
 # A clause number in the middle of a line: "...animal shelter. 2.No unauthorized parking...".
 # The lookbehinds reject "$50.00", "Unit 12." glued to a word, and "5.2." style sub-numbers.
-_INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,2})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
+_INLINE_NUMBER = re.compile(r"(?<![\w$,/])(?<!\d\.)(\d{1,3})\.(?!\d)\s*(?=[\"“(]?[A-Z])")
 _REFERENCE_WORDS = ("section", "article", "clause", "paragraph", "§")
 
 

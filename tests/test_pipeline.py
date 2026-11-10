@@ -193,7 +193,31 @@ def test_long_real_lease_is_accepted():
 
 
 def test_clause_limit_still_rejects_huge_documents():
-    paragraphs = [f"Paragraph {i}: Tenant shall keep the apartment clean and pay rent on time." for i in range(160)]
+    paragraphs = [f"Paragraph {i}: Tenant shall keep the apartment clean and pay rent on time." for i in range(520)]
     with pytest.raises(InputRejected) as exc:
         split_clauses("\n\n".join(paragraphs))
     assert exc.value.reason == "too_long"
+
+
+def test_a_400_clause_lease_is_accepted():
+    # A real lease of about 400 clauses was seen, which is why MAX_CLAUSES is 500.
+    paragraphs = [f"Paragraph {i}: Tenant shall keep the apartment clean and pay rent on time." for i in range(400)]
+    assert len(split_clauses("\n\n".join(paragraphs))) == 400
+
+
+def test_three_digit_clause_numbers_split():
+    # Long leases number past 99; clause numbers of up to three digits must start new clauses.
+    lines = ["RESIDENTIAL LEASE", "This lease is between Landlord and Tenant for the premises at 1 Main St, Boston."]
+    lines += [f"{i}. TERM {i}. Tenant shall pay rent on time, item {i}." for i in range(1, 121)]
+    clauses = split_clauses("\n".join(lines))
+    assert len(clauses) == 121 and clauses[-1].display_name == "Clause 120"
+
+
+def test_a_street_number_does_not_start_a_clause():
+    text = ("RESIDENTIAL LEASE\nThis lease is between Landlord and Tenant for an apartment in Boston.\n"
+            "1. PREMISES. The apartment is located at the address below and includes one parking space.\n"
+            "100 Main Street, Apt 2, Boston, MA 02134 is the address of the premises.\n"
+            "2. RENT. Tenant shall pay rent of $2,000 on the first day of each month.\n"
+            "3. TERM. The term of this lease is twelve months from September 1.\n")
+    clauses = split_clauses(text)
+    assert len(clauses) == 4 and "100 Main Street" in clauses[1].text
