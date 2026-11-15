@@ -11,6 +11,7 @@ exactly what users get.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
@@ -167,8 +168,26 @@ def _classify_with_retry(llm, system: str, task: str) -> Optional[BatchFindings]
     return parsed
 
 
+_DOLLAR_AMOUNT = re.compile(r"\$\s?\d")
+
+
+def charge_excerpts(clauses: list[Clause]) -> list[Clause]:
+    """[AI] The clauses sent to the move-in check: every clause that mentions money, in lease order. If they
+    add up to more than config.MAX_CHARGE_EXCERPT_CHARS (a very long lease packet), clauses that state a
+    dollar amount are kept first, then the others, until the limit is reached."""
+    money = [c for c in clauses if MONEY.search(c.text)]
+    if sum(len(c.text) for c in money) <= config.MAX_CHARGE_EXCERPT_CHARS:
+        return money
+    kept, size = set(), 0
+    for clause in sorted(money, key=lambda c: (not _DOLLAR_AMOUNT.search(c.text), c.clause_id)):
+        if size + len(clause.text) <= config.MAX_CHARGE_EXCERPT_CHARS:
+            kept.add(clause.clause_id)
+            size += len(clause.text)
+    return [c for c in money if c.clause_id in kept]
+
+
 def check_charges(llm, clauses: list[Clause]) -> ChargesResult:
-    excerpts = [c for c in clauses if MONEY.search(c.text)]
+    excerpts = charge_excerpts(clauses)
     if not excerpts:
         return ChargesResult("No move-in charges were found in this lease.", [])
     task = prompts.CHARGES_TASK.format(excerpts=prompts.format_clauses(excerpts))

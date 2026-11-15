@@ -13,16 +13,16 @@ flowchart TD
 
     subgraph PARSE ["Plain code, no AI: leasecheck/parsing.py + checkboxes.py"]
       X["Extract text<br/>PyMuPDF / python-docx, tick boxes put back"] --> CLEAN["Clean: tick boxes to [ticked] markers,<br/>page headers and footers removed"]
-      CLEAN --> REJ{"Empty, unsupported, damaged, scanned,<br/>spaces lost, not a lease, over 500 clauses?"}
+      CLEAN --> REJ{"Empty, unsupported, damaged, scanned,<br/>spaces lost, not a lease, another state's lease,<br/>over 500 clauses?"}
       REJ -- no --> SPLIT["Split into clauses<br/>numbers and ALL-CAPS headings"]
-      SPLIT --> WARN["Warnings, analysis continues:<br/>other state, not residential,<br/>term over 5 years, end before start, unticked boxes"]
+      SPLIT --> WARN["Warnings, analysis continues:<br/>another state also named or no state named, not residential,<br/>term over 5 years, end before start, unticked boxes"]
     end
     REJ -- yes --> REJMSG["Rejection message, check refunded,<br/>no Gemini call made"]
 
     WARN --> EMB
     subgraph RAG ["Capability 3, retrieval: leasecheck/retrieval.py"]
       LIB[("sources/*.md: 33 law passages<br/>c.186 §15B, 940 CMR 3.17, AG guide")] --> IDXB["CALL A: embed the library<br/>gemini-embedding-001, RETRIEVAL_DOCUMENT<br/>once per server; skipped if index.npz fingerprint matches"]
-      EMB["CALL B: embed every clause not embedded before (server-wide cache),<br/>requests of up to 100 clauses / 40,000 characters<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
+      EMB["CALL B: embed every clause not embedded before (server-wide cache),<br/>requests of up to 90 clauses / 40,000 characters,<br/>paced to 90 clauses a minute (free tier)<br/>gemini-embedding-001, RETRIEVAL_QUERY"] --> SIM["Cosine similarity = dot product of normalised vectors<br/>top 3 passages per clause"]
       IDXB --> SIM
     end
 
@@ -38,7 +38,7 @@ flowchart TD
 
     SPLIT --> MONEY
     subgraph TOOL ["Capability 2, tool calling: analyzer.check_charges, llm.run_with_tools, charges.py"]
-      MONEY["Clauses with $, deposit, fee,<br/>first or last month, lock"] --> TCALL["CALL D: gemini-3.5-flash-lite<br/>prompt CHARGES_SYSTEM + CHARGES_TASK<br/>tool declaration check_move_in_charges, up to 3 rounds"]
+      MONEY["Clauses with $, deposit, fee,<br/>first or last month, lock<br/>(max 120,000 characters, $ amounts first)"] --> TCALL["CALL D: gemini-3.5-flash-lite<br/>prompt CHARGES_SYSTEM + CHARGES_TASK<br/>tool declaration check_move_in_charges, up to 3 rounds"]
       TCALL -- "asks to call the tool" --> CALC["Python: check_move_in_charges<br/>c.186 §15B(1)(b) limits, broker and utility rules"]
       CALC -- "result sent back" --> TCALL
       TCALL -- "summary" --> CHG["Move-in verdicts + summary"]
@@ -94,8 +94,8 @@ never switch models, because vectors from different models cannot be compared.
 | What goes wrong | Where it is handled | What the user sees |
 | --- | --- | --- |
 | No checks left this session | `app.run_check` | "You have used all the lease checks for this session" |
-| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
-| Another state, commercial or parking lease, term over 5 years, end before start, unticked "check one" boxes | `parsing.load_document` warnings | A warning above the results; the analysis still runs |
+| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, clearly another state's lease (never names Massachusetts), over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
+| Another state named next to Massachusetts, no state named, commercial or parking lease, term over 5 years, end before start, unticked "check one" boxes | `parsing.load_document` warnings | A warning above the results; the analysis still runs |
 | Gemini's answer is not valid JSON | `analyzer._classify_with_retry` | One retry; then those clauses show "Could not be checked" |
 | Rate limit, overload, timeout, daily quota, bad key | `llm.GeminiLLM._with_retries` | "Waiting…" / "switching to…" notices; then an error if it still fails, naming Google's limit (also logged) |
 | Gemini fails after some clauses were checked | `analyzer.analyze` | The checked clauses, plus which ones were missed |

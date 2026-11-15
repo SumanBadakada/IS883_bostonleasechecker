@@ -221,3 +221,13 @@ def test_a_street_number_does_not_start_a_clause():
             "3. TERM. The term of this lease is twelve months from September 1.\n")
     clauses = split_clauses(text)
     assert len(clauses) == 4 and "100 Main Street" in clauses[1].text
+
+
+def test_the_move_in_check_keeps_dollar_amounts_first_in_a_very_long_lease(monkeypatch):
+    from leasecheck import analyzer, config
+    from leasecheck.parsing import Clause
+    clauses = [Clause(1, "FEES. Tenant pays a fee. " + "x" * 300), Clause(2, "RENT. Rent is $2,000 per month."),
+               Clause(3, "NOISE. Quiet after 10 pm."), Clause(4, "DEPOSIT. The deposit is $2,000.")]
+    assert [c.clause_id for c in analyzer.charge_excerpts(clauses)] == [1, 2, 4]  # normal lease: every money clause
+    monkeypatch.setattr(config, "MAX_CHARGE_EXCERPT_CHARS", 100)
+    assert [c.clause_id for c in analyzer.charge_excerpts(clauses)] == [2, 4]     # too long: amounts first
