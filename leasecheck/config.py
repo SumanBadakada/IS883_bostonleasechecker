@@ -41,6 +41,17 @@ MAX_FILE_MB = 5
 # per-minute limits; the per-session cap below still bounds the total cost.
 MAX_CLAUSES = 500
 
+# [AI] Long leases on the free tier. Google counts every embedded clause as one request against the embedding
+# model's per-minute limit (reported in the app's logs as EmbedContentRequestsPerMinute...-FreeTier), so a long
+# lease is embedded at a steady pace under that limit instead of being sent at once and refused. The free
+# tier's published limits were 100 requests and 30,000 tokens a minute when this was written (check AI Studio);
+# these stay a little under both (about 4 characters per token). 0 switches the pacing off (paid tier).
+EMBED_TEXTS_PER_MINUTE = 90
+EMBED_CHARS_PER_MINUTE = 100_000
+# The move-in check sends every clause that mentions money in ONE request. In a 500-clause lease packet that
+# was 183,000 characters; past this many, clauses that state a dollar amount are kept first.
+MAX_CHARGE_EXCERPT_CHARS = 120_000
+
 # Per-session usage cap (IS883 §3.2), held in st.session_state by app.py.
 MAX_ANALYSES_PER_SESSION = 3
 MAX_CHAT_MESSAGES_PER_SESSION = 15

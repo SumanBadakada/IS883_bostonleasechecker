@@ -196,3 +196,34 @@ def test_the_cache_drops_its_oldest_entries():
     for k in "abc":
         cache.put(k, k)
     assert len(cache) == 2 and cache.get("a") is None and cache.get("c") == "c"
+
+
+def test_a_long_lease_is_embedded_at_the_free_tier_pace(embedder, monkeypatch):
+    monkeypatch.setattr(llm_module.config, "EMBED_TEXTS_PER_MINUTE", 90)
+    sleeps = []
+    monkeypatch.setattr(llm_module.time, "sleep", sleeps.append)
+    monkeypatch.setattr(llm_module.time, "monotonic", lambda: 1000.0)  # no time passes except by waiting
+    embedder.messages = []
+    embedder.on_wait = embedder.messages.append
+    embedder.embed([f"clause {i}" for i in range(500)], "RETRIEVAL_QUERY")
+    sent = embedder.client.models.sent
+    assert sum(len(b) for b in sent) == 500 and max(len(b) for b in sent) <= 90
+    assert sleeps == [60.0, 120.0, 180.0, 240.0, 300.0]  # 90 clauses a minute: six requests, each a minute later
+    assert "90 of 500 clauses" in embedder.messages[0]
+
+
+def test_a_short_lease_is_not_paced(embedder, monkeypatch):
+    monkeypatch.setattr(llm_module.config, "EMBED_TEXTS_PER_MINUTE", 90)
+    sleeps = []
+    monkeypatch.setattr(llm_module.time, "sleep", sleeps.append)
+    embedder.embed([f"clause {i}" for i in range(60)], "RETRIEVAL_QUERY")
+    assert sleeps == []
+
+
+def test_pacing_counts_characters_and_forgets_after_a_minute(monkeypatch):
+    monkeypatch.setattr(llm_module.config, "EMBED_TEXTS_PER_MINUTE", 90)
+    monkeypatch.setattr(llm_module.config, "EMBED_CHARS_PER_MINUTE", 100_000)
+    assert llm_module.embed_wait_seconds(10, 40_000, now=0.0) == 0
+    assert llm_module.embed_wait_seconds(10, 40_000, now=1.0) == 0
+    assert llm_module.embed_wait_seconds(10, 40_000, now=2.0) == 58.0  # 120,000 characters would be too many
+    assert llm_module.embed_wait_seconds(10, 1_000, now=200.0) == 0     # a minute later the slate is clean

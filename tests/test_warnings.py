@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from leasecheck.parsing import load_document, residential_warning, term_warnings
+from leasecheck.parsing import InputRejected, check_state, load_document, other_state, residential_warning, state_warning, term_warnings
 
 ROOT = Path(__file__).resolve().parent.parent
 TEST_SET_V2 = ROOT / "eval" / "test_set_v2"
@@ -75,3 +75,37 @@ def test_every_sample_offered_in_the_app_exists():
     app = (ROOT / "app.py").read_text(encoding="utf-8")
     files = re.findall(r'\("(sample_[a-z_]+\.docx)"', app)
     assert len(files) == 5 and all((SAMPLES / f).exists() for f in files)
+
+
+# --- Which state the lease is for ---
+NJ_LEASE = ("APARTMENT LEASE CONTRACT\nThis lease is for the apartment at 5 Main St in Newark, New Jersey, 07102.\n"
+            "1. RENT. Tenant shall pay rent of $2,000 per month.\n"
+            "2. LAW. This lease is governed by the laws of New Jersey. New Jersey's Truth in Renting Act applies.\n"
+            "3. DEPOSIT. The security deposit is held as New Jersey law requires.")
+
+
+def test_a_lease_for_another_state_is_rejected_before_any_model_call():
+    assert other_state(NJ_LEASE) == "New Jersey"
+    with pytest.raises(InputRejected) as err:
+        check_state(NJ_LEASE)
+    assert err.value.reason == "other_state" and "New Jersey" in err.value.message
+
+
+@pytest.mark.parametrize("text", [
+    # Massachusetts is named, so another state's address (the landlord's office) only earns a warning
+    NJ_LEASE + "\n4. PREMISES. The apartment is at 9 Elm St, Boston, MA 02134.",
+    NJ_LEASE.replace("New Jersey", "Massachusetts"),
+    # names that are not the state: a street, a company's home state, a single passing mention
+    "LEASE. Apartment at 12 Washington Street. Washington Street parking. Mail to 3 Washington Street.",
+    "LEASE. Landlord is a Delaware limited liability company. Delaware. Delaware.",
+    "LEASE. Rent is paid to the office at 1 Main St, Austin, Texas 78701.",
+    "LEASE. Tenant shall pay rent of $2,000 per month.",
+])
+def test_only_a_clearly_out_of_state_lease_is_rejected(text):
+    assert other_state(text) is None
+
+
+def test_a_lease_naming_no_state_gets_a_cannot_confirm_warning():
+    assert "could not confirm" in state_warning("LEASE. Tenant shall pay rent of $2,000 per month.")
+    assert state_warning("Apartment at 9 Elm St, Boston, MA 02134.") is None
+    assert "also mentions New York" in state_warning("Apartment in Boston, MA 02134. Office: Brooklyn, NY 11201.")

@@ -14,7 +14,7 @@ import threading
 import random
 import re
 import time
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -41,9 +41,10 @@ TIMEOUT_ERRORS = tuple(_TIMEOUT_ERRORS)
 def embed_batches(texts: list[str]) -> list[list[str]]:
     """[AI] Split texts into requests of at most EMBED_MAX_TEXTS texts and about EMBED_MAX_CHARS characters,
     so a long lease (hundreds of clauses) is not sent as a few very large requests."""
+    max_texts = min(EMBED_MAX_TEXTS, config.EMBED_TEXTS_PER_MINUTE or EMBED_MAX_TEXTS)
     batches, current, size = [], [], 0
     for text in texts:
-        if current and (len(current) >= EMBED_MAX_TEXTS or size + len(text) > EMBED_MAX_CHARS):
+        if current and (len(current) >= max_texts or size + len(text) > EMBED_MAX_CHARS):
             batches.append(current)
             current, size = [], 0
         current.append(text)
@@ -107,6 +108,31 @@ RATE_LIMIT_FIRST_WAIT = 15.0
 # about 4 characters per token, so 40,000 characters is roughly 10,000 tokens.
 EMBED_MAX_TEXTS = 100  # API batch limit
 EMBED_MAX_CHARS = 40_000
+# [AI] What was embedded in the last minute, as (time, texts, characters). Shared by every session on this
+# server, because they all use the same API key and so the same per-minute limit.
+_EMBED_SENT: deque[tuple[float, int, int]] = deque()
+_EMBED_LOCK = threading.Lock()
+
+
+def embed_wait_seconds(texts: int, chars: int, now: float) -> float:
+    """[AI] How long to wait before embedding this many texts, so that the last 60 seconds stay within
+    config.EMBED_TEXTS_PER_MINUTE and EMBED_CHARS_PER_MINUTE. Records the request as sent after that wait."""
+    text_limit, char_limit = config.EMBED_TEXTS_PER_MINUTE, config.EMBED_CHARS_PER_MINUTE
+    if not text_limit:
+        return 0.0
+    with _EMBED_LOCK:
+        while _EMBED_SENT and now - _EMBED_SENT[0][0] >= 60:
+            _EMBED_SENT.popleft()
+        used_texts = sum(t for _, t, _ in _EMBED_SENT)
+        used_chars = sum(c for _, _, c in _EMBED_SENT)
+        wait = 0.0
+        for sent_at, t, c in _EMBED_SENT:  # oldest first: wait until enough of them are a minute old
+            if used_texts + texts <= text_limit and used_chars + chars <= char_limit:
+                break
+            used_texts, used_chars = used_texts - t, used_chars - c
+            wait = max(wait, 60 - (now - sent_at))
+        _EMBED_SENT.append((now + wait, texts, chars))
+    return wait
 
 
 def retry_delay_seconds(exc: Exception) -> float | None:
@@ -217,13 +243,14 @@ class GeminiLLM:
                     continue
                 if exc.code != 429:
                     raise LLMError(f"The model request was rejected ({exc.code} {exc.status}).") from exc
-                if is_daily_quota(exc):
-                    raise LLMError("This app has used its free daily quota. Please try again tomorrow.") from exc
                 rate_limited_tries += 1
                 limits = ", ".join(quota_ids(exc)) or "not stated"
                 # [AI] Logged so the exact limit can be read in the app's logs when a long lease fails.
                 log.warning("429 from %s, try %d, limit: %s, Google asked to wait: %s s",
                             model, rate_limited_tries, limits, retry_delay_seconds(exc))
+                if is_daily_quota(exc):
+                    raise LLMError("This app has used its free daily quota. Please try again tomorrow. "
+                                   f"(Google limit: {limits})") from exc
                 if rate_limited_tries > RATE_LIMIT_TRIES:
                     raise LLMError("The free-tier rate limit was reached. Please wait a minute and try again. "
                                    f"(Google limit: {limits})") from exc
@@ -331,7 +358,14 @@ class GeminiLLM:
         # Only texts not embedded before are sent, each once. Each batch is cached as soon as it returns,
         # so if a later batch fails, a second try does not pay for the earlier ones again.
         missing = list(dict.fromkeys(t for t, k in zip(texts, keys) if k not in found))
+        done = 0
         for batch in embed_batches(missing):
+            wait = embed_wait_seconds(len(batch), sum(len(t) for t in batch), time.monotonic())
+            if wait > 0:
+                self.on_wait(f"This is a long lease: {done} of {len(missing)} clauses matched to the law so far. "
+                             f"Pausing {wait:.0f} seconds to stay within the free tier's per-minute limit...")
+                time.sleep(wait)
+            done += len(batch)
             # Embeddings must all come from one model to be comparable, so no fallback here.
             response = self._with_retries(
                 lambda model: self.client.models.embed_content(

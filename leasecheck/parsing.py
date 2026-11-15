@@ -526,13 +526,54 @@ def states_named(text: str) -> set[str]:
     return found
 
 
+# [AI] Deciding which state a lease is for, before any model call. Three outcomes:
+#   - Massachusetts is named (the state's name, an "MA" + ZIP address, or an M.G.L. citation): checked as usual,
+#     with a warning if another state is named too (it may only be the landlord's office address).
+#   - Massachusetts is never named and another state clearly is: rejected, so a lease the app cannot judge does
+#     not spend the free quota (a 500-clause New Jersey lease packet did exactly that).
+#   - No state is named at all: checked, with a warning that the state could not be confirmed.
+# "Clearly" means the state's name appears OTHER_STATE_MIN_MENTIONS times or more AND at least once in a place
+# where it can only mean the state (states_named), so "Washington Street" or "a Delaware company" cannot reject.
+OTHER_STATE_MIN_MENTIONS = 3
+
+
+def state_mentions(text: str) -> dict[str, int]:
+    """How many times each state's full name appears, for the states that states_named() found."""
+    return {name: len(re.findall(rf"\b{re.escape(name)}\b", text)) for name in states_named(text)}
+
+
+def other_state(text: str) -> str | None:
+    """The other state this lease is clearly for, or None (Massachusetts is named, or the evidence is thin)."""
+    mentions = state_mentions(text)
+    if "Massachusetts" in mentions:
+        return None
+    clear = {name: n for name, n in mentions.items() if n >= OTHER_STATE_MIN_MENTIONS}
+    return max(clear, key=clear.get) if clear else None
+
+
+def check_state(text: str) -> None:
+    state = other_state(text)
+    if state:
+        raise InputRejected(
+            "other_state",
+            f"This looks like a {state} lease: it names {state} {state_mentions(text)[state]} times and never "
+            "mentions Massachusetts. This app only checks Massachusetts law, so its results would not apply. "
+            f"Look for a tenant-rights resource in {state} instead.",
+        )
+
+
 def state_warning(text: str) -> str | None:
-    """A warning when the lease names another state, or None for Massachusetts (or no state at all)."""
-    others = sorted(states_named(text) - {"Massachusetts"})
+    """A warning when the lease names another state or no state at all; None when it names only Massachusetts."""
+    named = states_named(text)
+    others = sorted(named - {"Massachusetts"})
+    if not named:
+        return ("We could not confirm that this lease is for a property in Massachusetts: it does not name a "
+                "state. This app checks against Massachusetts law only, so the results apply only if the "
+                "property is in Massachusetts.")
     if not others:
         return None
     names = " and ".join(others)
-    if "Massachusetts" in states_named(text):
+    if "Massachusetts" in named:
         return (f"This lease also mentions {names}. This app checks against Massachusetts law only, so make sure "
                 "the property is in Massachusetts and that the lease is governed by Massachusetts law.")
     return (f"This lease appears to be for a property in {names}, but this app only checks Massachusetts law. "
@@ -609,6 +650,7 @@ def load_document(data: bytes, filename: str) -> ParsedDocument:
     """The full deterministic front end: extract, check it is a lease, split, collect warnings."""
     text = extract_text(data, filename)
     check_is_lease(text)
+    check_state(text)
     clauses = split_clauses(text)
     if not clauses:
         raise InputRejected("empty", "We could not find any clauses in this document.")

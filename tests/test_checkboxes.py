@@ -126,6 +126,6 @@ def test_pdf_form_checkbox_states_are_read():
 
 def test_pdf_unticked_form_boxes_produce_a_document_warning():
     parsed = load_document(_pdf_with_checkboxes([False, False]), "lease.pdf")
-    assert parsed.warnings and "not ticked" in parsed.warnings[0]
+    assert any("not ticked" in w for w in parsed.warnings)
     utilities = next(c for c in parsed.clauses if "UTILITIES" in c.text)
     assert utilities.notes and NONE_TICKED in utilities.text
