@@ -52,7 +52,7 @@ middle of a sentence never starts a new clause, and a lease naming another state
 ```
 app.py                     Streamlit UI (theme in .streamlit/config.toml)
 samples/                   five fictional sample leases offered under "Try this sample"
-leasecheck/                parsing, retrieval, prompts, schemas, charges tool, Gemini client, pipeline
+leasecheck/                parsing, state detection, retrieval, prompts, schemas, charges tool, Gemini client, pipeline
 sources/                   legal source notes (see sources/README.md: must be verified)
 scripts/fetch_sources.py   downloads the official texts to check the notes against
 eval/                      clause bank, test-set builder, labelling guide, eval runner, metrics

@@ -11,7 +11,7 @@ flowchart TD
     CAP -- no --> CAPMSG["Message: no checks left"]
     CAP -- yes --> X
 
-    subgraph PARSE ["Plain code, no AI: leasecheck/parsing.py + checkboxes.py"]
+    subgraph PARSE ["Plain code, no AI: leasecheck/parsing.py + states.py + checkboxes.py"]
       X["Extract text<br/>PyMuPDF / python-docx, tick boxes put back"] --> CLEAN["Clean: tick boxes to [ticked] markers,<br/>page headers and footers removed"]
       CLEAN --> REJ{"Empty, unsupported, damaged, scanned,<br/>spaces lost, not a lease, another state's lease,<br/>over 500 clauses?"}
       REJ -- no --> SPLIT["Split into clauses<br/>numbers and ALL-CAPS headings"]
@@ -94,7 +94,7 @@ never switch models, because vectors from different models cannot be compared.
 | What goes wrong | Where it is handled | What the user sees |
 | --- | --- | --- |
 | No checks left this session | `app.run_check` | "You have used all the lease checks for this session" |
-| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, clearly another state's lease (never names Massachusetts), over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
+| Empty, unsupported, over 5 MB, damaged or password-protected, scanned, spaces lost, not a lease, clearly another state's lease (`states.state_verdict`: seven kinds of evidence weighed), over 500 clauses | `parsing.InputRejected`, caught in `app.run_check` | A message saying why; the check is refunded; no Gemini call |
 | Another state named next to Massachusetts, no state named, commercial or parking lease, term over 5 years, end before start, unticked "check one" boxes | `parsing.load_document` warnings | A warning above the results; the analysis still runs |
 | Gemini's answer is not valid JSON | `analyzer._classify_with_retry` | One retry; then those clauses show "Could not be checked" |
 | Rate limit, overload, timeout, daily quota, bad key | `llm.GeminiLLM._with_retries` | "Waiting…" / "switching to…" notices; then an error if it still fails, naming Google's limit (also logged) |
