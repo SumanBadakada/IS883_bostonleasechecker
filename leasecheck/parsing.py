@@ -14,6 +14,7 @@ from datetime import date
 
 from . import config
 from .checkboxes import clause_notes, resolve_boxes
+from .states import MA as MASSACHUSETTS, STATES, state_verdict  # noqa: F401
 
 
 class InputRejected(Exception):
@@ -493,89 +494,51 @@ def _merge_headings(blocks: list[str]) -> list[str]:
     return merged
 
 
-# [AI] the app only knows Massachusetts law. A lease for a property elsewhere would be
-# judged against the wrong rules, so we look for the state it names and warn when it is not Massachusetts.
-STATES = {
-    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado",
-    "CT": "Connecticut", "DE": "Delaware", "DC": "District of Columbia", "FL": "Florida", "GA": "Georgia",
-    "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
-    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts",
-    "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi", "MO": "Missouri", "MT": "Montana",
-    "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico",
-    "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
-    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota",
-    "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
-    "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
-}
-_STATE_NAMES = "|".join(sorted(map(re.escape, STATES.values()), key=len, reverse=True))
-# Only places where a name clearly means the state, so "Washington Street" or "Virginia Ave" never count:
-_STATE_MENTIONS = [
-    re.compile(rf"\b(?i:state|commonwealth) (?i:of) ({_STATE_NAMES})\b"),            # State of Texas
-    re.compile(rf"\b(?i:laws of (?:the )?(?:state of |commonwealth of )?)({_STATE_NAMES})\b"),  # laws of New York
-    re.compile(rf",\s*({_STATE_NAMES}),?\s+\d{{5}}\b"),                                 # Austin, Texas 78701
-    re.compile(rf"\b({_STATE_NAMES}) (?i:law|statutes?|general laws|revised statutes)\b"),  # Texas law
-]
-_STATE_CODE = re.compile(r",\s*([A-Z]{2})\.?\s+\d{5}(?:-\d{4})?\b")                     # Austin, TX 78701
-
-
+# [AI] Which state the lease is for. The evidence and how it is weighed are in states.py; here the verdict
+# becomes a rejection (another state clearly owns the lease), a warning, or nothing (Massachusetts only).
 def states_named(text: str) -> set[str]:
-    found = {m.group(1) for pattern in _STATE_MENTIONS for m in pattern.finditer(text)}
-    found |= {STATES[m.group(1)] for m in _STATE_CODE.finditer(text) if m.group(1) in STATES}
-    if re.search(r"\bM\.?G\.?L\.?\b|\bMassachusetts\b", text):
-        found.add("Massachusetts")
-    return found
-
-
-# [AI] Deciding which state a lease is for, before any model call. Three outcomes:
-#   - Massachusetts is named (the state's name, an "MA" + ZIP address, or an M.G.L. citation): checked as usual,
-#     with a warning if another state is named too (it may only be the landlord's office address).
-#   - Massachusetts is never named and another state clearly is: rejected, so a lease the app cannot judge does
-#     not spend the free quota (a 500-clause New Jersey lease packet did exactly that).
-#   - No state is named at all: checked, with a warning that the state could not be confirmed.
-# "Clearly" means the state's name appears OTHER_STATE_MIN_MENTIONS times or more AND at least once in a place
-# where it can only mean the state (states_named), so "Washington Street" or "a Delaware company" cannot reject.
-OTHER_STATE_MIN_MENTIONS = 3
-
-
-def state_mentions(text: str) -> dict[str, int]:
-    """How many times each state's full name appears, for the states that states_named() found."""
-    return {name: len(re.findall(rf"\b{re.escape(name)}\b", text)) for name in states_named(text)}
+    """The states the lease gives real evidence for (a lone city name does not count for another state)."""
+    verdict = state_verdict(text)
+    return set(verdict.others) | ({MASSACHUSETTS} if MASSACHUSETTS in verdict.evidence else set())
 
 
 def other_state(text: str) -> str | None:
-    """The other state this lease is clearly for, or None (Massachusetts is named, or the evidence is thin)."""
-    mentions = state_mentions(text)
-    if "Massachusetts" in mentions:
-        return None
-    clear = {name: n for name, n in mentions.items() if n >= OTHER_STATE_MIN_MENTIONS}
-    return max(clear, key=clear.get) if clear else None
+    """The other state this lease clearly belongs to, or None."""
+    verdict = state_verdict(text)
+    return verdict.state if verdict.status == "other" else None
 
 
 def check_state(text: str) -> None:
-    state = other_state(text)
-    if state:
-        raise InputRejected(
-            "other_state",
-            f"This looks like a {state} lease: it names {state} {state_mentions(text)[state]} times and never "
-            "mentions Massachusetts. This app only checks Massachusetts law, so its results would not apply. "
-            f"Look for a tenant-rights resource in {state} instead.",
-        )
+    verdict = state_verdict(text)
+    if verdict.status != "other":
+        return
+    state = verdict.state
+    raise InputRejected(
+        "other_state",
+        f"This looks like a {state} lease, not a Massachusetts one (we found: "
+        f"{verdict.evidence[state].describe()}). This app only checks Massachusetts law, so its results would "
+        f"not apply. Look for a tenant-rights resource in {state} instead.",
+    )
 
 
 def state_warning(text: str) -> str | None:
-    """A warning when the lease names another state or no state at all; None when it names only Massachusetts."""
-    named = states_named(text)
-    others = sorted(named - {"Massachusetts"})
-    if not named:
+    """A warning when another state has evidence too, or no state has any; None for Massachusetts alone."""
+    verdict = state_verdict(text)
+    if verdict.status == "massachusetts":
+        return None
+    if verdict.status == "unknown":
         return ("We could not confirm that this lease is for a property in Massachusetts: it does not name a "
                 "state. This app checks against Massachusetts law only, so the results apply only if the "
                 "property is in Massachusetts.")
-    if not others:
-        return None
-    names = " and ".join(others)
-    if "Massachusetts" in named:
-        return (f"This lease also mentions {names}. This app checks against Massachusetts law only, so make sure "
-                "the property is in Massachusetts and that the lease is governed by Massachusetts law.")
+    names = " and ".join(sorted(verdict.others))
+    if verdict.status == "mixed":
+        found = "; ".join(f"{s}: {verdict.evidence[s].describe()}" for s in sorted(verdict.others))
+        there = verdict.state if verdict.state != MASSACHUSETTS else None
+        located = (f" The apartment's address appears to be in {there}."
+                   if there and verdict.evidence[there].counts.get("premises") else "")
+        return (f"This lease also mentions {names} ({found}).{located} This app checks against Massachusetts law "
+                "only, so make sure the property is in Massachusetts and that the lease is governed by "
+                "Massachusetts law.")
     return (f"This lease appears to be for a property in {names}, but this app only checks Massachusetts law. "
             "The results below may not apply to your lease. Check with a tenant-rights resource in that state.")
 

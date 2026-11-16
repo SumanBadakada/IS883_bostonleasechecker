@@ -53,7 +53,8 @@ def test_repeated_sentence_in_the_body_is_kept():
 @pytest.mark.parametrize("text,expected", [
     ("Premises: 12 Main St, Austin, TX 78701. Governed by the laws of the State of Texas.", {"Texas"}),
     ("45 Washington Street, Boston, MA 02108. Governed by Massachusetts law.", {"Massachusetts"}),
-    ("Apartment at 9 Virginia Ave, Brighton. Parking on Washington Street.", set()),
+    ("Apartment at 9 Virginia Ave, Brighton. Parking on Washington Street.", {"Massachusetts"}),  # Brighton is a clue
+    ("Apartment at 9 Virginia Ave. Parking on Washington Street.", set()),
     ("100 Elm St, Boston, MA 02115. GOVERNED BY THE LAWS OF THE STATE OF New York.", {"Massachusetts", "New York"}),
 ])
 def test_states_named(text, expected):
